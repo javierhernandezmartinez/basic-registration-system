@@ -3,10 +3,11 @@ import { Document, Page, pdfjs} from "react-pdf";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 import "../styles/Pdf.css"
 import 'bootstrap/dist/css/bootstrap.min.css';
-import Embed from "react-embed";
-import {BsPencilSquare, BsTrashFill, BsCloudDownload, BsPlus, BsDash, BsDownload} from "react-icons/bs";
+import {BsPlus, BsDash, BsDownload} from "react-icons/bs";
 
-/*pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;*/
+/*
+pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
+*/
 pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
 export default class ViewPdf extends React.Component {

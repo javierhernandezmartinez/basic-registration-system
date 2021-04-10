@@ -1,2 +1,0 @@
-(this["webpackJsonpsystem-register-marquez"]=this["webpackJsonpsystem-register-marquez"]||[]).push([[11],{188:function(e,r,t){"use strict";t.r(r);var s=t(0);r.default=function(e){var r=e.id;return(0,e.renderWrap)(s.createElement("iframe",{src:"https://gfycat.com/ifr/"+r,width:"100%",height:"500px",frameBorder:"0",scrolling:"no",allowFullScreen:!0}))}}}]);
-//# sourceMappingURL=11.fc6a3ee8.chunk.js.map

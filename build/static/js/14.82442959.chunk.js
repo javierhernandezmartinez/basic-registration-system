@@ -1,2 +1,0 @@
-(this["webpackJsonpsystem-register-marquez"]=this["webpackJsonpsystem-register-marquez"]||[]).push([[14],{185:function(e,r,l){"use strict";l.r(r);var s=l(0);r.default=function(e){var r=e.id;return(0,e.renderWrap)(s.createElement("iframe",{height:"700px",width:"100%",frameBorder:"no",allowFullScreen:!0,src:"https://repl.it/"+r+"?lite=true",scrolling:"no",sandbox:"allow-forms allow-pointer-lock allow-popups allow-same-origin allow-scripts allow-modals"}))}}}]);
-//# sourceMappingURL=14.82442959.chunk.js.map
