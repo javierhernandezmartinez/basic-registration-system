@@ -17,6 +17,7 @@ export default class ViewPdf extends React.Component {
             numPages:null,
             pageNumber:null,
             pdf:this.props.pdf,
+            nameFile:this.props.namefile,
             zoomPdf:100
         }
     }
@@ -49,6 +50,9 @@ export default class ViewPdf extends React.Component {
             <div className={"row"} style={{width:"100%", height:"100%", margin:"0"}}>
                 <div className={"col-md-12"}>
                     <div className={"row header-pdf"}>
+                        <div className={"colo-md-6 name-file-pdf"}>
+                            <p>{this.state.nameFile}</p>
+                        </div>
                         <div className={"colo-md-1 num-page-pdf"}>Pages : {this.state.numPages}</div>
                         <div className={"col-md-3 zoom-page-pdf"}>
                             <button className={"button-header-pdf"} onClick={()=>{

@@ -19,6 +19,7 @@ export default class Home extends React.Component {
             numPages:null,
             pageNumber:1,
             files:null,
+            nameFile:null
         };
     }
 
@@ -30,7 +31,7 @@ export default class Home extends React.Component {
     }
 
     getFiles(files){
-        this.setState({ files: files[0].base64});
+        this.setState({ files: files[0].base64,nameFile:files[0].name});
     }
 
     TableFilter = ()=>{
@@ -260,7 +261,7 @@ export default class Home extends React.Component {
                     <Modal.Body>
                         <div className={"row"} style={{width:"100%", height:"100%", margin:"0"}}>
                             <div className={"col-md-12"}>
-                                <ViewPdf pdf={this.state.files}/>
+                                <ViewPdf pdf={this.state.files} namefile={this.state.nameFile}/>
                             </div>
                         </div>
 
