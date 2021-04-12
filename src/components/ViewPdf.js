@@ -3,6 +3,7 @@ import { Document, Page, pdfjs} from "react-pdf";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 import "../styles/Pdf.css"
 import 'bootstrap/dist/css/bootstrap.min.css';
+import '../styles/ModalRegister.css';
 import {BsPlus, BsDash, BsDownload} from "react-icons/bs";
 
 /*

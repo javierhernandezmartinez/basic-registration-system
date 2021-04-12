@@ -79,3 +79,9 @@
     height: 2em;
     color: #a7a7a7;
 }
+
+.icon-table-consultor:hover{
+    color: gray;
+    color: rgba(0,0,0,.7);
+    transition: .3s;
+}
