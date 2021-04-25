@@ -38,6 +38,8 @@ export default class FileBase64 extends React.Component {
 
                 // Make a fileInfo Object
                 let fileInfo = {
+                    id:e.target.id,
+                    className:e.target.className,
                     name: file.name,
                     type: file.type,
                     size: Math.round(file.size / 1000) + ' kB',
@@ -65,6 +67,7 @@ export default class FileBase64 extends React.Component {
         return (
             <input
                 id={this.props.id}
+                className={this.props.classname}
                 type="file"
                 onChange={ this.handleChange.bind(this) }
                  />

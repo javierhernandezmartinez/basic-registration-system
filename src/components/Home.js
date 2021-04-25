@@ -26,6 +26,7 @@ export default class Home extends React.Component {
 
             fileCert:null,
             nameCert:"Select to File",
+            cert_Selected:[],
 
             fileSelected_b64:null,
             nameFileSelected:null,
@@ -40,6 +41,17 @@ export default class Home extends React.Component {
         this.getData()
     }
 
+    resetState=()=>{
+        this.setState({
+            fileCV:null,
+            nameCV:"Select to File",
+            cert_Selected:[],
+            profesiones:[],
+            experiencias:[],
+            certificaciones:[]
+        })
+    }
+
     handleModalShowRegister=()=>{
         this.setState({showModalRegister:!this.state.showModalRegister})
     }
@@ -51,7 +63,49 @@ export default class Home extends React.Component {
         this.setState({fileCV: files[0].base64,nameCV:files[0].name});
     }
     getFileCert(files){
-        this.setState({fileCert: files[0].base64,nameCert:files[0].name});
+        let id = files[0].id
+        console.log(files, id)
+        /*this.setState({fileCert: files[0].base64,nameCert:files[0].name});*/
+        let selected = this.state.cert_Selected
+        /*console.log(selected, selected.length)*/
+
+            let ok = selected.find(list => list.id === id)
+            console.log(ok)
+            let num_id=id.split('')[5]
+
+            if (ok !== undefined){
+                console.log("si esta, update")
+                Object.keys(selected).forEach(
+                    (key)=>{
+                        if(selected[key].id == id){
+                            selected[key]={
+                                id:id,
+                                nombre:files[0].name,
+                                base64:files[0].base64
+                            }
+                            this.setState({cert_Selected:selected})
+                            console.log()
+
+                            if(document.getElementById(num_id+"L")){
+                                document.getElementById(num_id+"L").innerText=files[0].name
+                            }
+                        }
+                    }
+                )
+            }else {
+                console.log("no esta, add-push")
+                selected.push(
+                    {
+                        id:id,
+                        nombre:files[0].name,
+                        base64:files[0].base64
+                    }
+                )
+                this.setState({cert_Selected:selected})
+                if(document.getElementById(num_id+"L")){
+                    document.getElementById(num_id+"L").innerText=files[0].name
+                }
+        }
     }
 
     TableFilter = ()=>{
@@ -90,8 +144,6 @@ export default class Home extends React.Component {
     }
 
     addData=()=>{
-        let dataAddList=[]
-
         let nombre=document.getElementById("nomUser").value;
         let apellido1=document.getElementById("ap1User").value;
         let apellido2=document.getElementById("ap2User").value;
@@ -100,10 +152,12 @@ export default class Home extends React.Component {
         let cv=[];
         let certificacion=[];
 
-        console.log("Daatos sve")
-        console.log(nombre)
-        console.log(apellido1)
-        console.log(apellido2)
+       /* console.log("Daatos sve")
+        console.log("nombre: ",nombre)
+        console.log("app1: ",apellido1)
+        console.log("app2: ",apellido2)
+       /!* console.log("cvb64: ",this.state.fileCV)*!/
+        console.log("cvname: ",this.state.nameCV)*/
 
         let profesiones = this.state.profesiones;
         for (let i = 1; i <= profesiones.length; i ++){
@@ -112,7 +166,7 @@ export default class Home extends React.Component {
                 if(v !== ""){
                     profesion.push(v)
                 }
-                console.log(v)
+                /*console.log(v)*/
             }
         }
 
@@ -123,11 +177,40 @@ export default class Home extends React.Component {
                 if(v !== ""){
                     experiencia.push(v)
                 }
-                console.log(v)
+                /*console.log(v)*/
             }
         }
 
-        /*Axios.post("http://localhost:4000/users/insert",{
+        if (this.state.nameCV !== "Select to File"){
+            cv.push(
+                {
+                    nombre:this.state.nameCV,
+                    base64:this.state.fileCV
+                }
+            )
+        }
+        let cert_selected = this.state.cert_Selected
+       /* console.log(cert_selected)*/
+        for (let i = 0; i < cert_selected.length; i ++){
+            let num_id=cert_selected[i].id.split('')[5]
+            if(document.getElementById(num_id+"C")){
+                let v = document.getElementById(num_id+"C").value
+                if(v !== ""){
+                    certificacion.push(
+                        {
+                            nombre:v,
+                            base64:cert_selected[i].base64
+                        }
+                        )
+                }
+                /*console.log(v)*/
+            }
+        }
+        /*console.log("certifi: ", certificacion)*/
+
+        this.resetState()
+
+        Axios.post("http://localhost:4000/users/insert",{
             person:[{
                 nombre:nombre,
                 apellido1:apellido1,
@@ -135,28 +218,12 @@ export default class Home extends React.Component {
             }],
             profesion: profesion,
             experiencia: experiencia,
-            cv: [{
-                nombre:"cv-actual.pdf",
-                base64:"base64"
-            }],
-            certificacion: [
-                {
-                    nombre:"certificado1.pdf",
-                    base64:"base64"
-                },
-                {
-                    nombre:"certificado2.pdf",
-                    base64:"base64"
-                },
-                {
-                    nombre:"certificado3.pdf",
-                    base64:"base64"
-                }
-            ]
-        }).then( res => {
+            cv:cv,
+            certificacion:certificacion
+        } ).then( res => {
                 console.log("message",res)
                 this.getData()
-            })*/
+            })
     }
 
     updateData=(id_Data)=>{
@@ -234,11 +301,11 @@ export default class Home extends React.Component {
             {
                 id_prof:experiencia.length+1,
                 conteintProsefion:  <div style={{height:"30px"}}>
-                    <input type={'text' } id={experiencia.length+1+"E"} placeholder={`experiencia ${experiencia.length+1}`}className={'input_prof'}/>
-                    <FaRegTrashAlt id={experiencia.length+1} className={'icon_right'} onClick={(e)=>{
-                        this.deleteElementExperiencia(e.target.id)
-                    }}/>
-                </div>
+                                        <input type={'text' } id={experiencia.length+1+"E"} placeholder={`experiencia ${experiencia.length+1}`}className={'input_prof'}/>
+                                        <FaRegTrashAlt id={experiencia.length+1} className={'icon_right'} onClick={(e)=>{
+                                            this.deleteElementExperiencia(e.target.id)
+                                        }}/>
+                                    </div>
             }
         )
         this.setState({experiencias:experiencia})
@@ -262,18 +329,38 @@ export default class Home extends React.Component {
             {
                 id_prof:certificaciones.length+1,
                 conteintProsefion:  <div style={{height:"30px"}}>
-                                        <label htmlFor="files" className="btnFile">{this.state.nameCert}</label>
-                                        <FileBase64 id={"files"} multiple={true} onDone={this.getFileCert.bind(this)}/>
-                                        <input type={"text"} className={"input_descrip"} placeholder={"descripción"}/>
-                                        <BsEyeFill className={"icon_right"} onClick={
-                                            ()=>{
-                                                this.setState({
-                                                    fileSelected_b64:this.state.fileCert,
-                                                    nameFileSelected:this.state.nameCert
-                                                })
-                                                this.handleModalShowPdf()
+                    <label htmlFor={"files"+(certificaciones.length+1)} className="btnFile" ><div id={certificaciones.length+1+"L"}>{this.state.nameCert}</div></label>
+                                        <FileBase64 id={"files"+(certificaciones.length+1)} multiple={true} classname={"files"} onDone={(e)=>{this.getFileCert(e)}}/>
+                                        <input type={"text"} id={certificaciones.length+1+"C"} className={"input_descrip"} placeholder={"descripción"}/>
+                                        <BsEyeFill id={certificaciones.length+1} className={"icon_right"}  onClick={
+                                            (e)=>{
+                                                console.log(e)
+                                                let id = e.target.id
+                                                console.log("buscando id:c",id)
+                                                let selected =this.state.cert_Selected
+                                                Object.keys(selected).forEach(
+                                                    (key)=>{
+                                                        if(selected[key].id == id){
+                                                            console.log("si es")
+                                                            this.setState({
+                                                                fileSelected_b64:selected[key].base64,
+                                                                nameFileSelected:selected[key].nombre
+                                                            })
+                                                            this.handleModalShowPdf()
+                                                        }else {
+                                                            console.log("no es")
+                                                        }
+
+                                                    }
+                                                )
+
+
                                             }}
                                         />
+
+                                        <FaRegTrashAlt id={certificaciones.length+1} className={'icon_right'} onClick={(e)=>{
+                                            this.deleteElementCertificaciones(e.target.id)
+                                        }}/>
                                     </div>
             }
         )
@@ -290,6 +377,10 @@ export default class Home extends React.Component {
             }
         )
         this.setState({certificaciones:certificaciones})
+    }
+
+    separeData=(list)=>{
+        return String(list).split(",").map(item=>(<div>{item}</div>))
     }
 
     render() {
@@ -339,10 +430,12 @@ export default class Home extends React.Component {
                                             <td>{data.nombre}</td>
                                             <td>{data.persons_ap1}</td>
                                             <td>{data.persons_ap2}</td>
-                                            <td>{data.Profesions}</td>
-                                            <td>{data.Experiences}</td>
+                                            <td>{this.separeData(data.Profesions)}</td>
+                                            <td>{this.separeData(data.Experiences)}</td>
                                             <td>{data.CVs}</td>
-                                            <td>{data.Certifications}</td>
+                                            <td>{
+                                                this.separeData(data.Certifications)
+                                            }</td>
                                             <td>
                                                 <BsPencilSquare className={"icon-table-consultor"} onClick={()=>{this.updateData(data.persons_id)}}/>
                                             </td>
