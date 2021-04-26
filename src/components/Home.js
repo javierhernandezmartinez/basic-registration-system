@@ -15,6 +15,7 @@ export default class Home extends React.Component {
         super(props);
         this.state = {
             showModalRegister:false,
+            showModalUpdate:false,
             showModalViewPdf:false,
             data:data.registros,
             theand:["ID","NOMBRE","APELLIDO P.","APELLIDO M.","PROFESION","EXPERIENCIA","CV","CERTIFICACIONES"],
@@ -33,12 +34,20 @@ export default class Home extends React.Component {
 
             profesiones:[],
             experiencias:[],
-            certificaciones:[]
+            certificaciones:[],
+            user_selected:[],
+
+            typeAction:null,
+
+            actionViewCv:true
         };
     }
 
     componentDidMount() {
         this.getData()
+        this.addElementProfesion()
+        this.addElementExperiencia()
+        this.addElementCertificaciones()
     }
 
     resetState=()=>{
@@ -46,21 +55,66 @@ export default class Home extends React.Component {
             fileCV:null,
             nameCV:"Select to File",
             cert_Selected:[],
-            profesiones:[],
-            experiencias:[],
-            certificaciones:[]
+            profesiones:[
+                    {
+                    id_prof:1,
+                    conteintProsefion:  <div style={{height:"30px"}}>
+                                            <input type={'text' } id={1+"P"} placeholder={`profesión 1`} className={'input_prof'}/>
+                                            <FaRegTrashAlt id={1} className={'icon_right'} onClick={e => this.deleteElementProfesion(e.target.id)}/>
+                                        </div>
+                    }
+                ],
+            experiencias:[
+                    {
+                    id_prof:1,
+                    conteintProsefion:  <div style={{height:"30px"}}>
+                                            <input type={'text' } id={1+"E"} placeholder={`experiencia 1`} className={'input_prof'}/>
+                                            <FaRegTrashAlt id={1} className={'icon_right'} onClick={e => this.deleteElementExperiencia(e.target.id)}/>
+                                        </div>
+                    }
+                ],
+            certificaciones:[
+                    {
+                        id_prof:1,
+                        conteintProsefion:  <div style={{height:"30px"}}>
+                                                <label htmlFor={"files"+1} className="btnFile" ><div id={1+"L"}>{this.state.nameCert}</div></label>
+                                                <FileBase64 id={"files"+1} multiple={true} classname={"files"} onDone={ e => this.getFileCert(e)}/>
+                                                <input type={"text"} id={1+"C"} className={"input_descrip"} placeholder={"descripción"}/>
+                                                <BsEyeFill id={"files"+1} className={"icon_right"}  onClick={
+                                                    (e)=>{
+                                                        let id = e.target.id, selected = this.state.cert_Selected
+                                                        Object.keys(selected).forEach(
+                                                            (key)=>{
+                                                                if(selected[key].id == id){
+                                                                    this.setState({
+                                                                        fileSelected_b64:selected[key].base64,
+                                                                        nameFileSelected:selected[key].nombre
+                                                                    })
+                                                                    this.handleModalShowPdf()
+                                                                }
+                                                            }
+                                                        )
+                                                    }}
+                                                />
+                                                <FaRegTrashAlt id={1} className={'icon_right'} onClick={ e => this.deleteElementCertificaciones(e.target.id)}/>
+                                            </div>
+                    }
+                ]
         })
     }
 
     handleModalShowRegister=()=>{
         this.setState({showModalRegister:!this.state.showModalRegister})
     }
+    handleModalShowUpdate=()=>{
+        this.setState({showModalUpdate:!this.state.showModalUpdate})
+    }
     handleModalShowPdf=()=>{
         this.setState({showModalViewPdf:!this.state.showModalViewPdf})
     }
 
     getFilesCV(files){
-        this.setState({fileCV: files[0].base64,nameCV:files[0].name});
+        this.setState({fileCV: files[0].base64,nameCV:files[0].name, actionViewCv:false});
     }
     getFileCert(files){
         let id = files[0].id
@@ -143,7 +197,8 @@ export default class Home extends React.Component {
             })
     }
 
-    addData=()=>{
+    addData=(id)=>{
+        let id_person = id
         let nombre=document.getElementById("nomUser").value;
         let apellido1=document.getElementById("ap1User").value;
         let apellido2=document.getElementById("ap2User").value;
@@ -152,12 +207,13 @@ export default class Home extends React.Component {
         let cv=[];
         let certificacion=[];
 
-       /* console.log("Daatos sve")
+        console.log("Daatos sve")
+        console.log("id: ", id_person)
         console.log("nombre: ",nombre)
         console.log("app1: ",apellido1)
         console.log("app2: ",apellido2)
-       /!* console.log("cvb64: ",this.state.fileCV)*!/
-        console.log("cvname: ",this.state.nameCV)*/
+        console.log("cvb64: ",this.state.fileCV)
+        console.log("cvname: ",this.state.nameCV)
 
         let profesiones = this.state.profesiones;
         for (let i = 1; i <= profesiones.length; i ++){
@@ -166,7 +222,7 @@ export default class Home extends React.Component {
                 if(v !== ""){
                     profesion.push(v)
                 }
-                /*console.log(v)*/
+                console.log(v)
             }
         }
 
@@ -177,11 +233,11 @@ export default class Home extends React.Component {
                 if(v !== ""){
                     experiencia.push(v)
                 }
-                /*console.log(v)*/
+                console.log(v)
             }
         }
 
-        if (this.state.nameCV !== "Select to File"){
+        if (this.state.nameCV !== "Select to File" && this.state.fileCV !== null ){
             cv.push(
                 {
                     nombre:this.state.nameCV,
@@ -203,15 +259,24 @@ export default class Home extends React.Component {
                         }
                         )
                 }
-                /*console.log(v)*/
+                console.log(v)
             }
         }
         /*console.log("certifi: ", certificacion)*/
 
         this.resetState()
+        let Link_request = ""
+        if (this.state.typeAction === "update"){
+            console.log("bmos a actualisr dataaa")
+            Link_request = "http://localhost:4000/users/update"
+        }else {
+            console.log("bamos gregar un registro")
+            Link_request = "http://localhost:4000/users/insert"
+        }
 
-        Axios.post("http://localhost:4000/users/insert",{
+        Axios.post(Link_request,{
             person:[{
+                id:id_person,
                 nombre:nombre,
                 apellido1:apellido1,
                 apellido2:apellido2,
@@ -226,35 +291,8 @@ export default class Home extends React.Component {
             })
     }
 
-    updateData=(id_Data)=>{
-        let dataLis=this.state.data
-        Object.keys(dataLis).forEach(
-            function (key){
-                if(dataLis[key].id == id_Data){
-                    console.log(dataLis[key])
-                    dataLis[key]={
-                        "id": id_Data,
-                        "nombre": "nom1",
-                        "apellidoP": "apellidoP",
-                        "apellidoM": "apellidoM",
-                        "profesion": [
-                            "profesion1x",
-                            "profesion2x"
-                        ],
-                        "experiencia": [
-                            "experiencia1",
-                            "experiencia2"
-                        ],
-                        "cv": "cv.pdf",
-                        "certificacion": [
-                            "certificacion1",
-                            "certificacion2"
-                        ]
-                    }
-                }
-            }
-        )
-        this.setState({data:dataLis})
+    updateData=(data)=>{
+        console.log(data)
     }
 
     deleteData=(id_Data)=>{
@@ -267,13 +305,14 @@ export default class Home extends React.Component {
             })
     }
 
-    addElementProfesion=()=>{
+    addElementProfesion=(value)=>{
         let profesiones = this.state.profesiones;
+
         profesiones.push(
                 {
                     id_prof:profesiones.length+1,
                     conteintProsefion:  <div style={{height:"30px"}}>
-                                            <input type={'text' } id={profesiones.length+1+"P"} placeholder={`profesión ${profesiones.length+1}`} className={'input_prof'}/>
+                                            <input type={'text' } id={profesiones.length+1+"P"} placeholder={`profesión ${profesiones.length+1}`} className={'input_prof'} defaultValue={value}/>
                                             <FaRegTrashAlt id={profesiones.length+1} className={'icon_right'} onClick={(e)=>{
                                                 this.deleteElementProfesion(e.target.id)
                                             }}/>
@@ -288,20 +327,27 @@ export default class Home extends React.Component {
         Object.keys(profesiones).forEach(
             function (key){
                 if(profesiones[key].id_prof == id_Element){
+
                     delete profesiones[key]
                 }
             }
         )
         this.setState({profesiones:profesiones})
+
+        if (this.state.typeAction === "update"){
+            console.log("bmos a actualisr dataaa")
+        }else {
+            console.log("bamos gregar un registro")
+        }
     }
 
-    addElementExperiencia=()=>{
+    addElementExperiencia=(value)=>{
         let experiencia = this.state.experiencias;
         experiencia.push(
             {
                 id_prof:experiencia.length+1,
                 conteintProsefion:  <div style={{height:"30px"}}>
-                                        <input type={'text' } id={experiencia.length+1+"E"} placeholder={`experiencia ${experiencia.length+1}`}className={'input_prof'}/>
+                                        <input type={'text' } id={experiencia.length+1+"E"} placeholder={`experiencia ${experiencia.length+1}`} className={'input_prof'} defaultValue={value}/>
                                         <FaRegTrashAlt id={experiencia.length+1} className={'icon_right'} onClick={(e)=>{
                                             this.deleteElementExperiencia(e.target.id)
                                         }}/>
@@ -323,7 +369,7 @@ export default class Home extends React.Component {
         this.setState({experiencias:experiencia})
     }
 
-    addElementCertificaciones=()=>{
+    addElementCertificaciones=(value)=>{
         let certificaciones = this.state.certificaciones;
         certificaciones.push(
             {
@@ -331,8 +377,8 @@ export default class Home extends React.Component {
                 conteintProsefion:  <div style={{height:"30px"}}>
                     <label htmlFor={"files"+(certificaciones.length+1)} className="btnFile" ><div id={certificaciones.length+1+"L"}>{this.state.nameCert}</div></label>
                                         <FileBase64 id={"files"+(certificaciones.length+1)} multiple={true} classname={"files"} onDone={(e)=>{this.getFileCert(e)}}/>
-                                        <input type={"text"} id={certificaciones.length+1+"C"} className={"input_descrip"} placeholder={"descripción"}/>
-                                        <BsEyeFill id={certificaciones.length+1} className={"icon_right"}  onClick={
+                                        <input type={"text"} id={certificaciones.length+1+"C"} className={"input_descrip"} placeholder={"descripción"} defaultValue={value}/>
+                                        <BsEyeFill id={"files"+(certificaciones.length+1)} className={"icon_right"}  onClick={
                                             (e)=>{
                                                 console.log(e)
                                                 let id = e.target.id
@@ -368,7 +414,9 @@ export default class Home extends React.Component {
     }
 
     deleteElementCertificaciones=(id_Element)=>{
+        console.log(id_Element)
         let certificaciones = this.state.certificaciones;
+        console.log(certificaciones)
         Object.keys(certificaciones).forEach(
             function (key){
                 if(certificaciones[key].id_prof == id_Element){
@@ -381,6 +429,41 @@ export default class Home extends React.Component {
 
     separeData=(list)=>{
         return String(list).split(",").map(item=>(<div>{item}</div>))
+    }
+
+    getCV =(idUser,nomCv)=>{
+
+        if (this.state.actionViewCv === true){
+            Axios.post("http://localhost:4000/users/getCV",{
+                idUser:idUser,
+                nomCv:nomCv
+            } ).then( res => {
+                console.log("message",res)
+                if(res.status===200 && res.statusText === "OK"){
+                    let cv = res.data.data[0]
+                    console.log(cv)
+                    this.setState({
+                        fileSelected_b64:cv.base64_cv,
+                        nameFileSelected:cv.nombre_cv
+                    })
+                    this.handleModalShowPdf()
+                }
+
+            })
+
+        }else {
+            this.setState({
+                fileSelected_b64:this.state.fileCV,
+                nameFileSelected:this.state.nameCV
+            })
+            this.handleModalShowPdf()
+        }
+
+
+
+
+
+
     }
 
     render() {
@@ -437,7 +520,19 @@ export default class Home extends React.Component {
                                                 this.separeData(data.Certifications)
                                             }</td>
                                             <td>
-                                                <BsPencilSquare className={"icon-table-consultor"} onClick={()=>{this.updateData(data.persons_id)}}/>
+                                                <BsPencilSquare className={"icon-table-consultor"} onClick={
+                                                    ()=>{
+                                                        this.setState({typeAction:"update",user_selected:data, actionViewCv:true})
+                                                        if (data.CVs !== null){this.setState({nameCV:data.CVs})}
+                                                        this.deleteElementProfesion(1)
+                                                        this.deleteElementExperiencia(1)
+                                                        this.deleteElementCertificaciones(1)
+                                                        String(data.Profesions).split(",").map(item=> this.addElementProfesion(item,))
+                                                        String(data.Experiences).split(",").map(item=> this.addElementExperiencia(item,))
+                                                        String(data.Certifications).split(",").map(item=> this.addElementCertificaciones(item,))
+                                                        this.handleModalShowUpdate();
+                                                    }
+                                                }/>
                                             </td>
                                             <td>
                                                 <BsTrashFill className={"icon-table-consultor"} onClick={()=>{this.deleteData(data.persons_id)}}/>
@@ -454,7 +549,7 @@ export default class Home extends React.Component {
                     <div className={"col-md-2"}/>
                     <div className={"col-md-8"}>
                         <Button className={"button-register"}
-                            onClick={()=> this.handleModalShowRegister()}>
+                            onClick={()=> {this.setState({typeAction:"regisster",});this.handleModalShowRegister()}}>
                             <p>Nuevo registro</p>
                         </Button>
                     </div>
@@ -467,7 +562,7 @@ export default class Home extends React.Component {
                         dialogClassName={"dialog-modal-register"}
                         contentClassName={"content-modal-register"}
                 >
-                    <Modal.Header closeButton onClick={() => this.handleModalShowRegister()}>
+                    <Modal.Header closeButton onClick={() => {this.handleModalShowRegister();this.resetState()}}>
                         <Modal.Title>NEW REGISTER</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
@@ -525,6 +620,13 @@ export default class Home extends React.Component {
                                             this.handleModalShowPdf()
                                         }}
                                     />
+                                <FaRegTrashAlt className={'icon_right'} onClick={(e)=>{
+                                    this.setState({
+                                            fileCV: null,
+                                            nameCV: "Select to File"
+                                        }
+                                    )
+                                }}/>
                             </div>
 
                                 {/*<div className="col-md-6">
@@ -597,6 +699,110 @@ export default class Home extends React.Component {
                         </div>
                     </Modal.Body>
                     <Modal.Footer>
+                    </Modal.Footer>
+                </Modal>
+
+
+                <Modal  size="lg"
+                        aria-labelledby="contained-modal-title-vcenter"
+                        centered
+                        show={this.state.showModalUpdate}
+                        dialogClassName={"dialog-modal-register"}
+                        contentClassName={"content-modal-register"}
+                >
+                    <Modal.Header closeButton onClick={() => {this.handleModalShowUpdate();this.resetState()}}>
+                        <Modal.Title>UPDATE REGISTER</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <div className={"row"}>
+                            <div className={"col-md-4"}>
+                                <p>Nombre:</p>
+                                <input type={"text"} className={"input_nom"} id={"nomUser"} defaultValue={this.state.user_selected.nombre}/>
+                            </div>
+                            <div className={"col-md-4"}>
+                                <p>Apellido paterno:</p>
+                                <input type={"text"} className={"input_nom"} id={"ap1User"} defaultValue={this.state.user_selected.persons_ap1}/>
+                            </div>
+                            <div className={"col-md-4"}>
+                                <p>Apellido materno:</p>
+                                <input type={"text"} className={"input_nom"} id={"ap2User"} defaultValue={this.state.user_selected.persons_ap2}/>
+                            </div>
+                        </div>
+                        <div className={"row"}>
+                            <div className={"col-md-6"}>
+                                <div className={"row"}>
+                                    <div className={"col-md-12"}>
+                                        <p>Profesion:
+                                            <FaPlus className={"icon_right"} style={{float:"right"}} onClick={()=>{this.addElementProfesion()}}/>
+                                        </p>
+                                    </div>
+                                    <div className={"col-md-12"} id={"divProfesion"}>
+                                        { this.state.profesiones.map(res=>(res.conteintProsefion)) }
+                                    </div>
+                                </div>
+                            </div>
+                            <div className={"col-md-6"}>
+                                <div className={"row"}>
+                                    <div className={"col-md-12"}>
+                                        <p>Experiencia:
+                                            <FaPlus className={"icon_right"} style={{float:"right"}} onClick={()=>{this.addElementExperiencia()}}/>
+                                        </p>
+                                    </div>
+                                    <div className={"col-md-12"} id={"divExperencia"}>
+                                        { this.state.experiencias.map(res=>(res.conteintProsefion)) }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div className={"row"}>
+                            <div className={"col-md-6"}>
+                                <p>CV:</p>
+                                <label htmlFor="input_file" className="btnFileCV">{this.state.nameCV}</label>
+                                <FileBase64 id={"input_file"} multiple={true} onDone={this.getFilesCV.bind(this)}/>
+                                <BsEyeFill className={"icon_right"} onClick={
+                                    ()=>{
+
+
+                                        this.getCV(this.state.user_selected.persons_id,this.state.user_selected.CVs)
+
+
+                                    }}
+                                />
+                                <FaRegTrashAlt className={'icon_right'} onClick={(e)=>{
+                                    this.setState({
+                                        fileCV: null,
+                                        nameCV: "Select to File"
+                                    }
+                                    )
+                                }}/>
+                            </div>
+                            <div className={"col-md-6"}>
+                                <div className={"row"}>
+                                    <div className={"col-md-12"}>
+                                        <p>Certificaciones:
+                                            <FaPlus className={"icon_right"} style={{float:"right"}} onClick={()=>{this.addElementCertificaciones()}}/>
+                                        </p>
+                                    </div>
+                                    <div className={"col-md-12"} id={"divCertificacion"}>
+                                        { this.state.certificaciones.map(res=>(res.conteintProsefion)) }
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <div className={"row"}>
+                            <div className={"col-md-12"}>
+                                <Button onClick={()=>{
+                                    this.addData(this.state.user_selected.persons_id)
+                                    this.handleModalShowUpdate()
+                                }}>Guardar
+                                </Button>
+                            </div>
+                        </div>
                     </Modal.Footer>
                 </Modal>
 
