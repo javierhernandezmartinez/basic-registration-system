@@ -5,6 +5,7 @@ echo
 echo	INSTALANDO REQUERIMIENTOS
 echo
 read	-rsp $'Pulsa ENTER para iniciar... \n'
+start npm install --global yarn
 start yarn install
 echo
 echo	INSTALACION DE REQUERIMIENTOS COMPLETADA
