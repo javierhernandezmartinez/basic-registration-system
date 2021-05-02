@@ -19,10 +19,48 @@ export default class ViewPdf extends React.Component {
             pageNumber:null,
             pdf:this.props.pdf,
             nameFile:this.props.namefile,
-            zoomPdf:100
+            zoomPdf:100,
+            elementView:null
         }
     }
 
+
+    componentDidMount=()=> {
+        let pdf = this.props.pdf
+        let typeFile = pdf.substring(0,20)
+        console.log(typeFile)
+        let element = null
+
+        if(typeFile === "data:application/pdf"){
+            element = <Document
+                            id={"idPdf"}
+                            file={pdf}
+                            onLoadSuccess={this.onDocumentLoadSuccess}
+                        >
+                            {
+                                Array.from(new Array(this.state.numPages), (el, index) => (
+                                    <Page
+                                        key={`page_${index + 1}`}
+                                        pageNumber={index + 1}
+                                        scale={2}
+                                        onRenderSuccess={this.prit}
+                                    />
+                                ))}
+                        </Document>
+        }else{
+            let style = {
+                    margin:"auto",
+                    position:"relative",
+                    display:"grid",
+                    width:"70vw",
+                    height:"auto"
+                    }
+            element = <div><img src={pdf} alt={""} style={style}/></div>
+        }
+        this.setState({elementView:element})
+
+
+    }
     onDocumentLoadSuccess=({numPages} )=> {
         this.setState({numPages:numPages})
     }
@@ -74,23 +112,7 @@ export default class ViewPdf extends React.Component {
                 <div className={"col-md-1"}/>
                 <div className={"col-md-10"}>
                     <div style={{zoom:this.state.zoomPdf+"%"}}>
-                        <Document
-                            id={"idPdf"}
-                            file={this.state.pdf}
-                            onLoadSuccess={this.onDocumentLoadSuccess}
-
-                        >
-
-                            {
-                                Array.from(new Array(this.state.numPages), (el, index) => (
-                                    <Page
-                                        key={`page_${index + 1}`}
-                                        pageNumber={index + 1}
-                                        scale={2}
-                                        onRenderSuccess={this.prit}
-                                    />
-                                ))}
-                        </Document>
+                        {this.state.elementView}
                     </div>
 
                 </div>

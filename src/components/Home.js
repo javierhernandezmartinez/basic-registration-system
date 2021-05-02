@@ -7,7 +7,6 @@ import {BsPencilSquare, BsTrashFill,BsDashCircleFill,BsEyeFill,BsFillPlusCircleF
 import {FaPlus,FaRegTrashAlt,FaTrashAlt} from "react-icons/fa";
 import FileBase64 from "./react-file-base64";
 import ViewPdf from "./ViewPdf";
-import data  from "../assets/data.json"
 import Axios from "axios"
 
 export default class Home extends React.Component {
@@ -15,9 +14,10 @@ export default class Home extends React.Component {
         super(props);
         this.state = {
             showModalRegister:false,
+            showModalPresent:false,
             showModalUpdate:false,
             showModalViewPdf:false,
-            data:data.registros,
+            data:[],
             theand:["ID","NOMBRE","APELLIDO P.","APELLIDO M.","PROFESION","EXPERIENCIA","CV","CERTIFICACIONES"],
             numPages:null,
             pageNumber:1,
@@ -36,6 +36,7 @@ export default class Home extends React.Component {
             experiencias:[],
             certificaciones:[],
             user_selected:[],
+            user_selected2:[],
 
             typeAction:null,
 
@@ -78,7 +79,7 @@ export default class Home extends React.Component {
                         id_prof:1,
                         conteintProsefion:  <div style={{height:"30px"}}>
                                                 <label htmlFor={"files"+1} className="btnFile" ><div id={1+"L"}>{this.state.nameCert}</div></label>
-                                                <FileBase64 id={"files"+1} multiple={true} classname={"files"} onDone={ e => this.getFileCert(e)}/>
+                                                <FileBase64 id={"files"+1} multiple={true} classname={"files"} onDone={ e => this.selectFileCert(e)}/>
                                                 <input type={"text"} id={1+"C"} className={"input_descrip"} placeholder={"descripción"}/>
                                                 <BsEyeFill id={"files"+1} className={"icon_right"}  onClick={
                                                     (e)=>{
@@ -98,6 +99,53 @@ export default class Home extends React.Component {
                                                 />
                                                 <FaRegTrashAlt id={1} className={'icon_right'} onClick={ e => this.deleteElementCertificaciones(e.target.id)}/>
                                             </div>
+
+                        /*certificaciones.push(
+                            {   id_cert:id_certification,
+                                id_prof:certificaciones.length+1,
+                                conteintProsefion:  <div style={{height:"30px"}}>
+                                    <label htmlFor={"files"+1} className="btnFile" ><div id={1+"L"}>{nameCert}</div></label>
+                                    <FileBase64 id={"files"+1} multiple={true} classname={"files"} onDone={(e)=>{this.selectFileCert(e,id_certification)}}/>
+                                    <input type={"text"} id={1+"C"} className={"input_descrip"} placeholder={"descripción"} defaultValue={value}/>
+                                    <BsEyeFill id={"files"+1} className={"icon_right"}  onClick={
+                                        (e)=>{
+                                            let id = e.target.id
+                                            let selected =this.state.cert_Selected
+                                            let ok = selected.find(list => list.id === id)
+                                            console.log(ok)
+                                            if (ok !== undefined) {
+                                                console.log("si esta, update")
+                                                Object.keys(selected).forEach(
+                                                    (key)=>{
+                                                        if(selected[key].id == id){
+                                                            console.log("si es")
+                                                            this.setState({
+                                                                fileSelected_b64:selected[key].base64,
+                                                                nameFileSelected:selected[key].nombre
+                                                            })
+                                                            this.handleModalShowPdf()
+                                                        }else {
+                                                            console.log("no esta")
+                                                        }
+                                                    }
+                                                )
+                                            }else {
+                                                console.log("buscando en base de datos")
+                                                this.getFileCert(id_certification,value)
+                                            }
+                                        }}
+                                    />
+
+                                    <FaRegTrashAlt id={certificaciones.length+1+"-"+id_certification} className={'icon_right'} onClick={(e)=>{
+                                        this.deleteElementCertificaciones(e.target.id)
+                                    }}/>
+                                </div>
+                            }
+                        )*/
+
+
+
+
                     }
                 ]
         })
@@ -112,53 +160,56 @@ export default class Home extends React.Component {
     handleModalShowPdf=()=>{
         this.setState({showModalViewPdf:!this.state.showModalViewPdf})
     }
+    handleModalShowPresent=()=>{
+        this.setState({showModalPresent:!this.state.showModalPresent})
+    }
 
     getFilesCV(files){
         this.setState({fileCV: files[0].base64,nameCV:files[0].name, actionViewCv:false});
     }
-    getFileCert(files){
+    selectFileCert(files,id_certification){
         let id = files[0].id
         console.log(files, id)
-        /*this.setState({fileCert: files[0].base64,nameCert:files[0].name});*/
         let selected = this.state.cert_Selected
-        /*console.log(selected, selected.length)*/
 
-            let ok = selected.find(list => list.id === id)
-            console.log(ok)
-            let num_id=id.split('')[5]
+        let ok = selected.find(list => list.id === id)
+        console.log(ok)
+        let num_id=id.split('')[5]
 
-            if (ok !== undefined){
-                console.log("si esta, update")
-                Object.keys(selected).forEach(
-                    (key)=>{
-                        if(selected[key].id == id){
-                            selected[key]={
-                                id:id,
-                                nombre:files[0].name,
-                                base64:files[0].base64
-                            }
-                            this.setState({cert_Selected:selected})
-                            console.log()
+        if (ok !== undefined){
+            console.log("si esta, update")
+            Object.keys(selected).forEach(
+                (key)=>{
+                    if(selected[key].id == id){
+                        selected[key]={
+                            id_cert:id_certification,
+                            id:id,
+                            nombre:files[0].name,
+                            base64:files[0].base64
+                        }
+                        this.setState({cert_Selected:selected})
+                        console.log()
 
-                            if(document.getElementById(num_id+"L")){
-                                document.getElementById(num_id+"L").innerText=files[0].name
-                            }
+                        if(document.getElementById(num_id+"L")){
+                            document.getElementById(num_id+"L").innerText=files[0].name
                         }
                     }
-                )
-            }else {
-                console.log("no esta, add-push")
-                selected.push(
-                    {
-                        id:id,
-                        nombre:files[0].name,
-                        base64:files[0].base64
-                    }
-                )
-                this.setState({cert_Selected:selected})
-                if(document.getElementById(num_id+"L")){
-                    document.getElementById(num_id+"L").innerText=files[0].name
                 }
+            )
+        }else {
+            console.log("no esta, add-push")
+            selected.push(
+                {
+                    id_cert:id_certification,
+                    id:id,
+                    nombre:files[0].name,
+                    base64:files[0].base64
+                }
+            )
+            this.setState({cert_Selected:selected})
+            if(document.getElementById(num_id+"L")){
+                document.getElementById(num_id+"L").innerText=files[0].name
+            }
         }
     }
 
@@ -193,7 +244,53 @@ export default class Home extends React.Component {
         Axios.get("http://localhost:4000/users/getList")
             .then( res => {
                 console.log("listo",res.data.data)
-                this.setState({data:res.data.data})
+                let list = []
+
+                res.data.data.map(
+                    item => {
+                        let certtifi = []
+                        console.log("---",item.Certification)
+                        let cert=null
+                        if (item.Certification !== null){
+                            cert = item.Certification.split(",")
+                            console.log("___",cert.length)
+                            console.log("...",cert)
+
+                            for( let i=0; i < cert.length; i ++){
+                                let cer = cert[i].split("-")
+                                certtifi.push(
+                                    {
+                                        nombre: cer[0].split(":")[1],
+                                        id: cer[1].split(":")[1]
+                                    }
+                                    )
+                            }
+                        console.log(certtifi)
+
+
+                        }
+
+
+
+                        list.push(
+                            {
+                                CVs: item.CVs,
+                                Certification: certtifi,
+                                Experiences: item.Experiences,
+                                Profesions: item.Profesions,
+                                nombre: item.nombre,
+                                persons_ap1: item.persons_ap1,
+                                persons_ap2: item.persons_ap2,
+                                persons_id: item.persons_id
+
+                            }
+
+                    )
+
+                }
+                )
+                this.setState({data:list})
+                console.log(list)
             })
     }
 
@@ -212,7 +309,7 @@ export default class Home extends React.Component {
         console.log("nombre: ",nombre)
         console.log("app1: ",apellido1)
         console.log("app2: ",apellido2)
-        console.log("cvb64: ",this.state.fileCV)
+        /*console.log("cvb64: ",this.state.fileCV)*/
         console.log("cvname: ",this.state.nameCV)
 
         let profesiones = this.state.profesiones;
@@ -222,7 +319,7 @@ export default class Home extends React.Component {
                 if(v !== ""){
                     profesion.push(v)
                 }
-                console.log(v)
+                console.log("profesions: ",v)
             }
         }
 
@@ -233,7 +330,7 @@ export default class Home extends React.Component {
                 if(v !== ""){
                     experiencia.push(v)
                 }
-                console.log(v)
+                console.log("Experienci: ",v)
             }
         }
 
@@ -245,24 +342,58 @@ export default class Home extends React.Component {
                 }
             )
         }
-        let cert_selected = this.state.cert_Selected
-       /* console.log(cert_selected)*/
-        for (let i = 0; i < cert_selected.length; i ++){
-            let num_id=cert_selected[i].id.split('')[5]
-            if(document.getElementById(num_id+"C")){
-                let v = document.getElementById(num_id+"C").value
-                if(v !== ""){
-                    certificacion.push(
-                        {
-                            nombre:v,
-                            base64:cert_selected[i].base64
+
+            let cert_selected =this.state.cert_Selected
+            console.log("---x",cert_selected,"lengh:", cert_selected.length)
+            for (let i = 0; i < cert_selected.length; i ++){
+                let num_id=cert_selected[i].id.split('')[5]
+                if(document.getElementById(num_id+"C")){
+                    let v = document.getElementById(num_id+"C").value
+
+                    if(v !== ""){
+                        let ok = certificacion.find(list => list.nombre === v)
+                        if (ok === undefined){
+                            console.log("no esta, add-push")
+                            certificacion.push(
+                                {
+                                    id_certification:cert_selected[i].id_cert,
+                                    nombre:v,
+                                    base64:cert_selected[i].base64,
+                                }
+                            )
                         }
-                        )
+                    }
                 }
-                console.log(v)
             }
-        }
-        /*console.log("certifi: ", certificacion)*/
+
+            let cert_selected2 = this.state.certificaciones;
+            console.log("---x",cert_selected2,"lengh:", cert_selected2.length)
+
+            for (let i = 0; i < cert_selected2.length; i ++){
+                if (cert_selected2[i] !== undefined){
+                    let num_id=cert_selected2[i].id_prof
+                    if(document.getElementById(num_id+"C")){
+                        let v = document.getElementById(num_id+"C").value
+
+                        if(v !== ""){
+                            let ok = certificacion.find(list => list.nombre === v)
+                            if (ok === undefined){
+                                console.log("no esta, add-push")
+                                certificacion.push(
+                                    {
+                                        id_certification:cert_selected2[i].id_cert,
+                                        nombre:v,
+                                        base64:cert_selected2[i].base64,
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }else {}
+            }
+
+
+        console.log("certifi: ", certificacion)
 
         this.resetState()
         let Link_request = ""
@@ -291,10 +422,6 @@ export default class Home extends React.Component {
             })
     }
 
-    updateData=(data)=>{
-        console.log(data)
-    }
-
     deleteData=(id_Data)=>{
         console.log(id_Data)
         Axios.post("http://localhost:4000/users/delete", {
@@ -307,7 +434,6 @@ export default class Home extends React.Component {
 
     addElementProfesion=(value)=>{
         let profesiones = this.state.profesiones;
-
         profesiones.push(
                 {
                     id_prof:profesiones.length+1,
@@ -369,42 +495,52 @@ export default class Home extends React.Component {
         this.setState({experiencias:experiencia})
     }
 
-    addElementCertificaciones=(value)=>{
+    addElementCertificaciones=(value,id_certification)=>{
         let certificaciones = this.state.certificaciones;
+        console.log(value, id_certification)
+        let nameCert = this.state.nameCert
+
+        if(value !== undefined){
+           nameCert = value
+        }
+
         certificaciones.push(
-            {
+            {   id_cert:id_certification,
                 id_prof:certificaciones.length+1,
                 conteintProsefion:  <div style={{height:"30px"}}>
-                    <label htmlFor={"files"+(certificaciones.length+1)} className="btnFile" ><div id={certificaciones.length+1+"L"}>{this.state.nameCert}</div></label>
-                                        <FileBase64 id={"files"+(certificaciones.length+1)} multiple={true} classname={"files"} onDone={(e)=>{this.getFileCert(e)}}/>
+                                        <label htmlFor={"files"+(certificaciones.length+1)} className="btnFile" ><div id={certificaciones.length+1+"L"}>{nameCert}</div></label>
+                                        <FileBase64 id={"files"+(certificaciones.length+1)} multiple={true} classname={"files"} onDone={(e)=>{this.selectFileCert(e,id_certification)}}/>
                                         <input type={"text"} id={certificaciones.length+1+"C"} className={"input_descrip"} placeholder={"descripción"} defaultValue={value}/>
                                         <BsEyeFill id={"files"+(certificaciones.length+1)} className={"icon_right"}  onClick={
                                             (e)=>{
-                                                console.log(e)
                                                 let id = e.target.id
-                                                console.log("buscando id:c",id)
                                                 let selected =this.state.cert_Selected
-                                                Object.keys(selected).forEach(
-                                                    (key)=>{
-                                                        if(selected[key].id == id){
-                                                            console.log("si es")
-                                                            this.setState({
-                                                                fileSelected_b64:selected[key].base64,
-                                                                nameFileSelected:selected[key].nombre
-                                                            })
-                                                            this.handleModalShowPdf()
-                                                        }else {
-                                                            console.log("no es")
+                                                let ok = selected.find(list => list.id === id)
+                                                console.log(ok)
+                                                if (ok !== undefined) {
+                                                    console.log("si esta, update")
+                                                    Object.keys(selected).forEach(
+                                                        (key)=>{
+                                                            if(selected[key].id == id){
+                                                                console.log("si es")
+                                                                this.setState({
+                                                                    fileSelected_b64:selected[key].base64,
+                                                                    nameFileSelected:selected[key].nombre
+                                                                })
+                                                                this.handleModalShowPdf()
+                                                            }else {
+                                                                console.log("no esta")
+                                                            }
                                                         }
-
-                                                    }
-                                                )
-
-
+                                                    )
+                                                }else {
+                                                    console.log("buscando en base de datos")
+                                                    this.getFileCert(id_certification,value)
+                                                }
                                             }}
                                         />
 
-                                        <FaRegTrashAlt id={certificaciones.length+1} className={'icon_right'} onClick={(e)=>{
+                                        <FaRegTrashAlt id={certificaciones.length+1+"-"+id_certification} className={'icon_right'} onClick={(e)=>{
                                             this.deleteElementCertificaciones(e.target.id)
                                         }}/>
                                     </div>
@@ -414,29 +550,53 @@ export default class Home extends React.Component {
     }
 
     deleteElementCertificaciones=(id_Element)=>{
-        console.log(id_Element)
+        let id_element = String(id_Element).split("-")[0]
+        let id_certification = String(id_Element).split("-")[1]
+        console.log(id_element, id_certification)
         let certificaciones = this.state.certificaciones;
         console.log(certificaciones)
         Object.keys(certificaciones).forEach(
             function (key){
-                if(certificaciones[key].id_prof == id_Element){
+                if(certificaciones[key].id_prof == id_element){
                     delete certificaciones[key]
                 }
             }
         )
         this.setState({certificaciones:certificaciones})
+
+        if (this.state.typeAction === "update"){
+            console.log("bmos a eliminar un certificado: ", id_certification)
+            this.deleteCetificadoDatabase(id_certification)
+        }
+
+    }
+
+    deleteCetificadoDatabase=(id)=>{
+        Axios.post("http://localhost:4000/users/delete/certification",{
+                id:id
+        } ).then( res => {
+            console.log("message",res)
+            this.getData()
+        })
     }
 
     separeData=(list)=>{
-        return String(list).split(",").map(item=>(<div>{item}</div>))
+        console.log("--",list)
+        if (  list !== null){
+            if (typeof list === "string"){
+                return String(list).split(",").map(item=>(<div>{item}</div>))
+            }
+        else{
+                return list.map(item=>(<div>{item.nombre}</div>))
+            }
+        }
     }
 
-    getCV =(idUser,nomCv)=>{
-
+    getCV =(id,nomFile)=>{
         if (this.state.actionViewCv === true){
             Axios.post("http://localhost:4000/users/getCV",{
-                idUser:idUser,
-                nomCv:nomCv
+                idUser:id,
+                nomCv:nomFile
             } ).then( res => {
                 console.log("message",res)
                 if(res.status===200 && res.statusText === "OK"){
@@ -448,9 +608,7 @@ export default class Home extends React.Component {
                     })
                     this.handleModalShowPdf()
                 }
-
             })
-
         }else {
             this.setState({
                 fileSelected_b64:this.state.fileCV,
@@ -458,14 +616,60 @@ export default class Home extends React.Component {
             })
             this.handleModalShowPdf()
         }
+    }
 
+    getFileCert =(id,nomFile)=>{
 
+            console.log("ppp",id, nomFile)
+
+        /*if (typeof id === "object"){
+            this.setState({
+                fileSelected_b64:this.state.fileCV,
+                nameFileSelected:this.state.nameCV
+            })
+            this.handleModalShowPdf()
+        }
+        else{*/
+            Axios.post("http://localhost:4000/users/get/File/Certification",{
+            idCert:id,
+            nomFile:nomFile
+        } ).then( res => {
+            console.log("message",res)
+            if(res.status===200 && res.statusText === "OK"){
+                let cv = res.data.data[0]
+                console.log(cv)
+                this.setState({
+                    fileSelected_b64:cv.base64_cert,
+                    nameFileSelected:cv.nombre
+                })
+                this.handleModalShowPdf()
+            }
+        })
+
+       /* }*/
 
 
 
 
     }
 
+
+
+    separeCert=(list)=>{
+        console.log("--",list)
+        if (  list !== null){
+            if (typeof list === "string"){
+                return String(list).split(",").map(item=>(<div>{item}</div>))
+            }
+            else{
+                return list.map(item=>(<div>{item.nombre}</div>))
+            }
+        }
+    }
+    viewRegister=(data, Certification)=>{
+        this.setState({user_selected:data,user_selected2:Certification});
+        this.handleModalShowPresent();
+    }
     render() {
         return (
             <div className={"content"}>
@@ -509,16 +713,15 @@ export default class Home extends React.Component {
                                 this.state.data.map(
                                     data=>(
                                         <tr className={"table1-tr"}>
-                                            <td>{data.persons_id}</td>
-                                            <td>{data.nombre}</td>
-                                            <td>{data.persons_ap1}</td>
-                                            <td>{data.persons_ap2}</td>
-                                            <td>{this.separeData(data.Profesions)}</td>
-                                            <td>{this.separeData(data.Experiences)}</td>
-                                            <td>{data.CVs}</td>
-                                            <td>{
-                                                this.separeData(data.Certifications)
-                                            }</td>
+                                            <td  onClick={()=>this.viewRegister(data,data.Certification)}>{data.persons_id}</td>
+                                            <td  onClick={()=>this.viewRegister(data,data.Certification)}>{data.nombre}</td>
+                                            <td  onClick={()=>this.viewRegister(data,data.Certification)}>{data.persons_ap1}</td>
+                                            <td  onClick={()=>this.viewRegister(data,data.Certification)}>{data.persons_ap2}</td>
+                                            <td  onClick={()=>this.viewRegister(data,data.Certification)}>{this.separeData(data.Profesions)}</td>
+                                            <td  onClick={()=>this.viewRegister(data,data.Certification)}>{this.separeData(data.Experiences)}</td>
+                                            <td  onClick={()=>this.viewRegister(data,data.Certification)}>{data.CVs}</td>
+                                            <td  onClick={()=>this.viewRegister(data,data.Certification)}>{this.separeData(data.Certification)}</td>
+
                                             <td>
                                                 <BsPencilSquare className={"icon-table-consultor"} onClick={
                                                     ()=>{
@@ -527,9 +730,9 @@ export default class Home extends React.Component {
                                                         this.deleteElementProfesion(1)
                                                         this.deleteElementExperiencia(1)
                                                         this.deleteElementCertificaciones(1)
-                                                        String(data.Profesions).split(",").map(item=> this.addElementProfesion(item,))
-                                                        String(data.Experiences).split(",").map(item=> this.addElementExperiencia(item,))
-                                                        String(data.Certifications).split(",").map(item=> this.addElementCertificaciones(item,))
+                                                        String(data.Profesions).split(",").map(item=> this.addElementProfesion(item))
+                                                        String(data.Experiences).split(",").map(item=> this.addElementExperiencia(item))
+                                                        data.Certification.map(item=> this.addElementCertificaciones(item.nombre,item.id))
                                                         this.handleModalShowUpdate();
                                                     }
                                                 }/>
@@ -761,11 +964,7 @@ export default class Home extends React.Component {
                                 <FileBase64 id={"input_file"} multiple={true} onDone={this.getFilesCV.bind(this)}/>
                                 <BsEyeFill className={"icon_right"} onClick={
                                     ()=>{
-
-
                                         this.getCV(this.state.user_selected.persons_id,this.state.user_selected.CVs)
-
-
                                     }}
                                 />
                                 <FaRegTrashAlt className={'icon_right'} onClick={(e)=>{
@@ -804,6 +1003,65 @@ export default class Home extends React.Component {
                             </div>
                         </div>
                     </Modal.Footer>
+                </Modal>
+
+                <Modal size="lg"
+                       aria-labelledby="contained-modal-title-vcenter"
+                       centered
+                       show={this.state.showModalPresent}
+                >
+                    <Modal.Body>
+                        <div className={"row div-presentacion"}>
+                            <div className={"col-md-4 div-nombre-pres"}>
+                                <p>{this.state.user_selected.nombre}</p>
+                                <p>{this.state.user_selected.persons_ap1}</p>
+                                <p>{this.state.user_selected.persons_ap2}</p>
+                            </div>
+                            <div className={"col-md-8 div-general-skill"}>
+                                <div className={"row div-skill"}>
+                                    <div className={"col-md-12 div-prof-pres"}>
+                                        <h6>PROFESIONES</h6>
+                                        <ul>
+                                            {String(this.state.user_selected.Profesions).split(",").map(item=> <li>{item!=="null"?item:""}</li>)}
+                                        </ul>
+                                    </div>
+                                    <div className={"col-md-12 div-exp-pres"}>
+                                        <h6>EXPERIENCIAS</h6>
+                                    <ul>
+                                        {String(this.state.user_selected.Experiences).split(",").map(item=> <li>{item!=="null"?item:""}</li>)}
+                                    </ul>
+                                    </div>
+                                    <div className={"col-md-12 div-cert-pres"}>
+                                        <h6>CERTIFICACIONES</h6>
+                                        <ul>
+                                            {this.state.user_selected2.map(item=><li id={item.id} onClick={()=> {
+                                                    this.getFileCert(item.id,item.nombre)
+
+                                            }}>{item.nombre}</li>)}
+                                        </ul>
+                                    </div>
+                                    <div className={"col-md-12 div-cv-pres"}>
+                                        <div>
+                                            <label onClick={
+                                                ()=>{
+                                                    console.log("ppp",this.state.user_selected.CVs)
+                                                    if(this.state.user_selected.CVs !== null){
+                                                        this.getCV(this.state.user_selected.persons_id,this.state.user_selected.CVs)
+                                                    }
+
+                                                }}>{this.state.user_selected.CVs==null?"No existe CV":"CV : "+this.state.user_selected.CVs}</label>
+                                            <Button onClick={()=>this.handleModalShowPresent()}>Cerrar</Button>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+
+
+
+                        </div>
+                    </Modal.Body>
+
                 </Modal>
 
             </div>
