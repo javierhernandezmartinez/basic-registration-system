@@ -1,9 +1,10 @@
 const path = require('path');
 const {CleanWebpackPlugin} = require('clean-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const NodePolyfillPlugin = require("node-polyfill-webpack-plugin")
 
 module.exports = {
-    entry: './src/index.js',
+    entry: './app.js',
     output: {
         filename: "bundle.[hash].js",
         path: path.resolve(__dirname,'dist')
@@ -30,10 +31,13 @@ module.exports = {
         new HtmlWebpackPlugin({
             template:'./public/index.html',
         }),
+        new NodePolyfillPlugin(),
     ],
+    target: "node",
+    resolve: {
+        fallback: {
+            fs: false
+        }
+    }
 
 };
-/*"start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject",*/
