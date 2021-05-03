@@ -1,0 +1,207 @@
+.dialog-modal-register{
+
+}
+.content-modal-register{
+
+}
+.content-modal-register .modal-header{
+    color: white;
+    background: rgb(50, 54, 57);
+}
+.content-modal-register .modal-footer{
+    color: white;
+    background: rgb(50, 54, 57);
+}
+.content-modal-register .modal-body {
+    background: rgb(82, 86, 89);
+    color: white;
+}
+
+.content-modal-register .close{
+    color: white;
+}
+.content-modal-register .close:hover{
+    opacity: 1;
+    background: gray;
+    color: white;
+}
+.content-modal-register p{
+    margin-bottom: 0;
+    margin-top: 1rem;
+}
+
+.input_nom{
+    width: 100%;
+}
+
+.input_prof{
+    float: left;
+    width: 90% !important;
+}
+
+.icon_right {
+    width: 10%;
+    /*height: 30px;*/
+}
+.icon_right:hover{
+    color: gold;
+    transition: .3s;
+}
+
+.files {
+    width: 0% !important;
+    visibility:hidden;
+}
+#input_file{
+    width: 0% !important;
+    visibility:hidden;
+}
+
+.btnFileCV{
+    width: 80%;
+    height: 28px;
+    background: gold;
+    color: rgba(0,0,0,.6);
+    margin-bottom: 0;
+    padding: 2px 1px;
+    border-radius: 5px;
+}
+.btnFileCV:hover{
+    background: goldenrod;
+    transition: .3s;
+}
+
+.btnFile{
+    width: 40%;
+    height: 28px;
+    background: gold;
+    color: rgba(0,0,0,.6);
+    margin-right: 1%;
+    margin-bottom: 0;
+    padding: 1px 1px;
+    border-radius: 5px;
+    display: inline-grid;
+}
+.btnFile:hover{
+    background: goldenrod;
+    transition: .3s;
+}
+.btnFile div{
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.input_descrip{
+    width: 39%;
+}
+
+.btn{
+    color: white;
+}
+input{
+    border-radius: 5px;
+}
+select{
+    border-radius: 5px;
+}
+
+#divCertificacion{
+    min-width: 259px;
+}
+
+.div-presentacion{
+    margin: -17px;
+    border-radius: 5px;
+    height: 350px;
+}
+.div-presentacion p{
+}
+
+.div-nombre-pres{
+    border-right: black;
+    border-right-style: solid;
+    background: rgba(0,0,0,.1);
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    text-align: center;
+    display: grid;
+    align-content: center;
+    font-family: system-ui;
+    font-weight: 600;
+    font-size: large;
+}
+
+.div-general-skill{
+    background: rgba(0,0,0,.8);
+    display: grid;
+    align-content: center;
+    height: 100%;
+
+}
+.div-skill{
+    background: rgba(0,0,0,.2);
+    color: white;
+    text-align: center;
+    overflow: auto;
+    height: 235px;
+    border-color: rgba(255,255,255,.5) ;
+    border-style: solid ;
+    border-width: 1px 0 1px 0;
+    padding: 2%;
+    margin: auto;
+
+}
+.div-skill h6{
+    color: cadetblue;
+    font-family: system-ui;
+    text-align: justify;
+    margin-top: 2%;
+}
+.div-skill label{
+    margin-left: 1%;
+    margin-right: 1%;
+    color: lightblue;
+    font-family: system-ui;
+}
+.div-prof-pres{
+
+}
+.div-exp-pres{
+
+}
+.div-cert-pres li:hover{
+    color: gold;
+    cursor: pointer;
+    transition: .3s;
+}
+
+.div-cv-pres{
+    position: absolute;
+    bottom: 0;
+    text-align: right;
+    right: 1%;
+    padding: 10px;
+}
+.div-cv-pres label:hover{
+    color: gold;
+    cursor: pointer;
+    transition: .3s;
+}
+.div-cv-pres Button{
+    background: gold;
+    color:black !important;
+    right: 0;
+}
+.div-cv-pres Button:hover{
+    background: goldenrod;
+}
+
+
+ul {
+    list-style-type: none;
+}
+
+li {
+    float: left;
+    margin-right: 10px;
+}
