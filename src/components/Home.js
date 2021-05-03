@@ -40,7 +40,7 @@ export default class Home extends React.Component {
 
             typeAction:null,
 
-            actionViewCv:true
+            actionViewCv:true,
         };
     }
 
@@ -160,6 +160,7 @@ export default class Home extends React.Component {
     handleModalShowPdf=()=>{
         this.setState({showModalViewPdf:!this.state.showModalViewPdf})
     }
+
     handleModalShowPresent=()=>{
         this.setState({showModalPresent:!this.state.showModalPresent})
     }
@@ -167,6 +168,7 @@ export default class Home extends React.Component {
     getFilesCV(files){
         this.setState({fileCV: files[0].base64,nameCV:files[0].name, actionViewCv:false});
     }
+
     selectFileCert(files,id_certification){
         let id = files[0].id
         console.log(files, id)
@@ -539,7 +541,6 @@ export default class Home extends React.Component {
                                                 }
                                             }}
                                         />
-
                                         <FaRegTrashAlt id={certificaciones.length+1+"-"+id_certification} className={'icon_right'} onClick={(e)=>{
                                             this.deleteElementCertificaciones(e.target.id)
                                         }}/>
@@ -619,17 +620,6 @@ export default class Home extends React.Component {
     }
 
     getFileCert =(id,nomFile)=>{
-
-            console.log("ppp",id, nomFile)
-
-        /*if (typeof id === "object"){
-            this.setState({
-                fileSelected_b64:this.state.fileCV,
-                nameFileSelected:this.state.nameCV
-            })
-            this.handleModalShowPdf()
-        }
-        else{*/
             Axios.post("http://localhost:4000/users/get/File/Certification",{
             idCert:id,
             nomFile:nomFile
@@ -645,15 +635,7 @@ export default class Home extends React.Component {
                 this.handleModalShowPdf()
             }
         })
-
-       /* }*/
-
-
-
-
     }
-
-
 
     separeCert=(list)=>{
         console.log("--",list)
@@ -666,10 +648,12 @@ export default class Home extends React.Component {
             }
         }
     }
+
     viewRegister=(data, Certification)=>{
         this.setState({user_selected:data,user_selected2:Certification});
         this.handleModalShowPresent();
     }
+
     render() {
         return (
             <div className={"content"}>
@@ -897,14 +881,13 @@ export default class Home extends React.Component {
                     <Modal.Body>
                         <div className={"row"} style={{width:"100%", height:"100%", margin:"0"}}>
                             <div className={"col-md-12"}>
-                                <ViewPdf pdf={this.state.fileSelected_b64} namefile={this.state.nameFileSelected}/>
+                                <ViewPdf pdf={this.state.fileSelected_b64} namefile={this.state.nameFileSelected} funtionClose={this.handleModalShowPdf}/>
                             </div>
                         </div>
                     </Modal.Body>
                     <Modal.Footer>
                     </Modal.Footer>
                 </Modal>
-
 
                 <Modal  size="lg"
                         aria-labelledby="contained-modal-title-vcenter"
@@ -1061,9 +1044,7 @@ export default class Home extends React.Component {
 
                         </div>
                     </Modal.Body>
-
                 </Modal>
-
             </div>
 
     )
