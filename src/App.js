@@ -7,15 +7,16 @@ function App() {
 
   return (
       <HashRouter>
-          {
-              <div id="App">
-                  <Switch>
-                      <Route path="/" exact to="/" component={Home} />
-                  </Switch>
-              </div>
-          }
+        {
+          <div id="App">
+            <Switch>
+              <Route path="/" exact to="/" component={Home} />
+            </Switch>
+          </div>
+        }
       </HashRouter>
   );
 }
 
 export default App;
+

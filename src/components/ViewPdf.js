@@ -24,43 +24,9 @@ export default class ViewPdf extends React.Component {
         }
     }
 
-
     componentDidMount=()=> {
-        let pdf = this.props.pdf
-        let typeFile = pdf.substring(0,20)
-        console.log(typeFile)
-        let element = null
-
-        if(typeFile === "data:application/pdf"){
-            element = <Document
-                            id={"idPdf"}
-                            file={pdf}
-                            onLoadSuccess={this.onDocumentLoadSuccess}
-                        >
-                            {
-                                Array.from(new Array(this.state.numPages), (el, index) => (
-                                    <Page
-                                        key={`page_${index + 1}`}
-                                        pageNumber={index + 1}
-                                        scale={2}
-                                        onRenderSuccess={this.prit}
-                                    />
-                                ))}
-                        </Document>
-        }else{
-            let style = {
-                    margin:"auto",
-                    position:"relative",
-                    display:"grid",
-                    width:"70vw",
-                    height:"auto"
-                    }
-            element = <div><img src={pdf} alt={""} style={style}/></div>
-        }
-        this.setState({elementView:element})
-
-
     }
+
     onDocumentLoadSuccess=({numPages} )=> {
         this.setState({numPages:numPages})
     }
@@ -85,41 +51,105 @@ export default class ViewPdf extends React.Component {
     }
 
     render() {
-        return(
-            <div className={"row"} style={{width:"100%", height:"100%", margin:"0"}}>
-                <div className={"col-md-12"}>
-                    <div className={"row header-pdf"}>
-                        <div className={"colo-md-6 name-file-pdf"}>
-                            <p>{this.state.nameFile}</p>
-                        </div>
-                        <div className={"colo-md-1 num-page-pdf"}>Pages : {this.state.numPages}</div>
-                        <div className={"col-md-3 zoom-page-pdf"}>
-                            <button className={"button-header-pdf"} onClick={()=>{
-                                this.zoomDown();
-                               /* document.getElementById("zpdf").value=this.state.zoomPdf+"%"*/
-                            }
-                            }><BsDash/></button>
-                            <label className={"label-zoom-pdf"}>{this.state.zoomPdf}%</label>
-                            {/*<input type={"text"} id={"zpdf"} value={this.state.zoomPdf+"%"}/>*/}
-                            <button className={"button-header-pdf"} onClick={this.zoomUp}><BsPlus/></button>
-                        </div>
-                        <div className={"col-md-1 down-page-pdf"}>
-                            <button className={"button-header-pdf"} onClick={this.zoomUp}><BsDownload/></button>
+        let pdf = this.props.pdf
+        let typeFile = pdf.substring(0,20)
+
+        if(typeFile === "data:application/pdf"){
+            return(
+                <div className={"row"} style={{width:"100%", height:"100%", margin:"0"}}>
+                    <div className={"col-md-12"}>
+                        <div className={"row header-pdf"}>
+                            <div className={"colo-md-6 name-file-pdf"}>
+                                <p>{this.state.nameFile}</p>
+                            </div>
+                            <div className={"colo-md-1 num-page-pdf"}>Pages : {this.state.numPages}</div>
+                            <div className={"col-md-3 zoom-page-pdf"}>
+                                <button className={"button-header-pdf"} onClick={()=>{
+                                    this.zoomDown();
+                                    /* document.getElementById("zpdf").value=this.state.zoomPdf+"%"*/
+                                }
+                                }><BsDash/></button>
+                                <label className={"label-zoom-pdf"}>{this.state.zoomPdf}%</label>
+                                {/*<input type={"text"} id={"zpdf"} value={this.state.zoomPdf+"%"}/>*/}
+                                <button className={"button-header-pdf"} onClick={this.zoomUp}><BsPlus/></button>
+                            </div>
+                            <div className={"col-md-1 down-page-pdf"}>
+                                <button className={"button-header-pdf"} onClick={this.zoomUp}><BsDownload/></button>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <div className={"col-md-1"}/>
-                <div className={"col-md-10"}>
-                    <div style={{zoom:this.state.zoomPdf+"%"}}>
-                        {this.state.elementView}
+                    <div className={"col-md-1"}/>
+                    <div className={"col-md-10"}>
+                        <div style={{zoom:this.state.zoomPdf+"%"}}>
+                            {this.state.elementView}
+                            <Document
+                                id={"idPdf"}
+                                file={this.state.pdf}
+                                onLoadSuccess={this.onDocumentLoadSuccess}
+                            >
+                                {
+                                    Array.from(new Array(this.state.numPages), (el, index) => (
+                                        <Page
+                                            key={`page_${index + 1}`}
+                                            pageNumber={index + 1}
+                                            scale={2}
+                                            onRenderSuccess={this.prit}
+                                        />
+                                    ))}
+                            </Document>
+                        </div>
+                    </div>
+                    <div className={"col-md-1"}/>
+                </div>
+            )
+        }else{
+            return(
+                <div className={"row"} style={{width:"100%", height:"100%", margin:"0"}}>
+                    <div className={"col-md-12"}>
+                        <div className={"row header-pdf"}>
+                            <div className={"colo-md-6 name-file-pdf"}>
+                                <p>{this.state.nameFile}</p>
+                            </div>
+                            <div className={"colo-md-1 num-page-pdf"}>Pages : {this.state.numPages}</div>
+                            <div className={"col-md-3 zoom-page-pdf"}>
+                                <button className={"button-header-pdf"} onClick={()=>{
+                                    this.zoomDown();
+                                    /* document.getElementById("zpdf").value=this.state.zoomPdf+"%"*/
+                                }
+                                }><BsDash/></button>
+                                <label className={"label-zoom-pdf"}>{this.state.zoomPdf}%</label>
+                                {/*<input type={"text"} id={"zpdf"} value={this.state.zoomPdf+"%"}/>*/}
+                                <button className={"button-header-pdf"} onClick={this.zoomUp}><BsPlus/></button>
+                            </div>
+                            <div className={"col-md-1 down-page-pdf"}>
+                                <button className={"button-header-pdf"} onClick={this.zoomUp}><BsDownload/></button>
+                            </div>
+                        </div>
                     </div>
 
+                    <div className={"col-md-1"}/>
+                    <div className={"col-md-10"}>
+                        <div style={{zoom:this.state.zoomPdf+"%"}}>
+                            {this.state.elementView}
+                            <div>
+                                <img src={this.state.pdf} alt={""}
+                                      style={
+                                          {
+                                            margin:"auto",
+                                            position:"relative",
+                                            display:"grid",
+                                            width:"70vw",
+                                            height:"auto"
+                                          }
+                                      }
+                                />
+                            </div>
+                        </div>
+                    </div>
+                    <div className={"col-md-1"}/>
                 </div>
-
-                <div className={"col-md-1"}/>
-            </div>
-
-        )
+            )
+        }
     }
 }
