@@ -5,9 +5,15 @@ import '../styles/Home.css'
 import '../styles/ModalPdf.css'
 import {BsPencilSquare, BsTrashFill,BsDashCircleFill,BsEyeFill,BsFillPlusCircleFill} from "react-icons/bs";
 import {FaPlus,FaRegTrashAlt,FaTrashAlt} from "react-icons/fa";
+import {BsCamera, BsCloudUpload} from "react-icons/bs"
 import FileBase64 from "./react-file-base64";
 import ViewPdf from "./ViewPdf";
 import Axios from "axios"
+import img_no_img from "../images/img_no_img.jpg"
+import Header from "./Header";
+import Camera from 'react-html5-camera-photo';
+import ReactDOM from "react-dom";
+
 
 export default class Home extends React.Component {
     constructor(props) {
@@ -18,7 +24,7 @@ export default class Home extends React.Component {
             showModalUpdate:false,
             showModalViewPdf:false,
             data:[],
-            theand:["ID","NOMBRE","APELLIDO P.","APELLIDO M.","PROFESION","EXPERIENCIA","CV","CERTIFICACIONES"],
+            theand:["ID","NOMBRE","APELLIDOS","PROFESION","EXPERIENCIA","CV","CERTIFICACIONES"],
             numPages:null,
             pageNumber:1,
 
@@ -41,6 +47,9 @@ export default class Home extends React.Component {
             typeAction:null,
 
             actionViewCv:true,
+
+            imgPreviewPerfil:"",
+            fileImg:img_no_img
         };
     }
 
@@ -268,12 +277,7 @@ export default class Home extends React.Component {
                                     )
                             }
                         console.log(certtifi)
-
-
                         }
-
-
-
                         list.push(
                             {
                                 CVs: item.CVs,
@@ -281,8 +285,7 @@ export default class Home extends React.Component {
                                 Experiences: item.Experiences,
                                 Profesions: item.Profesions,
                                 nombre: item.nombre,
-                                persons_ap1: item.persons_ap1,
-                                persons_ap2: item.persons_ap2,
+                                persons_ap: item.persons_ap1,
                                 persons_id: item.persons_id
 
                             }
@@ -299,8 +302,7 @@ export default class Home extends React.Component {
     addData=(id)=>{
         let id_person = id
         let nombre=document.getElementById("nomUser").value;
-        let apellido1=document.getElementById("ap1User").value;
-        let apellido2=document.getElementById("ap2User").value;
+        let apellidos=document.getElementById("ap1User").value;
         let profesion=[];
         let experiencia=[];
         let cv=[];
@@ -309,8 +311,7 @@ export default class Home extends React.Component {
         console.log("Daatos sve")
         console.log("id: ", id_person)
         console.log("nombre: ",nombre)
-        console.log("app1: ",apellido1)
-        console.log("app2: ",apellido2)
+        console.log("app1: ",apellidos)
         /*console.log("cvb64: ",this.state.fileCV)*/
         console.log("cvname: ",this.state.nameCV)
 
@@ -411,8 +412,7 @@ export default class Home extends React.Component {
             person:[{
                 id:id_person,
                 nombre:nombre,
-                apellido1:apellido1,
-                apellido2:apellido2,
+                apellido1:apellidos,
             }],
             profesion: profesion,
             experiencia: experiencia,
@@ -654,13 +654,22 @@ export default class Home extends React.Component {
         this.handleModalShowPresent();
     }
 
+    getFileImgPerfil(files){
+        this.setState({ fileImg: files[0].base64});
+    }
+
     render() {
         return (
             <div className={"content"}>
+                <div className={"row"}>
+                    <div className={"col-md-12"}>
+                        <Header/>
+                    </div>
+                </div>
                 <div className="row div-row-1">
                     <div className={"col-md-12"}>
                         <p className={"title1"}>
-                            SISTEMA DE REGISTRO MARQUEZ
+                            PERFILES PROFESIONALES
                         </p>
                     </div>
                 </div>
@@ -670,7 +679,7 @@ export default class Home extends React.Component {
                         <Table id={"tabla"}  responsive className={"center table1 table-striped"}>
                             <thead className={"table1-thead"}>
                             <tr className={"title1-thead"}>
-                                <th colSpan={10}>REGISTROS</th>
+                                <th colSpan={10}>PERFILES</th>
                             </tr>
                             <tr className={"title1-thead"}>
                                 <th colSpan={2}>
@@ -699,8 +708,7 @@ export default class Home extends React.Component {
                                         <tr className={"table1-tr"}>
                                             <td  onClick={()=>this.viewRegister(data,data.Certification)}>{data.persons_id}</td>
                                             <td  onClick={()=>this.viewRegister(data,data.Certification)}>{data.nombre}</td>
-                                            <td  onClick={()=>this.viewRegister(data,data.Certification)}>{data.persons_ap1}</td>
-                                            <td  onClick={()=>this.viewRegister(data,data.Certification)}>{data.persons_ap2}</td>
+                                            <td  onClick={()=>this.viewRegister(data,data.Certification)}>{data.persons_ap}</td>
                                             <td  onClick={()=>this.viewRegister(data,data.Certification)}>{this.separeData(data.Profesions)}</td>
                                             <td  onClick={()=>this.viewRegister(data,data.Certification)}>{this.separeData(data.Experiences)}</td>
                                             <td  onClick={()=>this.viewRegister(data,data.Certification)}>{data.CVs}</td>
@@ -750,21 +758,44 @@ export default class Home extends React.Component {
                         contentClassName={"content-modal-register"}
                 >
                     <Modal.Header closeButton onClick={() => {this.handleModalShowRegister();this.resetState()}}>
-                        <Modal.Title>NEW REGISTER</Modal.Title>
+                        <Modal.Title>NUEVO REGISTRO</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
                         <div className={"row"}>
+                            <div className={"col-md-4"}>
+                                <div className="container-row" >
+                                    <ul className="updateImgPerfil" data-animation="to-top">
+                                        <li>
+                                            <a>
+                                                <img className="profile-pic" src={this.state.fileImg} alt={""}
+                                                     onError={
+                                                         (e)=>{
+                                                             e.target.onerror = null;
+                                                             e.target.src=img_no_img
+                                                         }
+                                                     }
+                                                />
+                                                <span>
+                                                    <div className={"circleP"} >
+                                                        <label id={"x2"} title={"Sube una imagen"} htmlFor={"input_imgPerfil"}>
+                                                            <BsCloudUpload className={"imgEditP"}/>
+                                                        </label>
+                                                         <FileBase64 id={"input_imgPerfil"} multiple={true} onDone={this.getFileImgPerfil.bind(this)}/>
+                                                    </div>
+                                                </span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+
+                            </div>
                             <div className={"col-md-4"}>
                                 <p>Nombre:</p>
                                 <input type={"text"} className={"input_nom"} id={"nomUser"}/>
                             </div>
                             <div className={"col-md-4"}>
-                                <p>Apellido paterno:</p>
+                                <p>Apellidos:</p>
                                 <input type={"text"} className={"input_nom"} id={"ap1User"}/>
-                            </div>
-                            <div className={"col-md-4"}>
-                                <p>Apellido materno:</p>
-                                <input type={"text"} className={"input_nom"} id={"ap2User"}/>
                             </div>
                         </div>
                         <div className={"row"}>
@@ -795,24 +826,20 @@ export default class Home extends React.Component {
                         </div>
                         <div className={"row"}>
                             <div className={"col-md-6"}>
-                                    <p>CV:</p>
-                                    <label htmlFor="input_file" className="btnFileCV">{this.state.nameCV}</label>
-                                    <FileBase64 id={"input_file"} multiple={true} onDone={this.getFilesCV.bind(this)}/>
-                                    <BsEyeFill className={"icon_right"} onClick={
-                                        ()=>{
-                                            this.setState({
-                                                fileSelected_b64:this.state.fileCV,
-                                                nameFileSelected:this.state.nameCV
-                                            })
-                                            this.handleModalShowPdf()
-                                        }}
-                                    />
+                                <p>CV:</p>
+                                <label htmlFor="input_file" className="btnFileCV">{this.state.nameCV}</label>
+                                <FileBase64 id={"input_file"} multiple={true} onDone={this.getFilesCV.bind(this)}/>
+                                <BsEyeFill className={"icon_right"} onClick={
+                                    ()=>{
+                                        this.setState({
+                                            fileSelected_b64:this.state.fileCV,
+                                            nameFileSelected:this.state.nameCV
+                                        })
+                                        this.handleModalShowPdf()
+                                    }}
+                                />
                                 <FaRegTrashAlt className={'icon_right'} onClick={(e)=>{
-                                    this.setState({
-                                            fileCV: null,
-                                            nameCV: "Select to File"
-                                        }
-                                    )
+                                    this.setState({fileCV: null,nameCV: "Select to File"})
                                 }}/>
                             </div>
 
@@ -897,21 +924,43 @@ export default class Home extends React.Component {
                         contentClassName={"content-modal-register"}
                 >
                     <Modal.Header closeButton onClick={() => {this.handleModalShowUpdate();this.resetState()}}>
-                        <Modal.Title>UPDATE REGISTER</Modal.Title>
+                        <Modal.Title>ACTUALIZAR REGISTRO</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
                         <div className={"row"}>
+                            <div className={"col-md-4"}>
+                                <div className="container-row" >
+                                    <ul className="updateImgPerfil" data-animation="to-top">
+                                        <li>
+                                            <a>
+                                                <img className="profile-pic" src={this.state.fileImg} alt={""}
+                                                     onError={
+                                                         (e)=>{
+                                                             e.target.onerror = null;
+                                                             e.target.src=img_no_img
+                                                         }
+                                                     }
+                                                />
+                                                <span>
+                                                    <div className={"circleP"} >
+                                                        <label id={"x2"} title={"Sube una imagen"} htmlFor={"input_imgPerfil"}>
+                                                            <BsCloudUpload className={"imgEditP"}/>
+                                                        </label>
+                                                         <FileBase64 id={"input_imgPerfil"} multiple={true} onDone={this.getFileImgPerfil.bind(this)}/>
+                                                    </div>
+                                                </span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
                             <div className={"col-md-4"}>
                                 <p>Nombre:</p>
                                 <input type={"text"} className={"input_nom"} id={"nomUser"} defaultValue={this.state.user_selected.nombre}/>
                             </div>
                             <div className={"col-md-4"}>
-                                <p>Apellido paterno:</p>
-                                <input type={"text"} className={"input_nom"} id={"ap1User"} defaultValue={this.state.user_selected.persons_ap1}/>
-                            </div>
-                            <div className={"col-md-4"}>
-                                <p>Apellido materno:</p>
-                                <input type={"text"} className={"input_nom"} id={"ap2User"} defaultValue={this.state.user_selected.persons_ap2}/>
+                                <p>Apellidos:</p>
+                                <input type={"text"} className={"input_nom"} id={"ap1User"} defaultValue={this.state.user_selected.persons_ap}/>
                             </div>
                         </div>
                         <div className={"row"}>
@@ -995,50 +1044,71 @@ export default class Home extends React.Component {
                 >
                     <Modal.Body>
                         <div className={"row div-presentacion"}>
+                            <div className={"col-md-12 div-container"}></div>
                             <div className={"col-md-4 div-nombre-pres"}>
-                                <p>{this.state.user_selected.nombre}</p>
-                                <p>{this.state.user_selected.persons_ap1}</p>
-                                <p>{this.state.user_selected.persons_ap2}</p>
+                                <div className={"row"} style={{position:"absolute"}}>
+                                    <div className={"col-md-12"}>
+                                        <div className="container-row" >
+                                            <img className="profile-pic" src={this.state.fileImg} alt={""}
+                                                 onError={
+                                                     (e)=>{
+                                                         e.target.onerror = null;
+                                                         e.target.src=img_no_img
+                                                     }
+                                                 }
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                             <div className={"col-md-8 div-general-skill"}>
+                                <div className={"div-skill"}>
+                                            <p>{this.state.user_selected.nombre} {this.state.user_selected.persons_ap}</p>
+                                </div>
+                            </div>
+                            <div className={"col-md-12 div-general-skill"}>
                                 <div className={"row div-skill"}>
-                                    <div className={"col-md-12 div-prof-pres"}>
+                                    <div className={"col-md-4 div-prof-pres"}>
                                         <h6>PROFESIONES</h6>
                                         <ul>
                                             {String(this.state.user_selected.Profesions).split(",").map(item=> <li>{item!=="null"?item:""}</li>)}
                                         </ul>
                                     </div>
-                                    <div className={"col-md-12 div-exp-pres"}>
+                                    <div className={"col-md-4 div-exp-pres"}>
                                         <h6>EXPERIENCIAS</h6>
-                                    <ul>
-                                        {String(this.state.user_selected.Experiences).split(",").map(item=> <li>{item!=="null"?item:""}</li>)}
-                                    </ul>
+                                        <ul>
+                                            {String(this.state.user_selected.Experiences).split(",").map(item=> <li>{item!=="null"?item:""}</li>)}
+                                        </ul>
                                     </div>
-                                    <div className={"col-md-12 div-cert-pres"}>
+                                    <div className={"col-md-4 div-cert-pres"}>
                                         <h6>CERTIFICACIONES</h6>
                                         <ul>
                                             {this.state.user_selected2.map(item=><li id={item.id} onClick={()=> {
-                                                    this.getFileCert(item.id,item.nombre)
+                                                this.getFileCert(item.id,item.nombre)
 
                                             }}>{item.nombre}</li>)}
                                         </ul>
                                     </div>
-                                    <div className={"col-md-12 div-cv-pres"}>
-                                        <div>
-                                            <label onClick={
-                                                ()=>{
-                                                    console.log("ppp",this.state.user_selected.CVs)
-                                                    if(this.state.user_selected.CVs !== null){
-                                                        this.getCV(this.state.user_selected.persons_id,this.state.user_selected.CVs)
-                                                    }
 
-                                                }}>{this.state.user_selected.CVs==null?"No existe CV":"CV : "+this.state.user_selected.CVs}</label>
-                                            <Button onClick={()=>this.handleModalShowPresent()}>Cerrar</Button>
-                                        </div>
+                                </div>
 
-                                    </div>
+
+                            </div>
+                            <div className={"col-md-12 div-cv-pres"}>
+                                <div>
+                                    <label onClick={
+                                        ()=>{
+                                            console.log("ppp",this.state.user_selected.CVs)
+                                            if(this.state.user_selected.CVs !== null){
+                                                this.getCV(this.state.user_selected.persons_id,this.state.user_selected.CVs)
+                                            }
+
+                                        }}>{this.state.user_selected.CVs==null?"No existe CV":"CV : "+this.state.user_selected.CVs}</label>
+                                    <Button onClick={()=>this.handleModalShowPresent()}>Cerrar</Button>
                                 </div>
                             </div>
+
+
 
 
 

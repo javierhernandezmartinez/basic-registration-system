@@ -1,0 +1,66 @@
+.perfil{
+    width: 100%;
+    height: 100%;
+    background-color: #282c34;
+    margin: 0;
+    padding: 0;
+}
+
+.div-perfil{
+    background: rgba(0,0,0,.7);
+    width: 50%;
+    margin: auto;
+    padding: 2%;
+    border-radius: 8px;
+    color: white;
+}
+
+.div-perfil-title{
+    width: 50%;
+    color: white;
+    font-size: xx-large;
+    text-align: center;
+    top: 0;
+}
+
+.div-perfil p{
+    margin: 0;
+    font-size: 20px;
+}
+.div-perfil input{
+    margin-top: 2%;
+    margin-bottom: 2%;
+    width: 100%;
+    background: rgba(0,0,0,.1);
+    color: white;
+}
+
+.button-perfil{
+    text-align: end;
+}
+.button-perfil button{
+    background: gold;
+    color: rgba(0,0,0,.6);
+    border-radius: 8px;
+    width: 100px;
+    height: 40px;
+    margin-top: 4%;
+    margin-bottom: 1%;
+    margin-left: 2%;
+}
+
+.button-perfil button:hover{
+    background: goldenrod;
+    color: white;
+}
+
+.message-pass-perfil{
+    display: grid;
+    height: 50px;
+}
+.message-pass-perfil p{
+    margin-top: 0;
+    text-align: center;
+    color: red;
+    font-size: 14px !important;
+}
