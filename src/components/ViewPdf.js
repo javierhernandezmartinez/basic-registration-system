@@ -36,7 +36,7 @@ export default class ViewPdf extends React.Component {
             return(
                 <div style={{width:"100%", height:"100%", display:"grid"}}>
                     <LightgalleryProvider group="any" src={this.props.pdf} onCloseAfter={() => this.props.funtionClose()}>
-                        <LightgalleryItem group={"any"} src={this.props.pdf}>
+                        <LightgalleryItem group={"any"} src={this.props.pdf} >
                             <img id={"photo"} src={this.props.pdf} style={{width:"100%", height:"100%"}} alt={""}/>
                         </LightgalleryItem>
                     </LightgalleryProvider>

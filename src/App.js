@@ -4,6 +4,7 @@ import Home from './components/Home'
 import {HashRouter, Route, Switch} from 'react-router-dom';
 import Login from "./components/Login";
 import Perfil from "./components/Perfil";
+import Administrador from "./components/Administrador";
 
 function App() {
 
@@ -14,7 +15,7 @@ function App() {
             <Switch>
               <Route path="/" exact to="/" component={Login} />
               <Route path="/home" component={Home} />
-                <Route path="/perfil" component={Perfil} />
+              <Route path="/admin" component={Administrador} />
             </Switch>
           </div>
         }

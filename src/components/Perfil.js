@@ -3,13 +3,19 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import "../styles/Perfil.css"
 import {FaUserCircle,FaEye} from "react-icons/fa"
 import Header from "./Header";
+import Session from "./Session"
 
 export default class Perfil extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-                message_pass:""
+            message_pass:"",
+            user: Session.getSession('user')
         }
+    }
+
+    componentDidMount() {
+       Session.validateSession()
     }
 
     cancel=()=>{

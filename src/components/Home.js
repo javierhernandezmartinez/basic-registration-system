@@ -4,7 +4,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import '../styles/Home.css'
 import '../styles/ModalPdf.css'
 import {BsPencilSquare, BsTrashFill,BsDashCircleFill,BsEyeFill,BsFillPlusCircleFill} from "react-icons/bs";
-import {FaPlus,FaRegTrashAlt,FaTrashAlt} from "react-icons/fa";
+import {FaPlus,FaRegTrashAlt,FaTrashAlt,FaTrashRestore} from "react-icons/fa";
 import {BsCamera, BsCloudUpload} from "react-icons/bs"
 import FileBase64 from "./react-file-base64";
 import ViewPdf from "./ViewPdf";
@@ -13,6 +13,7 @@ import img_no_img from "../images/img_no_img.jpg"
 import Header from "./Header";
 import Camera from 'react-html5-camera-photo';
 import ReactDOM from "react-dom";
+import Session from "./Session"
 
 
 export default class Home extends React.Component {
@@ -24,7 +25,8 @@ export default class Home extends React.Component {
             showModalUpdate:false,
             showModalViewPdf:false,
             data:[],
-            theand:["ID","NOMBRE","APELLIDOS","PROFESION","EXPERIENCIA","CV","CERTIFICACIONES"],
+            data2:[],
+            theand:["ID","NOMBRE","APELLIDOS","PROFESION","EXPERIENCIA","CV","CEDULA Y CERTIFICACIONES"],
             numPages:null,
             pageNumber:1,
 
@@ -48,16 +50,31 @@ export default class Home extends React.Component {
 
             actionViewCv:true,
 
-            imgPreviewPerfil:"",
-            fileImg:img_no_img
+            fileImg:null,
+
+            showModalDelete:false,
+            showModalDelete2:false,
+            showModalPapelera:false,
+            showModalRestore:false,
+            typeDisplay:"block"
         };
     }
 
     componentDidMount() {
-        this.getData()
-        this.addElementProfesion()
-        this.addElementExperiencia()
-        this.addElementCertificaciones()
+        if (Session.getSession('user') !== null){
+            if ( Session.getSession('user').user_type === "Administrador" || Session.getSession('user').user_type === "Super_Admin"){
+                this.setState({typeDisplay:"block"})
+            }else{
+                this.setState({typeDisplay:"none"})
+            }
+
+            this.getData()
+            this.addElementProfesion()
+            this.addElementExperiencia()
+            this.addElementCertificaciones()
+        }else{
+            Session.validateSession()
+        }
     }
 
     resetState=()=>{
@@ -65,6 +82,7 @@ export default class Home extends React.Component {
             fileCV:null,
             nameCV:"Select to File",
             cert_Selected:[],
+            fileImg:null,
             profesiones:[
                     {
                     id_prof:1,
@@ -108,53 +126,6 @@ export default class Home extends React.Component {
                                                 />
                                                 <FaRegTrashAlt id={1} className={'icon_right'} onClick={ e => this.deleteElementCertificaciones(e.target.id)}/>
                                             </div>
-
-                        /*certificaciones.push(
-                            {   id_cert:id_certification,
-                                id_prof:certificaciones.length+1,
-                                conteintProsefion:  <div style={{height:"30px"}}>
-                                    <label htmlFor={"files"+1} className="btnFile" ><div id={1+"L"}>{nameCert}</div></label>
-                                    <FileBase64 id={"files"+1} multiple={true} classname={"files"} onDone={(e)=>{this.selectFileCert(e,id_certification)}}/>
-                                    <input type={"text"} id={1+"C"} className={"input_descrip"} placeholder={"descripción"} defaultValue={value}/>
-                                    <BsEyeFill id={"files"+1} className={"icon_right"}  onClick={
-                                        (e)=>{
-                                            let id = e.target.id
-                                            let selected =this.state.cert_Selected
-                                            let ok = selected.find(list => list.id === id)
-                                            console.log(ok)
-                                            if (ok !== undefined) {
-                                                console.log("si esta, update")
-                                                Object.keys(selected).forEach(
-                                                    (key)=>{
-                                                        if(selected[key].id == id){
-                                                            console.log("si es")
-                                                            this.setState({
-                                                                fileSelected_b64:selected[key].base64,
-                                                                nameFileSelected:selected[key].nombre
-                                                            })
-                                                            this.handleModalShowPdf()
-                                                        }else {
-                                                            console.log("no esta")
-                                                        }
-                                                    }
-                                                )
-                                            }else {
-                                                console.log("buscando en base de datos")
-                                                this.getFileCert(id_certification,value)
-                                            }
-                                        }}
-                                    />
-
-                                    <FaRegTrashAlt id={certificaciones.length+1+"-"+id_certification} className={'icon_right'} onClick={(e)=>{
-                                        this.deleteElementCertificaciones(e.target.id)
-                                    }}/>
-                                </div>
-                            }
-                        )*/
-
-
-
-
                     }
                 ]
         })
@@ -163,9 +134,11 @@ export default class Home extends React.Component {
     handleModalShowRegister=()=>{
         this.setState({showModalRegister:!this.state.showModalRegister})
     }
+
     handleModalShowUpdate=()=>{
         this.setState({showModalUpdate:!this.state.showModalUpdate})
     }
+
     handleModalShowPdf=()=>{
         this.setState({showModalViewPdf:!this.state.showModalViewPdf})
     }
@@ -174,21 +147,33 @@ export default class Home extends React.Component {
         this.setState({showModalPresent:!this.state.showModalPresent})
     }
 
+    handleModalShowDelete=()=>{
+        this.setState({showModalDelete:!this.state.showModalDelete})
+    }
+    handleModalShowDelete2=()=>{
+        this.setState({showModalDelete2:!this.state.showModalDelete2})
+    }
+
+    handleModalShowRestore=()=>{
+        this.setState({showModalRestore:!this.state.showModalRestore})
+    }
+
+    handleModalShowPapelera=()=>{
+        this.setState({showModalPapelera:!this.state.showModalPapelera})
+    }
+
     getFilesCV(files){
         this.setState({fileCV: files[0].base64,nameCV:files[0].name, actionViewCv:false});
     }
 
     selectFileCert(files,id_certification){
         let id = files[0].id
-        console.log(files, id)
         let selected = this.state.cert_Selected
 
         let ok = selected.find(list => list.id === id)
-        console.log(ok)
         let num_id=id.split('')[5]
 
         if (ok !== undefined){
-            console.log("si esta, update")
             Object.keys(selected).forEach(
                 (key)=>{
                     if(selected[key].id == id){
@@ -199,7 +184,6 @@ export default class Home extends React.Component {
                             base64:files[0].base64
                         }
                         this.setState({cert_Selected:selected})
-                        console.log()
 
                         if(document.getElementById(num_id+"L")){
                             document.getElementById(num_id+"L").innerText=files[0].name
@@ -208,7 +192,6 @@ export default class Home extends React.Component {
                 }
             )
         }else {
-            console.log("no esta, add-push")
             selected.push(
                 {
                     id_cert:id_certification,
@@ -254,19 +237,15 @@ export default class Home extends React.Component {
     getData=()=>{
         Axios.get("http://localhost:4000/users/getList")
             .then( res => {
-                console.log("listo",res.data.data)
+                console.log("res",res.data.data)
                 let list = []
-
+                let list2 = []
                 res.data.data.map(
                     item => {
                         let certtifi = []
-                        console.log("---",item.Certification)
                         let cert=null
                         if (item.Certification !== null){
                             cert = item.Certification.split(",")
-                            console.log("___",cert.length)
-                            console.log("...",cert)
-
                             for( let i=0; i < cert.length; i ++){
                                 let cer = cert[i].split("-")
                                 certtifi.push(
@@ -276,26 +255,41 @@ export default class Home extends React.Component {
                                     }
                                     )
                             }
-                        console.log(certtifi)
                         }
-                        list.push(
-                            {
-                                CVs: item.CVs,
-                                Certification: certtifi,
-                                Experiences: item.Experiences,
-                                Profesions: item.Profesions,
-                                nombre: item.nombre,
-                                persons_ap: item.persons_ap1,
-                                persons_id: item.persons_id
+                        if(item.status == 1){
+                            list.push(
+                                {
+                                    CVs: item.CVs,
+                                    Certification: certtifi,
+                                    Experiences: item.Experiences,
+                                    Profesions: item.Profesions,
+                                    nombre: item.nombre,
+                                    persons_ap: item.persons_ap,
+                                    persons_id: item.persons_id,
+                                    imgPerfil: item.persons_img,
+                                    status:item.status
+                                }
+                            )
+                        }else {
+                            list2.push(
+                                {
+                                    CVs: item.CVs,
+                                    Certification: certtifi,
+                                    Experiences: item.Experiences,
+                                    Profesions: item.Profesions,
+                                    nombre: item.nombre,
+                                    persons_ap: item.persons_ap,
+                                    persons_id: item.persons_id,
+                                    imgPerfil: item.persons_img,
+                                    status:item.status
+                                }
+                            )
+                        }
 
-                            }
-
-                    )
 
                 }
                 )
-                this.setState({data:list})
-                console.log(list)
+                this.setState({data:list, data2:list2})
             })
     }
 
@@ -303,6 +297,7 @@ export default class Home extends React.Component {
         let id_person = id
         let nombre=document.getElementById("nomUser").value;
         let apellidos=document.getElementById("ap1User").value;
+        let imgPerfil=this.state.fileImg
         let profesion=[];
         let experiencia=[];
         let cv=[];
@@ -412,7 +407,8 @@ export default class Home extends React.Component {
             person:[{
                 id:id_person,
                 nombre:nombre,
-                apellido1:apellidos,
+                apellidos:apellidos,
+                imgPerfil:imgPerfil
             }],
             profesion: profesion,
             experiencia: experiencia,
@@ -425,13 +421,11 @@ export default class Home extends React.Component {
     }
 
     deleteData=(id_Data)=>{
-        console.log(id_Data)
-        Axios.post("http://localhost:4000/users/delete", {
-            id:id_Data
-        }).then( res => {
-                console.log("message",res)
-                this.getData()
-            })
+        Axios.post("http://localhost:4000/users/delete", {id:id_Data}).then( res => {this.getData()})
+    }
+
+    statusPerson=(id_Data, status)=>{
+        Axios.post("http://localhost:4000/users/status/update/person", {id:id_Data, status:status}).then( res => {this.getData()})
     }
 
     addElementProfesion=(value)=>{
@@ -461,12 +455,6 @@ export default class Home extends React.Component {
             }
         )
         this.setState({profesiones:profesiones})
-
-        if (this.state.typeAction === "update"){
-            console.log("bmos a actualisr dataaa")
-        }else {
-            console.log("bamos gregar un registro")
-        }
     }
 
     addElementExperiencia=(value)=>{
@@ -499,7 +487,6 @@ export default class Home extends React.Component {
 
     addElementCertificaciones=(value,id_certification)=>{
         let certificaciones = this.state.certificaciones;
-        console.log(value, id_certification)
         let nameCert = this.state.nameCert
 
         if(value !== undefined){
@@ -520,11 +507,9 @@ export default class Home extends React.Component {
                                                 let ok = selected.find(list => list.id === id)
                                                 console.log(ok)
                                                 if (ok !== undefined) {
-                                                    console.log("si esta, update")
                                                     Object.keys(selected).forEach(
                                                         (key)=>{
                                                             if(selected[key].id == id){
-                                                                console.log("si es")
                                                                 this.setState({
                                                                     fileSelected_b64:selected[key].base64,
                                                                     nameFileSelected:selected[key].nombre
@@ -536,7 +521,6 @@ export default class Home extends React.Component {
                                                         }
                                                     )
                                                 }else {
-                                                    console.log("buscando en base de datos")
                                                     this.getFileCert(id_certification,value)
                                                 }
                                             }}
@@ -553,9 +537,7 @@ export default class Home extends React.Component {
     deleteElementCertificaciones=(id_Element)=>{
         let id_element = String(id_Element).split("-")[0]
         let id_certification = String(id_Element).split("-")[1]
-        console.log(id_element, id_certification)
         let certificaciones = this.state.certificaciones;
-        console.log(certificaciones)
         Object.keys(certificaciones).forEach(
             function (key){
                 if(certificaciones[key].id_prof == id_element){
@@ -566,10 +548,8 @@ export default class Home extends React.Component {
         this.setState({certificaciones:certificaciones})
 
         if (this.state.typeAction === "update"){
-            console.log("bmos a eliminar un certificado: ", id_certification)
             this.deleteCetificadoDatabase(id_certification)
         }
-
     }
 
     deleteCetificadoDatabase=(id)=>{
@@ -582,14 +562,13 @@ export default class Home extends React.Component {
     }
 
     separeData=(list)=>{
-        console.log("--",list)
         if (  list !== null){
             if (typeof list === "string"){
                 return String(list).split(",").map(item=>(<div>{item}</div>))
             }
-        else{
-                return list.map(item=>(<div>{item.nombre}</div>))
-            }
+            else{
+                    return list.map(item=>(<div>{item.nombre}</div>))
+                }
         }
     }
 
@@ -650,7 +629,7 @@ export default class Home extends React.Component {
     }
 
     viewRegister=(data, Certification)=>{
-        this.setState({user_selected:data,user_selected2:Certification});
+        this.setState({user_selected:data,user_selected2:Certification, fileImg:data.imgPerfil});
         this.handleModalShowPresent();
     }
 
@@ -659,6 +638,7 @@ export default class Home extends React.Component {
     }
 
     render() {
+
         return (
             <div className={"content"}>
                 <div className={"row"}>
@@ -678,28 +658,27 @@ export default class Home extends React.Component {
                     <div className={"col-md-8 col-table1"}>
                         <Table id={"tabla"}  responsive className={"center table1 table-striped"}>
                             <thead className={"table1-thead"}>
-                            <tr className={"title1-thead"}>
-                                <th colSpan={10}>PERFILES</th>
-                            </tr>
-                            <tr className={"title1-thead"}>
-                                <th colSpan={2}>
-                                    <select id={"optionSearch"}>
-                                        <option>Filtrar por...</option>
-                                        {
-                                            this.state.theand.map(item=>(<option>{item}</option>))
-                                        }
-                                    </select>
-                                </th>
-                                <th colSpan={8}>
-                                    <input id={"myInput"} type="text" placeholder={"Search..."}
-                                        onKeyUp={(e)=>this.TableFilter()}/>
-                                </th>
-                            </tr>
-                            <tr className={"title2-thead"}>
-                                {this.state.theand.map(item=>(<th>{item}</th>))}
-                                <th colSpan={2}/>
-                            </tr>
-
+                                <tr className={"title1-thead"}>
+                                    <th colSpan={10}>PERFILES</th>
+                                </tr>
+                                <tr className={"title1-thead"}>
+                                    <th colSpan={2}>
+                                        <select id={"optionSearch"}>
+                                            <option>Filtrar por...</option>
+                                            {
+                                                this.state.theand.map(item=>(<option>{item}</option>))
+                                            }
+                                        </select>
+                                    </th>
+                                    <th colSpan={8}>
+                                        <input id={"myInput"} type="text" placeholder={"Search..."}
+                                            onKeyUp={(e)=>this.TableFilter()}/>
+                                    </th>
+                                </tr>
+                                <tr className={"title2-thead"}>
+                                    {this.state.theand.map(item=>(<th>{item}</th>))}
+                                    <th colSpan={2}/>
+                                </tr>
                             </thead>
                             <tbody className={"table1-tbody"}>
                             {
@@ -713,11 +692,10 @@ export default class Home extends React.Component {
                                             <td  onClick={()=>this.viewRegister(data,data.Certification)}>{this.separeData(data.Experiences)}</td>
                                             <td  onClick={()=>this.viewRegister(data,data.Certification)}>{data.CVs}</td>
                                             <td  onClick={()=>this.viewRegister(data,data.Certification)}>{this.separeData(data.Certification)}</td>
-
                                             <td>
-                                                <BsPencilSquare className={"icon-table-consultor"} onClick={
+                                                <BsPencilSquare className={"icon-table-consultor"} style={{display:this.state.typeDisplay}} onClick={
                                                     ()=>{
-                                                        this.setState({typeAction:"update",user_selected:data, actionViewCv:true})
+                                                        this.setState({typeAction:"update",user_selected:data, actionViewCv:true, fileImg:data.imgPerfil})
                                                         if (data.CVs !== null){this.setState({nameCV:data.CVs})}
                                                         this.deleteElementProfesion(1)
                                                         this.deleteElementExperiencia(1)
@@ -730,7 +708,7 @@ export default class Home extends React.Component {
                                                 }/>
                                             </td>
                                             <td>
-                                                <BsTrashFill className={"icon-table-consultor"} onClick={()=>{this.deleteData(data.persons_id)}}/>
+                                                <BsTrashFill className={"icon-table-consultor"} style={{display:this.state.typeDisplay}} onClick={()=>{this.setState({user_selected:data});this.handleModalShowDelete()}}/>
                                             </td>
                                         </tr>
                                     )
@@ -743,7 +721,12 @@ export default class Home extends React.Component {
                 <div className="row div-row-3">
                     <div className={"col-md-2"}/>
                     <div className={"col-md-8"}>
-                        <Button className={"button-register"}
+                        <div className={"papelera"} onClick={()=>this.handleModalShowPapelera()}>
+                            <BsTrashFill/>
+                            <p>Papelera</p>
+                        </div>
+
+                        <Button className={"button-register"} style={{display:this.state.typeDisplay}}
                             onClick={()=> {this.setState({typeAction:"regisster",});this.handleModalShowRegister()}}>
                             <p>Nuevo registro</p>
                         </Button>
@@ -767,14 +750,7 @@ export default class Home extends React.Component {
                                     <ul className="updateImgPerfil" data-animation="to-top">
                                         <li>
                                             <a>
-                                                <img className="profile-pic" src={this.state.fileImg} alt={""}
-                                                     onError={
-                                                         (e)=>{
-                                                             e.target.onerror = null;
-                                                             e.target.src=img_no_img
-                                                         }
-                                                     }
-                                                />
+                                                <img className="profile-pic" src={this.state.fileImg == null?img_no_img: this.state.fileImg} alt={""}/>
                                                 <span>
                                                     <div className={"circleP"} >
                                                         <label id={"x2"} title={"Sube una imagen"} htmlFor={"input_imgPerfil"}>
@@ -787,7 +763,6 @@ export default class Home extends React.Component {
                                         </li>
                                     </ul>
                                 </div>
-
                             </div>
                             <div className={"col-md-4"}>
                                 <p>Nombre:</p>
@@ -842,33 +817,10 @@ export default class Home extends React.Component {
                                     this.setState({fileCV: null,nameCV: "Select to File"})
                                 }}/>
                             </div>
-
-                                {/*<div className="col-md-6">
-                                    <div className={"preview-admin"}>
-                                        <div id={"preview-image"}>
-                                            <img  id={"imgSelected"}
-                                                  style={{width:"200px",height:"200px"}}
-                                                  src={this.state.files[0]}
-                                                  onError={
-                                                      (e)=>{
-                                                          e.target.onerror = null;
-                                                          try {
-                                                              e.target.src=this.state.files[0].base64
-                                                          }
-                                                          catch (error){
-                                                              e.target.src=""
-                                                          }
-                                                      }
-                                                  }
-                                            />
-                                        </div>
-                                    </div>
-                                </div>*/}
-
                             <div className={"col-md-6"}>
                                 <div className={"row"}>
                                     <div className={"col-md-12"}>
-                                        <p>Certificaciones:
+                                        <p>Cédula y certificaciones:
                                             <FaPlus className={"icon_right"} style={{float:"right"}} onClick={()=>{this.addElementCertificaciones()}}/>
                                         </p>
                                     </div>
@@ -876,11 +828,8 @@ export default class Home extends React.Component {
                                         { this.state.certificaciones.map(res=>(res.conteintProsefion)) }
                                     </div>
                                 </div>
-
                             </div>
-
                             </div>
-
                     </Modal.Body>
                     <Modal.Footer>
                         <div className={"row"}>
@@ -933,14 +882,7 @@ export default class Home extends React.Component {
                                     <ul className="updateImgPerfil" data-animation="to-top">
                                         <li>
                                             <a>
-                                                <img className="profile-pic" src={this.state.fileImg} alt={""}
-                                                     onError={
-                                                         (e)=>{
-                                                             e.target.onerror = null;
-                                                             e.target.src=img_no_img
-                                                         }
-                                                     }
-                                                />
+                                                <img className="profile-pic" src={this.state.fileImg == "null"?img_no_img:this.state.fileImg} alt={""}/>
                                                 <span>
                                                     <div className={"circleP"} >
                                                         <label id={"x2"} title={"Sube una imagen"} htmlFor={"input_imgPerfil"}>
@@ -1010,7 +952,7 @@ export default class Home extends React.Component {
                             <div className={"col-md-6"}>
                                 <div className={"row"}>
                                     <div className={"col-md-12"}>
-                                        <p>Certificaciones:
+                                        <p>Cédula y certificaciones:
                                             <FaPlus className={"icon_right"} style={{float:"right"}} onClick={()=>{this.addElementCertificaciones()}}/>
                                         </p>
                                     </div>
@@ -1018,11 +960,8 @@ export default class Home extends React.Component {
                                         { this.state.certificaciones.map(res=>(res.conteintProsefion)) }
                                     </div>
                                 </div>
-
                             </div>
-
                         </div>
-
                     </Modal.Body>
                     <Modal.Footer>
                         <div className={"row"}>
@@ -1049,14 +988,7 @@ export default class Home extends React.Component {
                                 <div className={"row"} style={{position:"absolute"}}>
                                     <div className={"col-md-12"}>
                                         <div className="container-row" >
-                                            <img className="profile-pic" src={this.state.fileImg} alt={""}
-                                                 onError={
-                                                     (e)=>{
-                                                         e.target.onerror = null;
-                                                         e.target.src=img_no_img
-                                                     }
-                                                 }
-                                            />
+                                            <img className="profile-pic" src={this.state.user_selected.imgPerfil=="null"?img_no_img:this.state.user_selected.imgPerfil} alt={""}/>
                                         </div>
                                     </div>
                                 </div>
@@ -1081,7 +1013,7 @@ export default class Home extends React.Component {
                                         </ul>
                                     </div>
                                     <div className={"col-md-4 div-cert-pres"}>
-                                        <h6>CERTIFICACIONES</h6>
+                                        <h6>CEDULA Y CERTIFICACIONES</h6>
                                         <ul>
                                             {this.state.user_selected2.map(item=><li id={item.id} onClick={()=> {
                                                 this.getFileCert(item.id,item.nombre)
@@ -1089,10 +1021,7 @@ export default class Home extends React.Component {
                                             }}>{item.nombre}</li>)}
                                         </ul>
                                     </div>
-
                                 </div>
-
-
                             </div>
                             <div className={"col-md-12 div-cv-pres"}>
                                 <div>
@@ -1102,21 +1031,173 @@ export default class Home extends React.Component {
                                             if(this.state.user_selected.CVs !== null){
                                                 this.getCV(this.state.user_selected.persons_id,this.state.user_selected.CVs)
                                             }
-
                                         }}>{this.state.user_selected.CVs==null?"No existe CV":"CV : "+this.state.user_selected.CVs}</label>
                                     <Button onClick={()=>this.handleModalShowPresent()}>Cerrar</Button>
                                 </div>
                             </div>
+                        </div>
+                    </Modal.Body>
+                </Modal>
 
+                <Modal size="lg"
+                       aria-labelledby="contained-modal-title-vcenter"
+                       centered
+                       show={this.state.showModalDelete}
+                >
+                    <Modal.Body>
+                        <div className={"row div-presentacion"}>
 
+                            <div className={"col-md-12 div-general-skill"}>
+                                <div className={"row div-skill"}>
+                                    <div className={"col-md-12"}>
+                                        <h6>Esta seguro de eliminar a {this.state.user_selected.nombre}?</h6>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className={"col-md-12 div-cv-pres"}>
+                                <div>
+                                    <Button onClick={()=>{
+                                        this.statusPerson(this.state.user_selected.persons_id, 0);
+                                        this.handleModalShowDelete()
+                                    }}>Eliminar</Button>
+                                    <Button onClick={()=>this.handleModalShowDelete()}>Cancelar</Button>
+                                </div>
+                            </div>
+                        </div>
+                    </Modal.Body>
+                </Modal>
 
+                <Modal size="lg"
+                       aria-labelledby="contained-modal-title-vcenter"
+                       centered
+                       show={this.state.showModalDelete2}
+                >
+                    <Modal.Body>
+                        <div className={"row div-presentacion"}>
 
+                            <div className={"col-md-12 div-general-skill"}>
+                                <div className={"row div-skill"}>
+                                    <div className={"col-md-12"}>
+                                        <h6>Esta seguro de eliminar a {this.state.user_selected.nombre}?</h6>
+                                        <h6>Si lo elimina no volvera a recuperarlo.</h6>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className={"col-md-12 div-cv-pres"}>
+                                <div>
+                                    <Button onClick={()=>{
+                                        this.deleteData(this.state.user_selected.persons_id);
+                                        this.handleModalShowDelete2()
+                                    }}>Eliminar</Button>
+                                    <Button onClick={()=>this.handleModalShowDelete2()}>Cancelar</Button>
+                                </div>
+                            </div>
+                        </div>
+                    </Modal.Body>
+                </Modal>
 
+                <Modal size="lg"
+                       aria-labelledby="contained-modal-title-vcenter"
+                       centered
+                       show={this.state.showModalPapelera}
+                       dialogClassName={"dialog-modal-papelera"}
+                >
+                    <Modal.Body>
+                        <div className={"row div-presentacion"}>
+
+                            <div className={"col-md-12 div-general-skill"}>
+                                <div className={"row div-skill"}>
+                                    <div className={"col-md-12"}>
+                                        <div className={"col-table1"}>
+                                            <Table id={"tabla"}  responsive className={"center table1 table-striped"}>
+                                                <thead className={"table1-thead"}>
+                                                <tr className={"title1-thead"}>
+                                                    <th colSpan={10}>PERFILES</th>
+                                                </tr>
+                                                <tr className={"title1-thead"}>
+                                                    <th colSpan={2}>
+                                                        <select id={"optionSearch"}>
+                                                            <option>Filtrar por...</option>
+                                                            {
+                                                                this.state.theand.map(item=>(<option>{item}</option>))
+                                                            }
+                                                        </select>
+                                                    </th>
+                                                    <th colSpan={8}>
+                                                        <input id={"myInput"} type="text" placeholder={"Search..."}
+                                                               onKeyUp={(e)=>this.TableFilter()}/>
+                                                    </th>
+                                                </tr>
+                                                <tr className={"title2-thead"}>
+                                                    {this.state.theand.map(item=>(<th>{item}</th>))}
+                                                    <th colSpan={2}/>
+                                                </tr>
+                                                </thead>
+                                                <tbody className={"table1-tbody"}>
+                                                {
+                                                    this.state.data2.map(
+                                                        data=>(
+                                                            <tr className={"table1-tr"}>
+                                                                <td  onClick={()=>this.viewRegister(data,data.Certification)}>{data.persons_id}</td>
+                                                                <td  onClick={()=>this.viewRegister(data,data.Certification)}>{data.nombre}</td>
+                                                                <td  onClick={()=>this.viewRegister(data,data.Certification)}>{data.persons_ap}</td>
+                                                                <td  onClick={()=>this.viewRegister(data,data.Certification)}>{this.separeData(data.Profesions)}</td>
+                                                                <td  onClick={()=>this.viewRegister(data,data.Certification)}>{this.separeData(data.Experiences)}</td>
+                                                                <td  onClick={()=>this.viewRegister(data,data.Certification)}>{data.CVs}</td>
+                                                                <td  onClick={()=>this.viewRegister(data,data.Certification)}>{this.separeData(data.Certification)}</td>
+                                                                <td>
+                                                                    <FaTrashRestore className={"icon-table-consultor"} onClick={()=> {this.setState({user_selected:data});this.handleModalShowRestore()}}/>
+                                                                </td>
+                                                                <td>
+                                                                    <BsTrashFill className={"icon-table-consultor"} onClick={()=>{this.setState({user_selected:data});this.handleModalShowDelete2()}}/>
+                                                                </td>
+                                                            </tr>
+                                                        )
+                                                    )
+                                                }
+                                                </tbody>
+                                            </Table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className={"col-md-12 div-cv-pres"}>
+                                <div>
+                                    <Button onClick={()=>this.handleModalShowPapelera()}>Salir de papelera</Button>
+                                </div>
+                            </div>
+                        </div>
+                    </Modal.Body>
+                </Modal>
+
+                <Modal size="lg"
+                       aria-labelledby="contained-modal-title-vcenter"
+                       centered
+                       show={this.state.showModalRestore}
+                >
+                    <Modal.Body>
+                        <div className={"row div-presentacion"}>
+
+                            <div className={"col-md-12 div-general-skill"}>
+                                <div className={"row div-skill"}>
+                                    <div className={"col-md-12"}>
+                                        <h6>Esta seguro de restaurar a {this.state.user_selected.nombre}?</h6>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className={"col-md-12 div-cv-pres"}>
+                                <div>
+                                    <Button onClick={()=>{
+                                        this.statusPerson(this.state.user_selected.persons_id, 1);
+                                        this.handleModalShowRestore()
+                                    }}>Restaurar</Button>
+                                    <Button onClick={()=>this.handleModalShowRestore()}>Cancelar</Button>
+                                </div>
+                            </div>
                         </div>
                     </Modal.Body>
                 </Modal>
             </div>
-
     )
     }
 }

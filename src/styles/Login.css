@@ -1,14 +1,13 @@
 .login-content{
     width: 100%;
     height: 100%;
-    background: currentColor;
     text-align: center;
     display: grid;
 }
 
 .div-login{
     width: 30%;
-    background: black;
+    background: rgba(0,0,0,.5);
     margin: auto;
     border-radius: 8px;
     border-style: solid;
@@ -16,6 +15,15 @@
     border-width: 1px;
     max-width: 340px !important;
     min-width: 220px;
+    z-index: 1;
+}
+
+.imgFondo{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(0.5);
 }
 
 .login-icon{
@@ -64,6 +72,8 @@
 }
 
 .login-message-error{
+    max-height: 48px;
+    min-height: 24px;
     color: red;
     margin-top: 10px;
     margin-bottom: 10px;

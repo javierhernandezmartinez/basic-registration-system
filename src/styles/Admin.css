@@ -1,0 +1,21 @@
+.row-check{
+    display: grid;
+    margin-left: auto;
+    margin-top: 1%;
+    grid-template-columns: 33% 33% 33%;
+}
+.div_check{
+    display: grid;
+    align-items: center;
+    grid-template-columns: 25px 200px;
+}
+
+.div_check input{
+    width: 15px;
+    height: 15px;
+    grid-column: 1/2;
+}
+.div_check label{
+    grid-column: 2/2;
+    margin: 0;
+}

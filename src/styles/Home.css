@@ -33,7 +33,6 @@
 .table1{
     width: 100% !important;
     margin: auto;
-    background: red;
 }
 .table-responsive{
     overflow-y: auto;
@@ -66,19 +65,46 @@
     vertical-align: middle !important;
 }
 
+.papelera{
+    width: 100px;
+    border-radius: 8px;
+    height: 70px;
+    float: left;
+    margin-top: 1%;
+}
+.papelera>svg{
+    width: inherit;
+    height: 50px;
+    color: white;
+    margin: auto;
+}
+.papelera>p{
+    width: inherit;
+    height: 20px;
+    color: white;
+    margin: auto;
+    text-align: center;
+}
+.papelera:hover svg{
+    color: #ffc107 !important;
+}
+.papelera:hover p{
+    color: #ffc107 !important;
+}
+
 .button-register{
     background: gold;
     border-radius: 8px;
     height: 40px;
     float: right;
-    margin-top: 1%;
+    margin-top: 3%;
 }
 
 .div-row-1{
     height: 10%;
 }
 .div-row-2{
-    height: 80%;
+    height: 70%;
 }
 .div-row-3{
     height: 10%;
@@ -188,4 +214,10 @@
 #input_imgPerfil{
 width: 0% !important;
 visibility: hidden;
+}
+
+.dialog-modal-papelera{
+    max-width: 90%;
+    max-height: 90%;
+    min-height: 90%;
 }
