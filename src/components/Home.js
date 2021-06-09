@@ -654,8 +654,8 @@ export default class Home extends React.Component {
                     </div>
                 </div>
                 <div className="row div-row-2">
-                    <div className={"col-md-2"}/>
-                    <div className={"col-md-8 col-table1"}>
+                    <div className={"col-md-1"}/>
+                    <div className={"col-md-10 col-table1"}>
                         <Table id={"tabla"}  responsive className={"center table1 table-striped"}>
                             <thead className={"table1-thead"}>
                                 <tr className={"title1-thead"}>
@@ -719,8 +719,8 @@ export default class Home extends React.Component {
                     </div>
                 </div>
                 <div className="row div-row-3">
-                    <div className={"col-md-2"}/>
-                    <div className={"col-md-8"}>
+                    <div className={"col-md-1"}/>
+                    <div className={"col-md-10"}>
                         <div className={"papelera"} onClick={()=>this.handleModalShowPapelera()}>
                             <BsTrashFill/>
                             <p>Papelera</p>
@@ -1146,10 +1146,10 @@ export default class Home extends React.Component {
                                                                 <td  onClick={()=>this.viewRegister(data,data.Certification)}>{data.CVs}</td>
                                                                 <td  onClick={()=>this.viewRegister(data,data.Certification)}>{this.separeData(data.Certification)}</td>
                                                                 <td>
-                                                                    <FaTrashRestore className={"icon-table-consultor"} onClick={()=> {this.setState({user_selected:data});this.handleModalShowRestore()}}/>
+                                                                    <FaTrashRestore className={"icon-table-consultor"}  style={{display:this.state.typeDisplay}} onClick={()=> {this.setState({user_selected:data});this.handleModalShowRestore()}}/>
                                                                 </td>
                                                                 <td>
-                                                                    <BsTrashFill className={"icon-table-consultor"} onClick={()=>{this.setState({user_selected:data});this.handleModalShowDelete2()}}/>
+                                                                    <BsTrashFill className={"icon-table-consultor"}  style={{display:this.state.typeDisplay}} onClick={()=>{this.setState({user_selected:data});this.handleModalShowDelete2()}}/>
                                                                 </td>
                                                             </tr>
                                                         )

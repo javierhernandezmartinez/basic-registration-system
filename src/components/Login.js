@@ -34,8 +34,8 @@ export default class Login extends React.Component {
         let pass = document.getElementById("pass").value;
         Axios.post("http://localhost:4000/users/get/login",
             {
-                user:usuario,
-                pass:pass
+                user:usuario.trim(),
+                pass:pass.trim()
             })
             .then(res => {
                     console.log(res.data.data)
