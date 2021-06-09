@@ -29,7 +29,7 @@ const consult={};
         console.log(certificacion)
 
         var db = consult.sqlConection()
-        let query1 = `INSERT INTO  PERSONS (persons_ap1,persons_ap2,nombre) VALUES ('${person.apellido1}', '${person.apellido2}', '${person.nombre}');`
+        let query1 = `INSERT INTO  PERSONS (persons_ap,nombre,persons_img) VALUES ('${person.apellidos}','${person.nombre}','${person.imgPerfil}');`
         let query2 = `select max(persons_id) Id from PERSONS;`
 
         if (person.nombre !== ''){
@@ -95,7 +95,7 @@ const consult={};
 
         var db = consult.sqlConection()
         let update_person = `UPDATE PERSONS  
-                            SET persons_ap1 = '${person.apellido1}', persons_ap2 = '${person.apellido2}', nombre = '${person.nombre}'
+                            SET persons_ap = '${person.apellidos}', nombre = '${person.nombre}', persons_img = '${person.imgPerfil}'
                             WHERE persons_id = '${person.id}';`
 
         db.get(update_person, (err, row) => {
@@ -187,22 +187,22 @@ const consult={};
                 });
             }
             if(i === 2){
-                db.get(`delete from CVS where persons_id= ${person_id};`, (err, row) => {
+                db.get(`delete from CVS where persons_id == ${person_id};`, (err, row) => {
                     if (err) {console.error(err.message);}
                 });
             }
             if(i === 3){
-                db.get(`delete from EXPERIENCES where persons_id= ${person_id};`, (err, row) => {
+                db.get(`delete from EXPERIENCES where persons_id == ${person_id};`, (err, row) => {
                     if (err) {console.error(err.message);}
                 });
             }
             if(i === 4){
-                db.get(`delete from PROFESIONS where persons_id= ${person_id};`, (err, row) => {
+                db.get(`delete from PROFESIONS where persons_id == ${person_id};`, (err, row) => {
                     if (err) {console.error(err.message);}
                 });
             }
             if(i === 5){
-                db.get(`delete from PERSONS where persons_id= ${person_id};`, (err, row) => {
+                db.get(`delete from PERSONS where persons_id == ${person_id};`, (err, row) => {
                     if (err) {console.error(err.message);}
                 });
             }
@@ -216,7 +216,7 @@ const consult={};
     consult.sqlSelect_getList=(req, res)=>{
         var db = consult.sqlConection()
 
-        let query=`select a.persons_id, a.nombre, a.persons_ap1, a.persons_ap2,
+        let query=`select a.persons_id, a.nombre, a.persons_ap, a.persons_img, a.status,
                             (select  group_concat('nombre:' || nombre || '-' || 'id:' || certification_id)
                                 from CERTIFICATIONS where persons_id == a.persons_id) Certification,
                             (SELECT group_concat(nombre_cv) from CVS               where persons_id == a.persons_id) CVs,
@@ -267,7 +267,7 @@ const consult={};
 
         var db = consult.sqlConection()
 
-        let query=`SELECT nombre, base64_cert FROM CERTIFICATIONS WHERE certification_id == '${idCert}' AND nombre = '${nomFile}';`
+        let query=`SELECT nombre, base64_cert FROM CERTIFICATIONS WHERE certification_id == '${idCert}' AND nombre == '${nomFile}';`
 
         db.all(query, (err, row) => {
             if (err) {
@@ -279,8 +279,7 @@ const consult={};
             db.close()
         });
     };
-
-
+    
     consult.sqlDeleteCertification=(req,res)=>{
         console.log("-->",req.body)
         let certification_id = req.body.id;
@@ -295,5 +294,106 @@ const consult={};
         db.close()
     }
 
+    consult.sql_Login=(req,res)=>{
+        console.log("-->",req.body)
+        let user = req.body;
+        console.log(user.user, user.pass)
+        var db = consult.sqlConection()
+    
+        db.get(`SELECT user_id, user_nom, user_type FROM USERS WHERE user_nom == '${user.user}' AND user_pass == '${user.pass}'`,
+            (err, row) => {
+                 if (err) {console.error(err.message);}
+                res.json(
+                    {data:row}
+                );
+                db.close()
+        });
+    }
+
+    consult.sqlStatusUpdatePerson=(req, res)=> {
+        let person = req.body
+
+        var db = consult.sqlConection()
+        let update_person = `UPDATE PERSONS  
+                                SET status = '${person.status}'
+                                WHERE persons_id = '${person.id}';`
+        db.get(update_person, (err, row) => {
+                if (err) {console.error(err.message);}
+            res.json(
+                {"message":"Satatus Update"}
+            );
+            db.close()
+            }
+        )
+    }
+
+    consult.sqlSelect_getListUser=(req, res)=>{
+        var db = consult.sqlConection()
+    
+        let query=`select * from USERS ;`
+    
+        db.all(query, (err, row) => {
+            if (err) {
+                console.error(err.message);
+            }
+            res.json(
+                {data:row}
+            );
+            db.close()
+        });
+    };
+
+    consult.sqlInsertUser=(req, res)=>{
+        var db = consult.sqlConection()
+        var user = req.body
+    
+        let query=`insert into USERS (user_nom, user_pass, user_type)  values ('${user.nombre}', '${user.pass}', '${user.type}');`
+    
+        db.get(query, (err, row) => {
+            if (err) {
+                console.error(err.message);
+            }
+            res.json(
+                {"message":"User Inserted"}
+            );
+            db.close()
+        });
+    };
+
+    consult.sqlDeleteUser=(req, res)=>{
+        var db = consult.sqlConection()
+        var user = req.body
+
+        let query=`delete from USERS where user_id == '${user.id}';`
+
+        db.get(query, (err, row) => {
+            if (err) {
+                console.error(err.message);
+            }
+            res.json(
+                {"message":"User Delete"}
+            );
+            db.close()
+        });
+    };
+
+    consult.sqlUpdateUser=(req, res)=>{
+        var db = consult.sqlConection()
+        var user = req.body
+
+        let query=`UPDATE USERS  
+                    SET user_nom = '${user.nombre}', user_pass = '${user.pass}', user_type = '${user.type}'
+                    WHERE user_id = '${user.id}';`
+
+        db.get(query, (err, row) => {
+            if (err) {
+                console.error(err.message);
+            }
+            res.json(
+                {"message":"User Update"}
+            );
+            db.close()
+        });
+};
 
 module.exports= consult;
