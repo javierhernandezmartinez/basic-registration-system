@@ -14,6 +14,8 @@ import Header from "./Header";
 import Camera from 'react-html5-camera-photo';
 import ReactDOM from "react-dom";
 import Session from "./Session"
+import iconPlus1 from '../images/iconPlus1.jpeg'
+import iconPlus2 from '../images/iconPlus2.jpeg'
 
 
 export default class Home extends React.Component {
@@ -646,23 +648,19 @@ export default class Home extends React.Component {
                         <Header/>
                     </div>
                 </div>
-                <div className="row div-row-1">
-                    <div className={"col-md-12"}>
-                        <p className={"title1"}>
-                            PERFILES PROFESIONALES
-                        </p>
-                    </div>
-                </div>
-                <div className="row div-row-2">
+
+                <div className={"row row-content-table"}>
                     <div className={"col-md-1"}/>
-                    <div className={"col-md-10 col-table1"}>
-                        <Table id={"tabla"}  responsive className={"center table1 table-striped"}>
+                    <div className={"col-md-10"}>
+                        <div className={"row"}>
+                            <div className={"col-md-12"}>
+                        <Table  responsive className={"center table1 table-striped "}>
                             <thead className={"table1-thead"}>
                                 <tr className={"title1-thead"}>
-                                    <th colSpan={10}>PERFILES</th>
+                                    <th colSpan={9} className={'topRadius'}>  PERFILES PROFESIONALES</th>
                                 </tr>
                                 <tr className={"title1-thead"}>
-                                    <th colSpan={2}>
+                                    <th colSpan={3}>
                                         <select id={"optionSearch"}>
                                             <option>Filtrar por...</option>
                                             {
@@ -670,68 +668,76 @@ export default class Home extends React.Component {
                                             }
                                         </select>
                                     </th>
-                                    <th colSpan={8}>
-                                        <input id={"myInput"} type="text" placeholder={"Search..."}
-                                            onKeyUp={(e)=>this.TableFilter()}/>
+                                    <th colSpan={6}>
+                                        <input id={"myInput"} type="text" placeholder={"Search..."} onKeyUp={(e)=>this.TableFilter()}/>
                                     </th>
                                 </tr>
-                                <tr className={"title2-thead"}>
+                                <tr className={"title2-thead th-per-prof"}>
                                     {this.state.theand.map(item=>(<th>{item}</th>))}
-                                    <th colSpan={2}/>
+                                    <th colSpan={1} style={{width:"40px"}}>
+                                        <img src={iconPlus1} alt={""} className={"iconPlus"} onClick={()=> {this.setState({typeAction:"regisster",});this.handleModalShowRegister()}}/>
+                                    </th>
+                                    <th colSpan={1} style={{width:"40px"}}/>
                                 </tr>
                             </thead>
-                            <tbody className={"table1-tbody"}>
-                            {
-                                this.state.data.map(
-                                    data=>(
-                                        <tr className={"table1-tr"}>
-                                            <td  onClick={()=>this.viewRegister(data,data.Certification)}>{data.persons_id}</td>
-                                            <td  onClick={()=>this.viewRegister(data,data.Certification)}>{data.nombre}</td>
-                                            <td  onClick={()=>this.viewRegister(data,data.Certification)}>{data.persons_ap}</td>
-                                            <td  onClick={()=>this.viewRegister(data,data.Certification)}>{this.separeData(data.Profesions)}</td>
-                                            <td  onClick={()=>this.viewRegister(data,data.Certification)}>{this.separeData(data.Experiences)}</td>
-                                            <td  onClick={()=>this.viewRegister(data,data.Certification)}>{data.CVs}</td>
-                                            <td  onClick={()=>this.viewRegister(data,data.Certification)}>{this.separeData(data.Certification)}</td>
-                                            <td>
-                                                <BsPencilSquare className={"icon-table-consultor"} style={{display:this.state.typeDisplay}} onClick={
-                                                    ()=>{
-                                                        this.setState({typeAction:"update",user_selected:data, actionViewCv:true, fileImg:data.imgPerfil})
-                                                        if (data.CVs !== null){this.setState({nameCV:data.CVs})}
-                                                        this.deleteElementProfesion(1)
-                                                        this.deleteElementExperiencia(1)
-                                                        this.deleteElementCertificaciones(1)
-                                                        String(data.Profesions).split(",").map(item=> this.addElementProfesion(item))
-                                                        String(data.Experiences).split(",").map(item=> this.addElementExperiencia(item))
-                                                        data.Certification.map(item=> this.addElementCertificaciones(item.nombre,item.id))
-                                                        this.handleModalShowUpdate();
-                                                    }
-                                                }/>
-                                            </td>
-                                            <td>
-                                                <BsTrashFill className={"icon-table-consultor"} style={{display:this.state.typeDisplay}} onClick={()=>{this.setState({user_selected:data});this.handleModalShowDelete()}}/>
-                                            </td>
-                                        </tr>
-                                    )
-                                )
-                            }
-                            </tbody>
                         </Table>
+
+
+
+                        </div>
+                        <div className={"col-md-12 bottomRadius"}>
+
+                            <Table id={"tabla"}  responsive className={"center table1 table-striped"}>
+                                <tbody className={"table1-tbody"}>
+                                {
+                                    this.state.data.map(
+                                        data=>(
+                                            <tr className={"table1-tr td-per-prof"}>
+                                                <td  onClick={()=>this.viewRegister(data,data.Certification)}>{data.persons_id}</td>
+                                                <td  onClick={()=>this.viewRegister(data,data.Certification)}>{data.nombre}</td>
+                                                <td  onClick={()=>this.viewRegister(data,data.Certification)}>{data.persons_ap}</td>
+                                                <td  onClick={()=>this.viewRegister(data,data.Certification)}>{this.separeData(data.Profesions)}</td>
+                                                <td  onClick={()=>this.viewRegister(data,data.Certification)}>{this.separeData(data.Experiences)}</td>
+                                                <td  onClick={()=>this.viewRegister(data,data.Certification)}>{data.CVs}</td>
+                                                <td  onClick={()=>this.viewRegister(data,data.Certification)}>{this.separeData(data.Certification)}</td>
+                                                <td style={{width:"40px"}}>
+                                                    <BsPencilSquare className={"icon-table-consultor"} style={{display:this.state.typeDisplay}} onClick={
+                                                        ()=>{
+                                                            this.setState({typeAction:"update",user_selected:data, actionViewCv:true, fileImg:data.imgPerfil})
+                                                            if (data.CVs !== null){this.setState({nameCV:data.CVs})}
+                                                            this.deleteElementProfesion(1)
+                                                            this.deleteElementExperiencia(1)
+                                                            this.deleteElementCertificaciones(1)
+                                                            String(data.Profesions).split(",").map(item=> this.addElementProfesion(item))
+                                                            String(data.Experiences).split(",").map(item=> this.addElementExperiencia(item))
+                                                            data.Certification.map(item=> this.addElementCertificaciones(item.nombre,item.id))
+                                                            this.handleModalShowUpdate();
+                                                        }
+                                                    }/>
+                                                </td>
+                                                <td style={{width:"40px"}}>
+                                                    <BsTrashFill className={"icon-table-consultor"} style={{display:this.state.typeDisplay}} onClick={()=>{this.setState({user_selected:data});this.handleModalShowDelete()}}/>
+                                                </td>
+                                            </tr>
+                                        )
+                                    )
+                                }
+                                </tbody>
+                            </Table>
+                        </div>
                     </div>
-                </div>
-                <div className="row div-row-3">
-                    <div className={"col-md-1"}/>
-                    <div className={"col-md-10"}>
+
+                    </div>
+                    <div className={"col-md-1"}>
                         <div className={"papelera"} onClick={()=>this.handleModalShowPapelera()}>
                             <BsTrashFill/>
                             <p>Papelera</p>
                         </div>
-
-                        <Button className={"button-register"} style={{display:this.state.typeDisplay}}
-                            onClick={()=> {this.setState({typeAction:"regisster",});this.handleModalShowRegister()}}>
-                            <p>Nuevo registro</p>
-                        </Button>
                     </div>
+
                 </div>
+
+
 
                 <Modal  size="lg"
                         aria-labelledby="contained-modal-title-vcenter"
