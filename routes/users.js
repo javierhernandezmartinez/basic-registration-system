@@ -3,6 +3,7 @@ var router = express.Router();
 const sqlQuery = require('../db/consult')
 
 
+
 /* GET users listing. */
 router.get('/getList', sqlQuery.sqlSelect_getList);//recupera todos los registros
 router.post('/insert', sqlQuery.sqlInsert);//inserta todos los registros
