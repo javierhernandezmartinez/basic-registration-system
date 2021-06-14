@@ -20,12 +20,3 @@ router.post('/delete/user', sqlQuery.sqlDeleteUser);//Elimina un usuario
 router.post('/update/user', sqlQuery.sqlUpdateUser);//actualiza un usuario
 
 module.exports = router;
-
-
-
-/*
-function(req, res, next) {
-  res.send(
-      {bd:result }
-  );
-}*/
