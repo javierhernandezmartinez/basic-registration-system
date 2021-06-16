@@ -31,10 +31,12 @@
 .th-per-prof th{
     min-width: 100px;
     max-width: 100px;
+    width: 100px;
 }
 .td-per-prof td{
     min-width: 100px;
     max-width: 100px;
+    width: 100px;
 }
 
 
@@ -50,7 +52,6 @@
     overflow-y: auto;
     height: 100%;
     border-radius: inherit !important;
-
 }
 .topRadius{
     border-top-right-radius: 30px !important;
@@ -93,7 +94,7 @@
     border-radius: 8px;
     height: 70px;
     float: left;
-    margin-top: 1%;
+    margin-top: 40%;
 }
 .papelera>svg{
     width: inherit;
@@ -255,10 +256,12 @@ select::-ms-expand {
 
 
 .iconPlus{
-    width: 50px;
+    width: 3em;
+    height: 3em;
     border-radius: 50%;
     margin: auto;
     display: block;
+    cursor: pointer;
 }
 
 .iconPlus:hover{
@@ -266,6 +269,6 @@ select::-ms-expand {
 }
 
 .row-content-table{
-
     height: 95%;
+    overflow: auto;
 }

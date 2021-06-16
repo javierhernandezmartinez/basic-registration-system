@@ -8,6 +8,7 @@ import {BsPencilSquare, BsTrashFill} from "react-icons/bs";
 import Axios from "axios"
 import Header from "./Header";
 import Session from "./Session"
+import iconPlus1 from "../images/iconPlus1.jpeg";
 
 
 export default class Home extends React.Component {
@@ -136,74 +137,81 @@ export default class Home extends React.Component {
                         <Header/>
                     </div>
                 </div>
-                <div className="row div-row-1">
-                    <div className={"col-md-12"}>
-                        <p className={"title1"}>
-                            USUARIOS
-                        </p>
+
+                <div className="row row-content-table">
+                    <div className={"col-md-1"}/>
+                    <div className={"col-md-10"} style={{display:"flex"}}>
+
+                        <div className={"row"} style={{margin:"auto"}}>
+                            <div className={"col-md-12"}>
+                                <Table  responsive className={"center table1 table-striped "}>
+                                    <thead className={"table1-thead"}>
+                                    <tr className={"title1-thead"}>
+                                        <th colSpan={9} className={'topRadius'}>  USUARIOS </th>
+                                    </tr>
+                                    <tr className={"title1-thead"}>
+                                        <th colSpan={9}>
+                                            <select id={"optionSearch"}>
+                                                <option>Filtrar por...</option>
+
+                                                    {this.state.theand.map(item=>(<option>{item}</option>))}
+
+                                            </select>
+                                            <input id={"myInput"} type="text" style={{marginLeft:"1%"}} placeholder={"Search..."} onKeyUp={(e)=>this.TableFilter()}/>
+                                        </th>
+                                    </tr>
+                                    <tr className={"title2-thead th-per-prof"}>
+                                        {this.state.theand.map(item=>(<th>{item}</th>))}
+                                        <th style={{width:"40px"}}>
+                                            <img src={iconPlus1} alt={""} className={"iconPlus"} onClick={()=> {this.setState({typeUser:"Normal"});this.handleModalShowRegister()}}/>
+                                        </th>
+                                        <th style={{width:"40px"}}/>
+                                    </tr>
+                                    </thead>
+                                </Table>
+                            </div>
+                            <div className={"col-md-12 bottomRadius"} style={{height:"60vh"}}>
+                                <Table id={"tabla"}  responsive className={"center table1 table-striped"}>
+                                    <tbody className={"table1-tbody"}>
+                                    {
+                                        this.state.data.map(
+                                            data=>(
+                                                <tr className={"table1-tr td-per-prof"}>
+                                                    <td >{data.user_id}</td>
+                                                    <td >{data.user_nom}</td>
+                                                    <td >{data.user_pass}</td>
+                                                    <td >{data.user_type}</td>
+                                                    <td>
+                                                        <BsPencilSquare className={"icon-table-consultor"} onClick={
+                                                            ()=>{
+                                                                this.setState({user_selected:data, typeUser:data.user_type})
+                                                                this.handleModalShowUpdate();
+                                                            }
+                                                        }/>
+                                                    </td>
+                                                    <td>
+                                                        <BsTrashFill className={"icon-table-consultor"} onClick={()=>{this.setState({user_selected:data});this.handleModalShowDelete()}}/>
+                                                    </td>
+                                                </tr>
+                                            )
+                                        )
+                                    }
+                                    </tbody>
+                                </Table>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div className="row div-row-2">
-                    <div className={"col-md-2"}/>
-                    <div className={"col-md-8 col-table1"}>
-                        <Table id={"tabla"}  responsive className={"center table1 table-striped"}>
-                            <thead className={"table1-thead"}>
-                                <tr className={"title1-thead"}>
-                                    <th colSpan={10}>USUARIOS</th>
-                                </tr>
-                                <tr className={"title1-thead"}>
-                                    <th colSpan={2}>
-                                        <select id={"optionSearch"}>
-                                            <option>Filtrar por...</option>
-                                            {this.state.theand.map(item=>(<option>{item}</option>))}
-                                        </select>
-                                    </th>
-                                    <th colSpan={8}>
-                                        <input id={"myInput"} type="text" placeholder={"Search..."}
-                                            onKeyUp={(e)=>this.TableFilter()}/>
-                                    </th>
-                                </tr>
-                                <tr className={"title2-thead"}>
-                                    {this.state.theand.map(item=>(<th>{item}</th>))}
-                                    <th colSpan={2}/>
-                                </tr>
-                            </thead>
-                            <tbody className={"table1-tbody"}>
-                            {
-                                this.state.data.map(
-                                    data=>(
-                                        <tr className={"table1-tr"}>
-                                            <td >{data.user_id}</td>
-                                            <td >{data.user_nom}</td>
-                                            <td >{data.user_pass}</td>
-                                            <td >{data.user_type}</td>
-                                            <td>
-                                                <BsPencilSquare className={"icon-table-consultor"} onClick={
-                                                    ()=>{
-                                                        this.setState({user_selected:data, typeUser:data.user_type})
-                                                        this.handleModalShowUpdate();
-                                                    }
-                                                }/>
-                                            </td>
-                                            <td>
-                                                <BsTrashFill className={"icon-table-consultor"} onClick={()=>{this.setState({user_selected:data});this.handleModalShowDelete()}}/>
-                                            </td>
-                                        </tr>
-                                    )
-                                )
-                            }
-                            </tbody>
-                        </Table>
-                    </div>
-                </div>
-                <div className="row div-row-3">
-                    <div className={"col-md-2"}/>
-                    <div className={"col-md-8"}>
-                        <Button className={"button-register"} onClick={()=> {this.setState({typeUser:"Normal"});this.handleModalShowRegister()}}>
-                            <p>Nuevo usuario</p>
-                        </Button>
-                    </div>
-                </div>
+
+
+
+
+
+
+
+
+
+
 
                 <Modal  size="lg"
                         aria-labelledby="contained-modal-title-vcenter"

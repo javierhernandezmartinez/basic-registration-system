@@ -28,7 +28,7 @@ export default class Home extends React.Component {
             showModalViewPdf:false,
             data:[],
             data2:[],
-            theand:["ID","NOMBRE","APELLIDOS","PROFESION","EXPERIENCIA","CV","CEDULA Y CERTIFICACIONES"],
+            theand:["ID","NOMBRE","APELLIDOS","PROFESION","EXPERIENCIA","CV","DOCUMENTOS"],
             numPages:null,
             pageNumber:1,
 
@@ -58,7 +58,12 @@ export default class Home extends React.Component {
             showModalDelete2:false,
             showModalPapelera:false,
             showModalRestore:false,
-            typeDisplay:"block"
+            typeDisplay:"block",
+
+            person_type:'Normal',
+
+            showModalNormal:false,
+            data_perfil_selected:[]
         };
     }
 
@@ -163,6 +168,9 @@ export default class Home extends React.Component {
     handleModalShowPapelera=()=>{
         this.setState({showModalPapelera:!this.state.showModalPapelera})
     }
+    handleModalShowNormal=()=>{
+        this.setState({showModalNormal:!this.state.showModalNormal})
+    }
 
     getFilesCV(files){
         this.setState({fileCV: files[0].base64,nameCV:files[0].name, actionViewCv:false});
@@ -209,16 +217,16 @@ export default class Home extends React.Component {
         }
     }
 
-    TableFilter = ()=>{
+    TableFilter = (id_input, id_table, id_optionSearch)=>{
         var input, filter, table, tr, td, i, txtValue, optionSearch, index;
-        input = document.getElementById("myInput");
+        input = document.getElementById(id_input);
         filter = input.value.toUpperCase();
-        table = document.getElementById("tabla");
+        table = document.getElementById(id_table);
         tr = table.getElementsByTagName("tr");
-        optionSearch=document.getElementById("optionSearch").value
+        optionSearch=document.getElementById(id_optionSearch).value
 
         for ( var j = 0; j < this.state.theand.length; j ++){
-            if(this.state.theand[j] == optionSearch){
+            if(this.state.theand[j] === optionSearch){
                 index = j
             }
         }
@@ -269,7 +277,8 @@ export default class Home extends React.Component {
                                     persons_ap: item.persons_ap,
                                     persons_id: item.persons_id,
                                     imgPerfil: item.persons_img,
-                                    status:item.status
+                                    status:item.status,
+                                    persons_type:item.persons_type
                                 }
                             )
                         }else {
@@ -295,12 +304,26 @@ export default class Home extends React.Component {
             })
     }
 
-    addData=(id)=>{
+    addData=(id,dataPlusSelect)=>{
+        console.log(id, dataPlusSelect)
         let id_person = id
-        let nombre=document.getElementById("nomUser").value;
-        let apellidos=document.getElementById("ap1User").value;
-        let imgPerfil=this.state.fileImg
+        let nombre
+        let apellidos
+        let id_secundary
         let profesion=[];
+        if (dataPlusSelect !== undefined){
+            nombre = dataPlusSelect.nombre
+            apellidos = dataPlusSelect.persons_ap
+            id_secundary = dataPlusSelect.persons_id
+          /*  profesion = dataPlusSelect.Profesions*/
+        }else {
+            nombre=document.getElementById("nomUser").value;
+            apellidos=document.getElementById("ap1User").value;
+        }
+
+
+        let imgPerfil=this.state.fileImg
+
         let experiencia=[];
         let cv=[];
         let certificacion=[];
@@ -397,6 +420,7 @@ export default class Home extends React.Component {
 
         this.resetState()
         let Link_request = ""
+
         if (this.state.typeAction === "update"){
             console.log("bmos a actualisr dataaa")
             Link_request = "http://localhost:4000/users/update"
@@ -410,7 +434,9 @@ export default class Home extends React.Component {
                 id:id_person,
                 nombre:nombre,
                 apellidos:apellidos,
-                imgPerfil:imgPerfil
+                imgPerfil:imgPerfil,
+                type:this.state.person_type,
+                id_secundary:id_secundary
             }],
             profesion: profesion,
             experiencia: experiencia,
@@ -618,18 +644,6 @@ export default class Home extends React.Component {
         })
     }
 
-    separeCert=(list)=>{
-        console.log("--",list)
-        if (  list !== null){
-            if (typeof list === "string"){
-                return String(list).split(",").map(item=>(<div>{item}</div>))
-            }
-            else{
-                return list.map(item=>(<div>{item.nombre}</div>))
-            }
-        }
-    }
-
     viewRegister=(data, Certification)=>{
         this.setState({user_selected:data,user_selected2:Certification, fileImg:data.imgPerfil});
         this.handleModalShowPresent();
@@ -648,85 +662,97 @@ export default class Home extends React.Component {
                         <Header/>
                     </div>
                 </div>
+                <div className={"row"}>
+                    <div className={"col-md-1"}/>
+                    <div className={"col-md-10"}>
+                        <button onClick={()=>this.setState({person_type:'Normal'})}>Perfil Normal</button>
+                        <button onClick={()=>this.setState({person_type:'Plus'})}>Perfil Plus</button>
+                    </div>
+                </div>
 
                 <div className={"row row-content-table"}>
                     <div className={"col-md-1"}/>
-                    <div className={"col-md-10"}>
-                        <div className={"row"}>
+                    <div className={"col-md-10"} style={{display:"flex"}}>
+                        <div className={"row"} style={{margin:"auto"}}>
                             <div className={"col-md-12"}>
-                        <Table  responsive className={"center table1 table-striped "}>
-                            <thead className={"table1-thead"}>
-                                <tr className={"title1-thead"}>
-                                    <th colSpan={9} className={'topRadius'}>  PERFILES PROFESIONALES</th>
-                                </tr>
-                                <tr className={"title1-thead"}>
-                                    <th colSpan={3}>
-                                        <select id={"optionSearch"}>
-                                            <option>Filtrar por...</option>
-                                            {
-                                                this.state.theand.map(item=>(<option>{item}</option>))
-                                            }
-                                        </select>
-                                    </th>
-                                    <th colSpan={6}>
-                                        <input id={"myInput"} type="text" placeholder={"Search..."} onKeyUp={(e)=>this.TableFilter()}/>
-                                    </th>
-                                </tr>
-                                <tr className={"title2-thead th-per-prof"}>
-                                    {this.state.theand.map(item=>(<th>{item}</th>))}
-                                    <th colSpan={1} style={{width:"40px"}}>
-                                        <img src={iconPlus1} alt={""} className={"iconPlus"} onClick={()=> {this.setState({typeAction:"regisster",});this.handleModalShowRegister()}}/>
-                                    </th>
-                                    <th colSpan={1} style={{width:"40px"}}/>
-                                </tr>
-                            </thead>
-                        </Table>
+                                <Table  responsive className={"center table1 table-striped "}>
+                                    <thead className={"table1-thead"}>
+                                        <tr className={"title1-thead"}>
+                                            <th colSpan={9} className={'topRadius'}>  PERFILES PROFESIONALES</th>
+                                        </tr>
+                                        <tr className={"title1-thead"}>
+                                            <th colSpan={9}>
+                                                <select id={"optionSearch"}>
+                                                    <option>Filtrar por...</option>
+                                                    {
+                                                        this.state.theand.map(item=>(<option>{item}</option>))
+                                                    }
+                                                </select>
+                                                <input id={"myInput"} type="text" style={{marginLeft:"1%"}} placeholder={"Search..."} onKeyUp={(e)=>this.TableFilter("myInput","tabla","optionSearch")}/>
+                                            </th>
+                                        </tr>
+                                        <tr className={"title2-thead th-per-prof"}>
+                                            {this.state.theand.map(item=>(<th>{item}</th>))}
+                                            <th style={{width:"40px"}}>
+                                                <img src={iconPlus1} alt={""} className={"iconPlus"} style={{display:this.state.typeDisplay}}
+                                                     onClick={() => {
+                                                         if (this.state.person_type === 'Normal') {
+                                                             this.setState({typeAction: "regisster",});
+                                                             this.handleModalShowRegister()
+                                                         } else {
+                                                             this.handleModalShowNormal()
+                                                         }
+                                                     }
+                                                     }
+                                                />
 
-
-
-                        </div>
-                        <div className={"col-md-12 bottomRadius"}>
-
-                            <Table id={"tabla"}  responsive className={"center table1 table-striped"}>
-                                <tbody className={"table1-tbody"}>
-                                {
-                                    this.state.data.map(
-                                        data=>(
-                                            <tr className={"table1-tr td-per-prof"}>
-                                                <td  onClick={()=>this.viewRegister(data,data.Certification)}>{data.persons_id}</td>
-                                                <td  onClick={()=>this.viewRegister(data,data.Certification)}>{data.nombre}</td>
-                                                <td  onClick={()=>this.viewRegister(data,data.Certification)}>{data.persons_ap}</td>
-                                                <td  onClick={()=>this.viewRegister(data,data.Certification)}>{this.separeData(data.Profesions)}</td>
-                                                <td  onClick={()=>this.viewRegister(data,data.Certification)}>{this.separeData(data.Experiences)}</td>
-                                                <td  onClick={()=>this.viewRegister(data,data.Certification)}>{data.CVs}</td>
-                                                <td  onClick={()=>this.viewRegister(data,data.Certification)}>{this.separeData(data.Certification)}</td>
-                                                <td style={{width:"40px"}}>
-                                                    <BsPencilSquare className={"icon-table-consultor"} style={{display:this.state.typeDisplay}} onClick={
-                                                        ()=>{
-                                                            this.setState({typeAction:"update",user_selected:data, actionViewCv:true, fileImg:data.imgPerfil})
-                                                            if (data.CVs !== null){this.setState({nameCV:data.CVs})}
-                                                            this.deleteElementProfesion(1)
-                                                            this.deleteElementExperiencia(1)
-                                                            this.deleteElementCertificaciones(1)
-                                                            String(data.Profesions).split(",").map(item=> this.addElementProfesion(item))
-                                                            String(data.Experiences).split(",").map(item=> this.addElementExperiencia(item))
-                                                            data.Certification.map(item=> this.addElementCertificaciones(item.nombre,item.id))
-                                                            this.handleModalShowUpdate();
-                                                        }
-                                                    }/>
-                                                </td>
-                                                <td style={{width:"40px"}}>
-                                                    <BsTrashFill className={"icon-table-consultor"} style={{display:this.state.typeDisplay}} onClick={()=>{this.setState({user_selected:data});this.handleModalShowDelete()}}/>
-                                                </td>
-                                            </tr>
+                                            </th>
+                                            <th style={{width:"40px"}}/>
+                                        </tr>
+                                    </thead>
+                                </Table>
+                            </div>
+                            <div className={"col-md-12 bottomRadius"} style={{height:"60vh"}}>
+                                <Table id={"tabla"}  responsive className={"center table1 table-striped"}>
+                                    <tbody className={"table1-tbody"}>
+                                    {
+                                        this.state.data.map(
+                                            data=>(
+                                                data.persons_type===this.state.person_type?
+                                                <tr className={"table1-tr td-per-prof"}>
+                                                    <td  onClick={()=>this.viewRegister(data,data.Certification)}>{data.persons_id}</td>
+                                                    <td  onClick={()=>this.viewRegister(data,data.Certification)}>{data.nombre}</td>
+                                                    <td  onClick={()=>this.viewRegister(data,data.Certification)}>{data.persons_ap}</td>
+                                                    <td  onClick={()=>this.viewRegister(data,data.Certification)}>{this.separeData(data.Profesions)}</td>
+                                                    <td  onClick={()=>this.viewRegister(data,data.Certification)}>{this.separeData(data.Experiences)}</td>
+                                                    <td  onClick={()=>this.viewRegister(data,data.Certification)}>{data.CVs}</td>
+                                                    <td  onClick={()=>this.viewRegister(data,data.Certification)}>{this.separeData(data.Certification)}</td>
+                                                    <td style={{width:"40px"}}>
+                                                        <BsPencilSquare className={"icon-table-consultor"} style={{display:this.state.typeDisplay}} onClick={
+                                                            ()=>{
+                                                                this.setState({typeAction:"update",user_selected:data, actionViewCv:true, fileImg:data.imgPerfil})
+                                                                if (data.CVs !== null){this.setState({nameCV:data.CVs})}
+                                                                this.deleteElementProfesion(1)
+                                                                this.deleteElementExperiencia(1)
+                                                                this.deleteElementCertificaciones(1)
+                                                                String(data.Profesions).split(",").map(item=> this.addElementProfesion(item))
+                                                                String(data.Experiences).split(",").map(item=> this.addElementExperiencia(item))
+                                                                data.Certification.map(item=> this.addElementCertificaciones(item.nombre,item.id))
+                                                                this.handleModalShowUpdate();
+                                                            }
+                                                        }/>
+                                                    </td>
+                                                    <td style={{width:"40px"}}>
+                                                        <BsTrashFill className={"icon-table-consultor"} style={{display:this.state.typeDisplay}} onClick={()=>{this.setState({user_selected:data});this.handleModalShowDelete()}}/>
+                                                    </td>
+                                                </tr>:<tr></tr>
+                                            )
                                         )
-                                    )
-                                }
-                                </tbody>
-                            </Table>
-                        </div>
-                    </div>
-
+                                    }
+                                    </tbody>
+                                </Table>
+                            </div>
+                       </div>
                     </div>
                     <div className={"col-md-1"}>
                         <div className={"papelera"} onClick={()=>this.handleModalShowPapelera()}>
@@ -736,7 +762,6 @@ export default class Home extends React.Component {
                     </div>
 
                 </div>
-
 
 
                 <Modal  size="lg"
@@ -1109,60 +1134,65 @@ export default class Home extends React.Component {
                        dialogClassName={"dialog-modal-papelera"}
                 >
                     <Modal.Body>
-                        <div className={"row div-presentacion"}>
+                        <div className={"row div-cesto"}>
 
                             <div className={"col-md-12 div-general-skill"}>
                                 <div className={"row div-skill"}>
-                                    <div className={"col-md-12"}>
-                                        <div className={"col-table1"}>
-                                            <Table id={"tabla"}  responsive className={"center table1 table-striped"}>
-                                                <thead className={"table1-thead"}>
-                                                <tr className={"title1-thead"}>
-                                                    <th colSpan={10}>PERFILES</th>
-                                                </tr>
-                                                <tr className={"title1-thead"}>
-                                                    <th colSpan={2}>
-                                                        <select id={"optionSearch"}>
-                                                            <option>Filtrar por...</option>
-                                                            {
-                                                                this.state.theand.map(item=>(<option>{item}</option>))
-                                                            }
-                                                        </select>
-                                                    </th>
-                                                    <th colSpan={8}>
-                                                        <input id={"myInput"} type="text" placeholder={"Search..."}
-                                                               onKeyUp={(e)=>this.TableFilter()}/>
-                                                    </th>
-                                                </tr>
-                                                <tr className={"title2-thead"}>
-                                                    {this.state.theand.map(item=>(<th>{item}</th>))}
-                                                    <th colSpan={2}/>
-                                                </tr>
-                                                </thead>
-                                                <tbody className={"table1-tbody"}>
-                                                {
-                                                    this.state.data2.map(
-                                                        data=>(
-                                                            <tr className={"table1-tr"}>
-                                                                <td  onClick={()=>this.viewRegister(data,data.Certification)}>{data.persons_id}</td>
-                                                                <td  onClick={()=>this.viewRegister(data,data.Certification)}>{data.nombre}</td>
-                                                                <td  onClick={()=>this.viewRegister(data,data.Certification)}>{data.persons_ap}</td>
-                                                                <td  onClick={()=>this.viewRegister(data,data.Certification)}>{this.separeData(data.Profesions)}</td>
-                                                                <td  onClick={()=>this.viewRegister(data,data.Certification)}>{this.separeData(data.Experiences)}</td>
-                                                                <td  onClick={()=>this.viewRegister(data,data.Certification)}>{data.CVs}</td>
-                                                                <td  onClick={()=>this.viewRegister(data,data.Certification)}>{this.separeData(data.Certification)}</td>
-                                                                <td>
-                                                                    <FaTrashRestore className={"icon-table-consultor"}  style={{display:this.state.typeDisplay}} onClick={()=> {this.setState({user_selected:data});this.handleModalShowRestore()}}/>
-                                                                </td>
-                                                                <td>
-                                                                    <BsTrashFill className={"icon-table-consultor"}  style={{display:this.state.typeDisplay}} onClick={()=>{this.setState({user_selected:data});this.handleModalShowDelete2()}}/>
-                                                                </td>
-                                                            </tr>
+
+                                    <div className={"col-md-1"}/>
+                                    <div className={"col-md-10"} style={{display:"flex"}}>
+                                        <div className={"row"} style={{margin:"auto"}}>
+                                            <div className={"col-md-12"}>
+                                                <Table  responsive className={"center table1 table-striped "}>
+                                                    <thead className={"table1-thead"}>
+                                                    <tr className={"title1-thead"}>
+                                                        <th colSpan={9} className={'topRadius'}>  PERFILES ELIMINADOS</th>
+                                                    </tr>
+                                                    <tr className={"title1-thead"}>
+                                                        <th colSpan={9}>
+                                                            <select id={"optionSearch_p"}>
+                                                                <option>Filtrar por...</option>
+                                                                {this.state.theand.map(item=>(<option>{item}</option>))}
+                                                            </select>
+                                                            <input id={"myInput_p"} type="text" style={{marginLeft:"1%"}} placeholder={"Search..."} onKeyUp={(e)=>this.TableFilter("myInput_p","tabla_p","optionSearch_p")}/>
+                                                        </th>
+                                                    </tr>
+                                                    <tr className={"title2-thead th-per-prof"}>
+                                                        {this.state.theand.map(item=>(<th>{item}</th>))}
+                                                        <th style={{width:"40px"}}>
+                                                        </th>
+                                                        <th style={{width:"40px"}}/>
+                                                    </tr>
+                                                    </thead>
+                                                </Table>
+                                            </div>
+                                            <div className={"col-md-12 bottomRadius"} style={{height:"60vh"}}>
+                                                <Table id={"tabla_p"}  responsive className={"center table1 table-striped"}>
+                                                    <tbody className={"table1-tbody"}>
+                                                    {
+                                                        this.state.data2.map(
+                                                            data=>(
+                                                                <tr className={"table1-tr td-per-prof"}>
+                                                                    <td  onClick={()=>this.viewRegister(data,data.Certification)}>{data.persons_id}</td>
+                                                                    <td  onClick={()=>this.viewRegister(data,data.Certification)}>{data.nombre}</td>
+                                                                    <td  onClick={()=>this.viewRegister(data,data.Certification)}>{data.persons_ap}</td>
+                                                                    <td  onClick={()=>this.viewRegister(data,data.Certification)}>{this.separeData(data.Profesions)}</td>
+                                                                    <td  onClick={()=>this.viewRegister(data,data.Certification)}>{this.separeData(data.Experiences)}</td>
+                                                                    <td  onClick={()=>this.viewRegister(data,data.Certification)}>{data.CVs}</td>
+                                                                    <td  onClick={()=>this.viewRegister(data,data.Certification)}>{this.separeData(data.Certification)}</td>
+                                                                    <td>
+                                                                        <FaTrashRestore className={"icon-table-consultor"}  style={{display:this.state.typeDisplay}} onClick={()=> {this.setState({user_selected:data});this.handleModalShowRestore()}}/>
+                                                                    </td>
+                                                                    <td>
+                                                                        <BsTrashFill className={"icon-table-consultor"}  style={{display:this.state.typeDisplay}} onClick={()=>{this.setState({user_selected:data});this.handleModalShowDelete2()}}/>
+                                                                    </td>
+                                                                </tr>
+                                                            )
                                                         )
-                                                    )
-                                                }
-                                                </tbody>
-                                            </Table>
+                                                    }
+                                                    </tbody>
+                                                </Table>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -1203,6 +1233,95 @@ export default class Home extends React.Component {
                         </div>
                     </Modal.Body>
                 </Modal>
+
+                <Modal size="lg"
+                       aria-labelledby="contained-modal-title-vcenter"
+                       centered
+                       show={this.state.showModalNormal}
+                       dialogClassName={"dialog-modal-papelera"}
+                >
+                    <Modal.Body>
+                        <div className={"row div-cesto"}>
+
+                            <div className={"col-md-12 div-general-skill"}>
+                                <div className={"row div-skill"}>
+
+                                    <div className={"col-md-1"}/>
+                                    <div className={"col-md-10"} style={{display:"flex"}}>
+                                        <div className={"row"} style={{margin:"auto"}}>
+                                            <div className={"col-md-12"}>
+                                                <Table  responsive className={"center table1 table-striped "}>
+                                                    <thead className={"table1-thead"}>
+                                                    <tr className={"title1-thead"}>
+                                                        <th colSpan={9} className={'topRadius'}>PERFILES</th>
+                                                    </tr>
+                                                    <tr className={"title1-thead"}>
+                                                        <th colSpan={9}>
+                                                            <select id={"optionSearch_p"}>
+                                                                <option>Filtrar por...</option>
+                                                                {this.state.theand.map(item=>(<option>{item}</option>))}
+                                                            </select>
+                                                            <input id={"myInput_p"} type="text" style={{marginLeft:"1%"}} placeholder={"Search..."} onKeyUp={(e)=>this.TableFilter("myInput_p","tabla_p","optionSearch_p")}/>
+                                                        </th>
+                                                    </tr>
+                                                    <tr className={"title2-thead th-per-prof"}>
+                                                        {this.state.theand.map(item=>(<th>{item}</th>))}
+                                                        <th style={{width:"40px"}}>
+                                                        </th>
+                                                        <th style={{width:"40px"}}/>
+                                                    </tr>
+                                                    </thead>
+                                                </Table>
+                                            </div>
+                                            <div className={"col-md-12 bottomRadius"} style={{height:"60vh"}}>
+                                                <Table id={"tabla_p"}  responsive className={"center table1 table-striped"}>
+                                                    <tbody className={"table1-tbody"}>
+                                                    {
+                                                        this.state.data.map(
+                                                            data=>(
+                                                            data.persons_type==='Normal'?
+                                                                <tr className={"table1-tr td-per-prof"}>
+                                                                    <td  onClick={()=>this.viewRegister(data,data.Certification)}>{data.persons_id}</td>
+                                                                    <td  onClick={()=>this.viewRegister(data,data.Certification)}>{data.nombre}</td>
+                                                                    <td  onClick={()=>this.viewRegister(data,data.Certification)}>{data.persons_ap}</td>
+                                                                    <td  onClick={()=>this.viewRegister(data,data.Certification)}>{this.separeData(data.Profesions)}</td>
+                                                                    <td  onClick={()=>this.viewRegister(data,data.Certification)}>{this.separeData(data.Experiences)}</td>
+                                                                    <td  onClick={()=>this.viewRegister(data,data.Certification)}>{data.CVs}</td>
+                                                                    <td  onClick={()=>this.viewRegister(data,data.Certification)}>{this.separeData(data.Certification)}</td>
+                                                                    <td style={{width:"40px"}}>
+                                                                        <button onClick={
+                                                                            ()=>{
+                                                                                this.setState({user_selected:data, fileImg:data.imgPerfil,person_type:"Plus"})
+                                                                                this.deleteElementProfesion(1)
+                                                                                String(data.Profesions).split(",").map(item=> this.addElementProfesion(item))
+                                                                                this.addData(undefined,data);
+
+
+
+
+                                                                            }}>Agregar plus</button>
+                                                                    </td>
+                                                                </tr>:<tr></tr>
+                                                            )
+                                                        )
+                                                    }
+                                                    </tbody>
+                                                </Table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className={"col-md-12 div-cv-pres"}>
+                                <div>
+                                    <Button onClick={()=>this.handleModalShowNormal()}>Cerrar</Button>
+                                </div>
+                            </div>
+                        </div>
+                    </Modal.Body>
+                </Modal>
+
+
             </div>
     )
     }
