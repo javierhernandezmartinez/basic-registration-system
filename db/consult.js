@@ -29,7 +29,7 @@ const consult={};
         console.log(certificacion)
 
         var db = consult.sqlConection()
-        let query1 = `INSERT INTO  PERSONS (persons_ap,nombre,persons_img) VALUES ('${person.apellidos}','${person.nombre}','${person.imgPerfil}');`
+        let query1 = `INSERT INTO  PERSONS (persons_ap,nombre,persons_img,persons_type,id_secundary) VALUES ('${person.apellidos}','${person.nombre}','${person.imgPerfil}','${person.type}','${person.id_secundary}');`
         let query2 = `select max(persons_id) Id from PERSONS;`
 
         if (person.nombre !== ''){
@@ -202,7 +202,7 @@ const consult={};
                 });
             }
             if(i === 5){
-                db.get(`delete from PERSONS where persons_id == ${person_id};`, (err, row) => {
+                db.get(`delete from PERSONS where persons_id == ${person_id} or id_secundary == ${person_id};`, (err, row) => {
                     if (err) {console.error(err.message);}
                 });
             }
@@ -216,7 +216,7 @@ const consult={};
     consult.sqlSelect_getList=(req, res)=>{
         var db = consult.sqlConection()
 
-        let query=`select a.persons_id, a.nombre, a.persons_ap, a.persons_img, a.status,
+        let query=`select a.persons_id, a.nombre, a.persons_ap, a.persons_img, a.status,a.persons_type,a.id_secundary,
                             (select  group_concat('nombre:' || nombre || '-' || 'id:' || certification_id)
                                 from CERTIFICATIONS where persons_id == a.persons_id) Certification,
                             (SELECT group_concat(nombre_cv) from CVS               where persons_id == a.persons_id) CVs,
@@ -316,7 +316,7 @@ const consult={};
         var db = consult.sqlConection()
         let update_person = `UPDATE PERSONS  
                                 SET status = '${person.status}'
-                                WHERE persons_id = '${person.id}';`
+                                WHERE persons_id = '${person.id}' or id_secundary = '${person.id}';`
         db.get(update_person, (err, row) => {
                 if (err) {console.error(err.message);}
             res.json(
