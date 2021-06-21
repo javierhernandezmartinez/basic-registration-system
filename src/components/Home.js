@@ -662,18 +662,17 @@ export default class Home extends React.Component {
                         <Header/>
                     </div>
                 </div>
-                <div className={"row"}>
-                    <div className={"col-md-1"}/>
-                    <div className={"col-md-10"}>
-                        <button onClick={()=>this.setState({person_type:'Normal'})}>Perfil Normal</button>
-                        <button onClick={()=>this.setState({person_type:'Plus'})}>Perfil Plus</button>
-                    </div>
-                </div>
 
                 <div className={"row row-content-table"}>
                     <div className={"col-md-1"}/>
                     <div className={"col-md-10"} style={{display:"flex"}}>
                         <div className={"row"} style={{margin:"auto"}}>
+                            <div className={"col-md-12 inputRadio"}>
+                                <input type={"radio"} id={"normal"} onClick={()=>this.setState({person_type:'Normal'})} checked={this.state.person_type === 'Normal'}/>
+                                <label htmlFor={"normal"}>Perfil normal</label>
+                                <input type={"radio"} id={"plus"} onClick={()=>this.setState({person_type:'Plus'})} checked={this.state.person_type === 'Plus'}/>
+                                <label htmlFor={"plus"}>Perfil plus</label>
+                            </div>
                             <div className={"col-md-12"}>
                                 <Table  responsive className={"center table1 table-striped "}>
                                     <thead className={"table1-thead"}>

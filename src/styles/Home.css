@@ -272,3 +272,18 @@ select::-ms-expand {
     height: 95%;
     overflow: auto;
 }
+
+.inputRadio{
+    color: rgba(0,0,0,.6);
+}
+.inputRadio>input{
+    margin-left: 1%;
+}
+.inputRadio>label{
+    margin-left: 1%;
+    font-weight: bold;
+    font-size: 20px;
+}
+.inputRadio>label:hover{
+    opacity: .5;
+}
