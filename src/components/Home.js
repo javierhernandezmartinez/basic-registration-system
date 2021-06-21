@@ -16,6 +16,7 @@ import ReactDOM from "react-dom";
 import Session from "./Session"
 import iconPlus1 from '../images/iconPlus1.jpeg'
 import iconPlus2 from '../images/iconPlus2.jpeg'
+import {AiOutlinePlus} from "react-icons/all";
 
 
 export default class Home extends React.Component {
@@ -1288,17 +1289,14 @@ export default class Home extends React.Component {
                                                                     <td  onClick={()=>this.viewRegister(data,data.Certification)}>{data.CVs}</td>
                                                                     <td  onClick={()=>this.viewRegister(data,data.Certification)}>{this.separeData(data.Certification)}</td>
                                                                     <td style={{width:"40px"}}>
-                                                                        <button onClick={
+                                                                        <AiOutlinePlus className={"icon-table-consultor"}  onClick={
                                                                             ()=>{
                                                                                 this.setState({user_selected:data, fileImg:data.imgPerfil,person_type:"Plus"})
                                                                                 this.deleteElementProfesion(1)
                                                                                 String(data.Profesions).split(",").map(item=> this.addElementProfesion(item))
                                                                                 this.addData(undefined,data);
-
-
-
-
-                                                                            }}>Agregar plus</button>
+                                                                                this.handleModalShowNormal()
+                                                                            }}/>
                                                                     </td>
                                                                 </tr>:<tr></tr>
                                                             )
