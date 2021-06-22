@@ -46,6 +46,7 @@ export default class Home extends React.Component {
             profesiones:[],
             experiencias:[],
             certificaciones:[],
+            licitaciones:[],
             user_selected:[],
             user_selected2:[],
 
@@ -80,6 +81,7 @@ export default class Home extends React.Component {
             this.addElementProfesion()
             this.addElementExperiencia()
             this.addElementCertificaciones()
+            this.addElementLicitacion()
         }else{
             Session.validateSession()
         }
@@ -135,7 +137,16 @@ export default class Home extends React.Component {
                                                 <FaRegTrashAlt id={1} className={'icon_right'} onClick={ e => this.deleteElementCertificaciones(e.target.id)}/>
                                             </div>
                     }
-                ]
+                ],
+            licitaciones:[
+                {
+                    id_licit:1,
+                    conteintProsefion:  <div style={{height:"30px"}}>
+                        <input type={'text' } id={1+"P"} placeholder={`licitación 1`} className={'input_prof'}/>
+                        <FaRegTrashAlt id={1} className={'icon_right'} onClick={e => this.deleteElementLicitacion(e.target.id)}/>
+                    </div>
+                }
+            ],
         })
     }
 
@@ -158,6 +169,7 @@ export default class Home extends React.Component {
     handleModalShowDelete=()=>{
         this.setState({showModalDelete:!this.state.showModalDelete})
     }
+
     handleModalShowDelete2=()=>{
         this.setState({showModalDelete2:!this.state.showModalDelete2})
     }
@@ -169,6 +181,7 @@ export default class Home extends React.Component {
     handleModalShowPapelera=()=>{
         this.setState({showModalPapelera:!this.state.showModalPapelera})
     }
+
     handleModalShowNormal=()=>{
         this.setState({showModalNormal:!this.state.showModalNormal})
     }
@@ -484,6 +497,34 @@ export default class Home extends React.Component {
             }
         )
         this.setState({profesiones:profesiones})
+    }
+
+    addElementLicitacion=(value)=>{
+        let licitaciones = this.state.licitaciones;
+        licitaciones.push(
+            {
+                id_licit:licitaciones.length+1,
+                conteintProsefion:  <div style={{height:"30px"}}>
+                    <input type={'text' } id={licitaciones.length+1+"P"} placeholder={`licitación ${licitaciones.length+1}`} className={'input_prof'} defaultValue={value}/>
+                    <FaRegTrashAlt id={licitaciones.length+1} className={'icon_right'} onClick={(e)=>{
+                        this.deleteElementLicitacion(e.target.id)
+                    }}/>
+                </div>
+            }
+        )
+        this.setState({licitaciones:licitaciones})
+    }
+
+    deleteElementLicitacion=(id_Element)=>{
+        let licitaciones = this.state.licitaciones;
+        Object.keys(licitaciones).forEach(
+            function (key){
+                if(licitaciones[key].id_licit == id_Element){
+                    delete licitaciones[key]
+                }
+            }
+        )
+        this.setState({licitaciones:licitaciones})
     }
 
     addElementExperiencia=(value)=>{
@@ -851,7 +892,7 @@ export default class Home extends React.Component {
                             <div className={"col-md-6"}>
                                 <div className={"row"}>
                                     <div className={"col-md-12"}>
-                                        <p>Cédula y certificaciones:
+                                        <p>Documentos:
                                             <FaPlus className={"icon_right"} style={{float:"right"}} onClick={()=>{this.addElementCertificaciones()}}/>
                                         </p>
                                     </div>
@@ -860,7 +901,21 @@ export default class Home extends React.Component {
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                        <div className={"row"}>
+                            <div className={"col-md-6"}>
+                                <div className={"row"}>
+                                    <div className={"col-md-12"}>
+                                        <p>Licitaciones:
+                                            <FaPlus className={"icon_right"} style={{float:"right"}} onClick={()=>{this.addElementLicitacion()}}/>
+                                        </p>
+                                    </div>
+                                    <div className={"col-md-12"} id={"divLicitacion"}>
+                                        { this.state.licitaciones.map(res=>(res.conteintProsefion)) }
+                                    </div>
+                                </div>
                             </div>
+                        </div>
                     </Modal.Body>
                     <Modal.Footer>
                         <div className={"row"}>
@@ -983,7 +1038,7 @@ export default class Home extends React.Component {
                             <div className={"col-md-6"}>
                                 <div className={"row"}>
                                     <div className={"col-md-12"}>
-                                        <p>Cédula y certificaciones:
+                                        <p>Documentos:
                                             <FaPlus className={"icon_right"} style={{float:"right"}} onClick={()=>{this.addElementCertificaciones()}}/>
                                         </p>
                                     </div>
@@ -1044,7 +1099,7 @@ export default class Home extends React.Component {
                                         </ul>
                                     </div>
                                     <div className={"col-md-4 div-cert-pres"}>
-                                        <h6>CEDULA Y CERTIFICACIONES</h6>
+                                        <h6>DOCUMENTOS</h6>
                                         <ul>
                                             {this.state.user_selected2.map(item=><li id={item.id} onClick={()=> {
                                                 this.getFileCert(item.id,item.nombre)
