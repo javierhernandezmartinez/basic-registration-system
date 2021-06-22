@@ -22,11 +22,13 @@ const consult={};
         let experiencia = req.body.experiencia
         let cv = req.body.cv
         let certificacion = req.body.certificacion
+        let licitacion = req.body.licitacion
         console.log(person)
         console.log(profesion,profesion[0])
         console.log(experiencia,experiencia[0])
         /*console.log(cv)*/
         console.log(certificacion)
+        console.log(licitacion,licitacion[0])
 
         var db = consult.sqlConection()
         let query1 = `INSERT INTO  PERSONS (persons_ap,nombre,persons_img,persons_type,id_secundary) VALUES ('${person.apellidos}','${person.nombre}','${person.imgPerfil}','${person.type}','${person.id_secundary}');`
@@ -66,6 +68,12 @@ const consult={};
                             if (err) {console.error(err.message);}
                         })
                     }
+
+                    for (let i = 0; i < licitacion.length; i++){
+                        db.get(`INSERT INTO LICITACIONS (nombre,persons_id) VALUES ('${licitacion[i]}','${id_agregado}')`, (err,row)=>{
+                            if (err) {console.error(err.message);}
+                        })
+                    }
                 })
 
                 res.json(
@@ -87,9 +95,11 @@ const consult={};
         let experiencia = req.body.experiencia
         let cv = req.body.cv
         let certificacion = req.body.certificacion
+        let licitacion = req.body.licitacion
         console.log(person)
         console.log(profesion, profesion[0])
         console.log(experiencia, experiencia[0])
+        console.log(licitacion, licitacion[0])
         /*console.log(cv)*/
         /*console.log(certificacion)*/
 
@@ -111,6 +121,19 @@ const consult={};
             }
             for (let i = 0; i < profesion.length; i++) {
                 db.get(`INSERT INTO PROFESIONS (nombre,persons_id) VALUES ('${profesion[i]}','${person.id}')`, (err, row) => {
+                    if (err) {
+                        console.error(err.message);
+                    }
+                })
+            }
+        })
+
+        db.get(`DELETE FROM LICITACIONS WHERE persons_id = '${person.id}';`, (err, row) => {
+            if (err) {
+                console.error(err.message);
+            }
+            for (let i = 0; i < licitacion.length; i++) {
+                db.get(`INSERT INTO LICITACIONS (nombre,persons_id) VALUES ('${licitacion[i]}','${person.id}')`, (err, row) => {
                     if (err) {
                         console.error(err.message);
                     }
@@ -180,7 +203,7 @@ const consult={};
         let person_id = req.body.id;
         var db = consult.sqlConection()
 
-        for (var i=1; i<=5; i++){
+        for (var i=1; i<=6; i++){
             if(i === 1){
                 db.get(`delete from CERTIFICATIONS where persons_id == ${person_id};`, (err, row) => {
                     if (err) {console.error(err.message);}
@@ -202,6 +225,11 @@ const consult={};
                 });
             }
             if(i === 5){
+                db.get(`delete from LICITACIONS where persons_id == ${person_id};`, (err, row) => {
+                    if (err) {console.error(err.message);}
+                });
+            }
+            if(i === 6){
                 db.get(`delete from PERSONS where persons_id == ${person_id} or id_secundary == ${person_id};`, (err, row) => {
                     if (err) {console.error(err.message);}
                 });
@@ -221,7 +249,8 @@ const consult={};
                                 from CERTIFICATIONS where persons_id == a.persons_id) Certification,
                             (SELECT group_concat(nombre_cv) from CVS               where persons_id == a.persons_id) CVs,
                             (SELECT group_concat(nombre)    from EXPERIENCES       where persons_id == a.persons_id) Experiences,
-                            (SELECT group_concat(nombre)    from PROFESIONS        where persons_id == a.persons_id) Profesions
+                            (SELECT group_concat(nombre)    from PROFESIONS        where persons_id == a.persons_id) Profesions,
+                            (SELECT group_concat(nombre)    from LICITACIONS       where persons_id == a.persons_id) Licitacions
                     from PERSONS as a
                     where a.persons_id == a.persons_id;`
 
