@@ -29,7 +29,8 @@ export default class Home extends React.Component {
             showModalViewPdf:false,
             data:[],
             data2:[],
-            theand:["ID","NOMBRE","APELLIDOS","PROFESION","EXPERIENCIA","CV","DOCUMENTOS","LICITACION"],
+            theandN:["ID","NOMBRE","APELLIDOS","PROFESION","EXPERIENCIA","CV","DOCUMENTOS"],
+            theandP:["ID","NOMBRE","APELLIDOS","PROFESION","EXPERIENCIA","CV","DOCUMENTOS","LICITACION"],
             numPages:null,
             pageNumber:1,
 
@@ -244,8 +245,10 @@ export default class Home extends React.Component {
         tr = table.getElementsByTagName("tr");
         optionSearch=document.getElementById(id_optionSearch).value
 
-        for ( var j = 0; j < this.state.theand.length; j ++){
-            if(this.state.theand[j] === optionSearch){
+        let theand = this.state.person_type === 'Normal'?this.state.theandN:this.state.theandP
+
+        for ( var j = 0; j < theand.length; j ++){
+            if(theand[j] === optionSearch){
                 index = j
             }
         }
@@ -746,15 +749,13 @@ export default class Home extends React.Component {
                                             <th colSpan={10}>
                                                 <select id={"optionSearch"}>
                                                     <option>Filtrar por...</option>
-                                                    {
-                                                        this.state.theand.map(item=>(<option>{item}</option>))
-                                                    }
+                                                    {this.state.person_type==='Normal'?this.state.theandN.map(item=>(<option>{item}</option>)):this.state.theandP.map(item=>(<option>{item}</option>))}
                                                 </select>
                                                 <input id={"myInput"} type="text" style={{marginLeft:"1%"}} placeholder={"Search..."} onKeyUp={(e)=>this.TableFilter("myInput","tabla","optionSearch")}/>
                                             </th>
                                         </tr>
                                         <tr className={"title2-thead th-per-prof"}>
-                                            {this.state.theand.map(item=>(<th>{item}</th>))}
+                                            {this.state.person_type==='Normal'?this.state.theandN.map(item=>(<th>{item}</th>)):this.state.theandP.map(item=>(<th>{item}</th>))}
                                             <th style={{width:"40px"}}>
                                                 <img src={iconPlus1} alt={""} className={"iconPlus"} style={{display:this.state.typeDisplay}}
                                                      onClick={() => {
@@ -789,7 +790,7 @@ export default class Home extends React.Component {
                                                     <td  onClick={()=>this.viewRegister(data,data.Certification)}>{this.separeData(data.Experiences)}</td>
                                                     <td  onClick={()=>this.viewRegister(data,data.Certification)}>{data.CVs}</td>
                                                     <td  onClick={()=>this.viewRegister(data,data.Certification)}>{this.separeData(data.Certification)}</td>
-                                                    <td  onClick={()=>this.viewRegister(data,data.Certification)}>{this.separeData(data.Licitacions)}</td>
+                                                    <td  style={{display:this.state.person_type==='Normal'?"none":"table-cell"}} onClick={()=>this.viewRegister(data,data.Certification)}>{this.separeData(data.Licitacions)}</td>
                                                     <td style={{width:"40px"}}>
                                                         <BsPencilSquare className={"icon-table-consultor"} style={{display:this.state.typeDisplay}} onClick={
                                                             ()=>{
@@ -810,7 +811,7 @@ export default class Home extends React.Component {
                                                     <td style={{width:"40px"}}>
                                                         <BsTrashFill className={"icon-table-consultor"} style={{display:this.state.typeDisplay}} onClick={()=>{this.setState({user_selected:data});this.handleModalShowDelete()}}/>
                                                     </td>
-                                                </tr>:<tr></tr>
+                                                </tr>:<tr/>
                                             )
                                         )
                                     }
@@ -926,7 +927,7 @@ export default class Home extends React.Component {
                                 </div>
                             </div>
                         </div>
-                        <div className={"row"}>
+                        {/*<div className={"row"}>
                             <div className={"col-md-6"}>
                                 <div className={"row"}>
                                     <div className={"col-md-12"}>
@@ -939,7 +940,7 @@ export default class Home extends React.Component {
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </div>*/}
                     </Modal.Body>
                     <Modal.Footer>
                         <div className={"row"}>
@@ -1072,20 +1073,24 @@ export default class Home extends React.Component {
                                 </div>
                             </div>
                         </div>
-                        <div className={"row"}>
-                            <div className={"col-md-6"}>
-                                <div className={"row"}>
-                                    <div className={"col-md-12"}>
-                                        <p>Licitación:
-                                            <FaPlus className={"icon_right"} style={{float:"right"}} onClick={()=>{this.addElementLicitacion()}}/>
-                                        </p>
-                                    </div>
-                                    <div className={"col-md-12"} id={"divProfesion"}>
-                                        { this.state.licitaciones.map(res=>(res.conteintProsefion)) }
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        {
+                            this.state.person_type!=='Normal'?<div className={"row"}>
+                                                                    <div className={"col-md-6"}>
+                                                                        <div className={"row"}>
+                                                                            <div className={"col-md-12"}>
+                                                                                <p>Licitación:
+                                                                                    <FaPlus className={"icon_right"} style={{float:"right"}} onClick={()=>{this.addElementLicitacion()}}/>
+                                                                                </p>
+                                                                            </div>
+                                                                            <div className={"col-md-12"} id={"divProfesion"}>
+                                                                                { this.state.licitaciones.map(res=>(res.conteintProsefion)) }
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>:<div/>
+                        }
+
+
                     </Modal.Body>
                     <Modal.Footer>
                         <div className={"row"}>
@@ -1252,13 +1257,13 @@ export default class Home extends React.Component {
                                                         <th colSpan={10}>
                                                             <select id={"optionSearch_p"}>
                                                                 <option>Filtrar por...</option>
-                                                                {this.state.theand.map(item=>(<option>{item}</option>))}
+                                                                {this.state.theandP.map(item=>(<option>{item}</option>))}
                                                             </select>
                                                             <input id={"myInput_p"} type="text" style={{marginLeft:"1%"}} placeholder={"Search..."} onKeyUp={(e)=>this.TableFilter("myInput_p","tabla_p","optionSearch_p")}/>
                                                         </th>
                                                     </tr>
                                                     <tr className={"title2-thead th-per-prof"}>
-                                                        {this.state.theand.map(item=>(<th>{item}</th>))}
+                                                        {this.state.theandP.map(item=>(<th>{item}</th>))}
                                                         <th style={{width:"40px"}}>
                                                         </th>
                                                         <th style={{width:"40px"}}/>
@@ -1360,13 +1365,13 @@ export default class Home extends React.Component {
                                                         <th colSpan={10}>
                                                             <select id={"optionSearch_p"}>
                                                                 <option>Filtrar por...</option>
-                                                                {this.state.theand.map(item=>(<option>{item}</option>))}
+                                                                {this.state.theandN.map(item=>(<option>{item}</option>))}
                                                             </select>
                                                             <input id={"myInput_p"} type="text" style={{marginLeft:"1%"}} placeholder={"Search..."} onKeyUp={(e)=>this.TableFilter("myInput_p","tabla_p","optionSearch_p")}/>
                                                         </th>
                                                     </tr>
                                                     <tr className={"title2-thead th-per-prof"}>
-                                                        {this.state.theand.map(item=>(<th>{item}</th>))}
+                                                        {this.state.theandN.map(item=>(<th>{item}</th>))}
                                                         <th style={{width:"40px"}}>
                                                         </th>
                                                         <th style={{width:"40px"}}/>
