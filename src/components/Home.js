@@ -1129,25 +1129,21 @@ export default class Home extends React.Component {
                             </div>
                             <div className={"col-md-12 div-general-skill"}>
                                 <div className={"row div-skill"}>
-                                    <div className={"col-md-3 div-prof-pres"}>
+                                    <div className={"col-md-4 div-prof-pres"}>
                                         <h6>PROFESIONES</h6>
                                         <ul>
                                             {String(this.state.user_selected.Profesions).split(",").map(item=> <li>{item!=="null"?item:""}</li>)}
                                         </ul>
                                     </div>
-                                    <div className={"col-md-3 div-exp-pres"}>
+                                    <div className={"col-md-4 div-exp-pres"}>
                                         <h6>EXPERIENCIAS</h6>
                                         <ul>
                                             {String(this.state.user_selected.Experiences).split(",").map(item=> <li>{item!=="null"?item:""}</li>)}
                                         </ul>
                                     </div>
-                                    <div className={"col-md-3 div-prof-pres"}>
-                                        <h6>LICITACION</h6>
-                                        <ul>
-                                            {String(this.state.user_selected.Licitacions).split(",").map(item=> <li>{item!=="null"?item:""}</li>)}
-                                        </ul>
-                                    </div>
-                                    <div className={"col-md-3 div-cert-pres"}>
+
+
+                                    <div className={"col-md-4 div-cert-pres"}>
                                         <h6>DOCUMENTOS</h6>
                                         <ul>
                                             {this.state.user_selected2.map(item=><li id={item.id} onClick={()=> {
@@ -1156,6 +1152,14 @@ export default class Home extends React.Component {
                                             }}>{item.nombre}</li>)}
                                         </ul>
                                     </div>
+                                    {
+                                        this.state.person_type!=='Normal'?<div className={"col-md-12"}>
+                                            <h6>LICITACION</h6>
+                                            <ul>
+                                                {String(this.state.user_selected.Licitacions).split(",").map(item=> <li>{item!=="null"?item:""}</li>)}
+                                            </ul>
+                                        </div>:<div/>
+                                    }
 
                                 </div>
                             </div>
