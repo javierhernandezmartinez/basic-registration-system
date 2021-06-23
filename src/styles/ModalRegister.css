@@ -162,6 +162,7 @@ select{
     border-width: 1px 0 1px 0;
     padding: 2%;
     margin: auto;
+    overflow-wrap: anywhere;
 }
 .div-skill p{
     color: black;
