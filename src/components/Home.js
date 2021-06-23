@@ -29,7 +29,7 @@ export default class Home extends React.Component {
             showModalViewPdf:false,
             data:[],
             data2:[],
-            theand:["ID","NOMBRE","APELLIDOS","PROFESION","EXPERIENCIA","CV","DOCUMENTOS"],
+            theand:["ID","NOMBRE","APELLIDOS","PROFESION","EXPERIENCIA","CV","DOCUMENTOS","LICITACION"],
             numPages:null,
             pageNumber:1,
 
@@ -60,6 +60,7 @@ export default class Home extends React.Component {
             showModalDelete2:false,
             showModalPapelera:false,
             showModalRestore:false,
+            showModalAddPlus:false,
             typeDisplay:"block",
 
             person_type:'Normal',
@@ -142,7 +143,7 @@ export default class Home extends React.Component {
                 {
                     id_licit:1,
                     conteintProsefion:  <div style={{height:"30px"}}>
-                        <input type={'text' } id={1+"P"} placeholder={`licitación 1`} className={'input_prof'}/>
+                        <input type={'text' } id={1+"Li"} placeholder={`licitación 1`} className={'input_prof'}/>
                         <FaRegTrashAlt id={1} className={'icon_right'} onClick={e => this.deleteElementLicitacion(e.target.id)}/>
                     </div>
                 }
@@ -184,6 +185,10 @@ export default class Home extends React.Component {
 
     handleModalShowNormal=()=>{
         this.setState({showModalNormal:!this.state.showModalNormal})
+    }
+
+    handleModalShowAddPlus=()=>{
+        this.setState({showModalAddPlus:!this.state.showModalAddPlus})
     }
 
     getFilesCV(files){
@@ -292,7 +297,8 @@ export default class Home extends React.Component {
                                     persons_id: item.persons_id,
                                     imgPerfil: item.persons_img,
                                     status:item.status,
-                                    persons_type:item.persons_type
+                                    persons_type:item.persons_type,
+                                    Licitacions:item.Licitacions
                                 }
                             )
                         }else {
@@ -306,7 +312,9 @@ export default class Home extends React.Component {
                                     persons_ap: item.persons_ap,
                                     persons_id: item.persons_id,
                                     imgPerfil: item.persons_img,
-                                    status:item.status
+                                    status:item.status,
+                                    persons_type:item.persons_type,
+                                    Licitacions:item.Licitacions
                                 }
                             )
                         }
@@ -325,6 +333,7 @@ export default class Home extends React.Component {
         let apellidos
         let id_secundary
         let profesion=[];
+        let licitacion=[];
         if (dataPlusSelect !== undefined){
             nombre = dataPlusSelect.nombre
             apellidos = dataPlusSelect.persons_ap
@@ -368,6 +377,17 @@ export default class Home extends React.Component {
                     experiencia.push(v)
                 }
                 console.log("Experienci: ",v)
+            }
+        }
+
+        let licitaciones = this.state.licitaciones;
+        for (let i = 1; i <= licitaciones.length; i ++){
+            if(document.getElementById(i+"Li")){
+                let v = document.getElementById(i+"Li").value
+                if(v !== ""){
+                    licitacion.push(v)
+                }
+                console.log("licitaciones: ",v)
             }
         }
 
@@ -455,7 +475,8 @@ export default class Home extends React.Component {
             profesion: profesion,
             experiencia: experiencia,
             cv:cv,
-            certificacion:certificacion
+            certificacion:certificacion,
+            licitacion:licitacion
         } ).then( res => {
                 console.log("message",res)
                 this.getData()
@@ -505,7 +526,7 @@ export default class Home extends React.Component {
             {
                 id_licit:licitaciones.length+1,
                 conteintProsefion:  <div style={{height:"30px"}}>
-                    <input type={'text' } id={licitaciones.length+1+"P"} placeholder={`licitación ${licitaciones.length+1}`} className={'input_prof'} defaultValue={value}/>
+                    <input type={'text' } id={licitaciones.length+1+"Li"} placeholder={`licitación ${licitaciones.length+1}`} className={'input_prof'} defaultValue={value}/>
                     <FaRegTrashAlt id={licitaciones.length+1} className={'icon_right'} onClick={(e)=>{
                         this.deleteElementLicitacion(e.target.id)
                     }}/>
@@ -719,10 +740,10 @@ export default class Home extends React.Component {
                                 <Table  responsive className={"center table1 table-striped "}>
                                     <thead className={"table1-thead"}>
                                         <tr className={"title1-thead"}>
-                                            <th colSpan={9} className={'topRadius'}>  PERFILES PROFESIONALES</th>
+                                            <th colSpan={10} className={'topRadius'}>  PERFILES PROFESIONALES</th>
                                         </tr>
                                         <tr className={"title1-thead"}>
-                                            <th colSpan={9}>
+                                            <th colSpan={10}>
                                                 <select id={"optionSearch"}>
                                                     <option>Filtrar por...</option>
                                                     {
@@ -768,6 +789,7 @@ export default class Home extends React.Component {
                                                     <td  onClick={()=>this.viewRegister(data,data.Certification)}>{this.separeData(data.Experiences)}</td>
                                                     <td  onClick={()=>this.viewRegister(data,data.Certification)}>{data.CVs}</td>
                                                     <td  onClick={()=>this.viewRegister(data,data.Certification)}>{this.separeData(data.Certification)}</td>
+                                                    <td  onClick={()=>this.viewRegister(data,data.Certification)}>{this.separeData(data.Licitacions)}</td>
                                                     <td style={{width:"40px"}}>
                                                         <BsPencilSquare className={"icon-table-consultor"} style={{display:this.state.typeDisplay}} onClick={
                                                             ()=>{
@@ -776,8 +798,10 @@ export default class Home extends React.Component {
                                                                 this.deleteElementProfesion(1)
                                                                 this.deleteElementExperiencia(1)
                                                                 this.deleteElementCertificaciones(1)
+                                                                this.deleteElementLicitacion(1)
                                                                 String(data.Profesions).split(",").map(item=> this.addElementProfesion(item))
                                                                 String(data.Experiences).split(",").map(item=> this.addElementExperiencia(item))
+                                                                String(data.Licitacions).split(",").map(item=> this.addElementLicitacion(item))
                                                                 data.Certification.map(item=> this.addElementCertificaciones(item.nombre,item.id))
                                                                 this.handleModalShowUpdate();
                                                             }
@@ -906,7 +930,7 @@ export default class Home extends React.Component {
                             <div className={"col-md-6"}>
                                 <div className={"row"}>
                                     <div className={"col-md-12"}>
-                                        <p>Licitaciones:
+                                        <p>Licitación:
                                             <FaPlus className={"icon_right"} style={{float:"right"}} onClick={()=>{this.addElementLicitacion()}}/>
                                         </p>
                                     </div>
@@ -1048,6 +1072,20 @@ export default class Home extends React.Component {
                                 </div>
                             </div>
                         </div>
+                        <div className={"row"}>
+                            <div className={"col-md-6"}>
+                                <div className={"row"}>
+                                    <div className={"col-md-12"}>
+                                        <p>Licitación:
+                                            <FaPlus className={"icon_right"} style={{float:"right"}} onClick={()=>{this.addElementLicitacion()}}/>
+                                        </p>
+                                    </div>
+                                    <div className={"col-md-12"} id={"divProfesion"}>
+                                        { this.state.licitaciones.map(res=>(res.conteintProsefion)) }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </Modal.Body>
                     <Modal.Footer>
                         <div className={"row"}>
@@ -1086,19 +1124,25 @@ export default class Home extends React.Component {
                             </div>
                             <div className={"col-md-12 div-general-skill"}>
                                 <div className={"row div-skill"}>
-                                    <div className={"col-md-4 div-prof-pres"}>
+                                    <div className={"col-md-3 div-prof-pres"}>
                                         <h6>PROFESIONES</h6>
                                         <ul>
                                             {String(this.state.user_selected.Profesions).split(",").map(item=> <li>{item!=="null"?item:""}</li>)}
                                         </ul>
                                     </div>
-                                    <div className={"col-md-4 div-exp-pres"}>
+                                    <div className={"col-md-3 div-exp-pres"}>
                                         <h6>EXPERIENCIAS</h6>
                                         <ul>
                                             {String(this.state.user_selected.Experiences).split(",").map(item=> <li>{item!=="null"?item:""}</li>)}
                                         </ul>
                                     </div>
-                                    <div className={"col-md-4 div-cert-pres"}>
+                                    <div className={"col-md-3 div-prof-pres"}>
+                                        <h6>LICITACION</h6>
+                                        <ul>
+                                            {String(this.state.user_selected.Licitacions).split(",").map(item=> <li>{item!=="null"?item:""}</li>)}
+                                        </ul>
+                                    </div>
+                                    <div className={"col-md-3 div-cert-pres"}>
                                         <h6>DOCUMENTOS</h6>
                                         <ul>
                                             {this.state.user_selected2.map(item=><li id={item.id} onClick={()=> {
@@ -1107,6 +1151,7 @@ export default class Home extends React.Component {
                                             }}>{item.nombre}</li>)}
                                         </ul>
                                     </div>
+
                                 </div>
                             </div>
                             <div className={"col-md-12 div-cv-pres"}>
@@ -1201,10 +1246,10 @@ export default class Home extends React.Component {
                                                 <Table  responsive className={"center table1 table-striped "}>
                                                     <thead className={"table1-thead"}>
                                                     <tr className={"title1-thead"}>
-                                                        <th colSpan={9} className={'topRadius'}>  PERFILES ELIMINADOS</th>
+                                                        <th colSpan={10} className={'topRadius'}>  PERFILES ELIMINADOS</th>
                                                     </tr>
                                                     <tr className={"title1-thead"}>
-                                                        <th colSpan={9}>
+                                                        <th colSpan={10}>
                                                             <select id={"optionSearch_p"}>
                                                                 <option>Filtrar por...</option>
                                                                 {this.state.theand.map(item=>(<option>{item}</option>))}
@@ -1235,6 +1280,7 @@ export default class Home extends React.Component {
                                                                     <td  onClick={()=>this.viewRegister(data,data.Certification)}>{this.separeData(data.Experiences)}</td>
                                                                     <td  onClick={()=>this.viewRegister(data,data.Certification)}>{data.CVs}</td>
                                                                     <td  onClick={()=>this.viewRegister(data,data.Certification)}>{this.separeData(data.Certification)}</td>
+                                                                    <td  onClick={()=>this.viewRegister(data,data.Certification)}>{this.separeData(data.Licitacions)}</td>
                                                                     <td>
                                                                         <FaTrashRestore className={"icon-table-consultor"}  style={{display:this.state.typeDisplay}} onClick={()=> {this.setState({user_selected:data});this.handleModalShowRestore()}}/>
                                                                     </td>
@@ -1308,10 +1354,10 @@ export default class Home extends React.Component {
                                                 <Table  responsive className={"center table1 table-striped "}>
                                                     <thead className={"table1-thead"}>
                                                     <tr className={"title1-thead"}>
-                                                        <th colSpan={9} className={'topRadius'}>PERFILES</th>
+                                                        <th colSpan={10} className={'topRadius'}>PERFILES</th>
                                                     </tr>
                                                     <tr className={"title1-thead"}>
-                                                        <th colSpan={9}>
+                                                        <th colSpan={10}>
                                                             <select id={"optionSearch_p"}>
                                                                 <option>Filtrar por...</option>
                                                                 {this.state.theand.map(item=>(<option>{item}</option>))}
@@ -1343,14 +1389,12 @@ export default class Home extends React.Component {
                                                                     <td  onClick={()=>this.viewRegister(data,data.Certification)}>{this.separeData(data.Experiences)}</td>
                                                                     <td  onClick={()=>this.viewRegister(data,data.Certification)}>{data.CVs}</td>
                                                                     <td  onClick={()=>this.viewRegister(data,data.Certification)}>{this.separeData(data.Certification)}</td>
+                                                                    <td  onClick={()=>this.viewRegister(data,data.Certification)}>{this.separeData(data.Licitacions)}</td>
                                                                     <td style={{width:"40px"}}>
                                                                         <AiOutlinePlus className={"icon-table-consultor"}  onClick={
                                                                             ()=>{
                                                                                 this.setState({user_selected:data, fileImg:data.imgPerfil,person_type:"Plus"})
-                                                                                this.deleteElementProfesion(1)
-                                                                                String(data.Profesions).split(",").map(item=> this.addElementProfesion(item))
-                                                                                this.addData(undefined,data);
-                                                                                this.handleModalShowNormal()
+                                                                                this.handleModalShowAddPlus()
                                                                             }}/>
                                                                     </td>
                                                                 </tr>:<tr></tr>
@@ -1367,6 +1411,39 @@ export default class Home extends React.Component {
                             <div className={"col-md-12 div-cv-pres"}>
                                 <div>
                                     <Button onClick={()=>this.handleModalShowNormal()}>Cerrar</Button>
+                                </div>
+                            </div>
+                        </div>
+                    </Modal.Body>
+                </Modal>
+
+                <Modal size="lg"
+                       aria-labelledby="contained-modal-title-vcenter"
+                       centered
+                       show={this.state.showModalAddPlus}
+                >
+                    <Modal.Body>
+                        <div className={"row div-presentacion"}>
+
+                            <div className={"col-md-12 div-general-skill"}>
+                                <div className={"row div-skill"}>
+                                    <div className={"col-md-12"}>
+                                        <h6>Esta seguro de agregar a {this.state.user_selected.nombre} a perfiles plus?</h6>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className={"col-md-12 div-cv-pres"}>
+                                <div>
+                                    <Button onClick={()=>{
+                                        this.statusPerson(this.state.user_selected.persons_id, 1);
+
+                                        this.deleteElementProfesion(1)
+                                        String(this.state.user_selected.Profesions).split(",").map(item=> this.addElementProfesion(item))
+                                        this.addData(undefined,this.state.user_selected);
+                                        this.handleModalShowAddPlus()
+                                        this.handleModalShowNormal()
+                                    }}>Agregar</Button>
+                                    <Button onClick={()=>this.handleModalShowAddPlus()}>Cancelar</Button>
                                 </div>
                             </div>
                         </div>
