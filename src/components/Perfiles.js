@@ -1,7 +1,7 @@
 import React from 'react';
 import {Button, Modal, Table} from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import '../styles/Home.css'
+import '../styles/Perfiles.css'
 import '../styles/ModalPdf.css'
 import {BsPencilSquare, BsTrashFill,BsDashCircleFill,BsEyeFill,BsFillPlusCircleFill} from "react-icons/bs";
 import {FaPlus,FaRegTrashAlt,FaTrashAlt,FaTrashRestore} from "react-icons/fa";
@@ -19,7 +19,7 @@ import iconPlus2 from '../images/iconPlus2.jpeg'
 import {AiOutlinePlus} from "react-icons/all";
 
 
-export default class Home extends React.Component {
+export default class Perfiles extends React.Component {
     constructor(props) {
         super(props);
         this.state = {

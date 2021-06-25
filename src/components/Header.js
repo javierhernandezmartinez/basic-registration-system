@@ -32,6 +32,9 @@ export default class Header extends React.Component {
                     <div className={"item-menu"} style={{display:this.state.typeDisplay}}>
                         <p onClick={()=>{window.open("#/admin", "_self")}}>Admin</p>
                     </div>
+                    <div className={"item-menu"} style={{display:this.state.typeDisplay}}>
+                        <p onClick={()=>{window.open("#/perfiles", "_self")}}>Perfiles</p>
+                    </div>
                     <div className={"item-menu"}>
                         <p onClick={()=>{window.open("#/home", "_self")}}>Home</p>
                     </div>
