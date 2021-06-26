@@ -26,17 +26,17 @@ export default class Header extends React.Component {
         return(
             <div className={"row header"}>
                 <div className={"col-md-12 div-header"}>
-                    <div className={"item-menu"}>
-                        <p onClick={()=>{window.open("#/", "_self")}}>Salir</p>
+                    <div className={"item-menu"} onClick={()=>{window.open("#/", "_self")}}>
+                        <p>Salir</p>
                     </div>
-                    <div className={"item-menu"} style={{display:this.state.typeDisplay}}>
-                        <p onClick={()=>{window.open("#/admin", "_self")}}>Admin</p>
+                    <div className={"item-menu"} style={{display:this.state.typeDisplay}} onClick={()=>{window.open("#/admin", "_self")}}>
+                        <p>Admin</p>
                     </div>
-                    <div className={"item-menu"} style={{display:this.state.typeDisplay}}>
-                        <p onClick={()=>{window.open("#/perfiles", "_self")}}>Perfiles</p>
+                    <div className={"item-menu"} onClick={()=>{window.open("#/perfiles", "_self")}}>
+                        <p>Perfiles</p>
                     </div>
-                    <div className={"item-menu"}>
-                        <p onClick={()=>{window.open("#/home", "_self")}}>Home</p>
+                    <div className={"item-menu"} onClick={()=>{window.open("#/home", "_self")}}>
+                        <p>Home</p>
                     </div>
                 </div>
 

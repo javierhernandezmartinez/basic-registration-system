@@ -736,7 +736,7 @@ export default class Perfiles extends React.Component {
                                 <input type={"radio"} id={"normal"} onClick={()=>this.setState({person_type:'Normal'})} checked={this.state.person_type === 'Normal'}/>
                                 <label htmlFor={"normal"}>Perfil normal</label>
                                 <input type={"radio"} id={"plus"} onClick={()=>this.setState({person_type:'Plus'})} checked={this.state.person_type === 'Plus'}/>
-                                <label htmlFor={"plus"}>Perfil licitatorios</label>
+                                <label htmlFor={"plus"}>Perfiles licitatorios</label>
                             </div>
                             <div className={"col-md-12"}>
                                 <Table  responsive className={"center table1 table-striped "}>
