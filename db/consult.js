@@ -96,105 +96,235 @@ const consult={};
         let cv = req.body.cv
         let certificacion = req.body.certificacion
         let licitacion = req.body.licitacion
-        console.log(person)
+        /*console.log(person)
         console.log(profesion, profesion[0])
         console.log(experiencia, experiencia[0])
-        console.log(licitacion, licitacion[0])
+        console.log(licitacion, licitacion[0])*/
         /*console.log(cv)*/
         /*console.log(certificacion)*/
 
-        var db = consult.sqlConection()
-        let update_person = `UPDATE PERSONS  
-                            SET persons_ap = '${person.apellidos}', nombre = '${person.nombre}', persons_img = '${person.imgPerfil}'
-                            WHERE persons_id = '${person.id}';`
+        let updatePerson = consult.sqlUpdate_Person(person)
+        let updateCertification = consult.sqlUpdate_Certification(certificacion, person)
+        let updateCv = consult.sqlUpdate_Cv(cv, person)
+        let updateExperience = consult.sqlUpdate_Experience(experiencia, person)
+        let updateLicitacion = consult.sqlUpdate_Licitacion(licitacion, person)
+        let updateProfesion = consult.sqlUpdate_Profesion(profesion, person)
 
-        db.get(update_person, (err, row) => {
-                if (err) {
-                    console.error(err.message);
-                }
+        updatePerson.then(
+            resp=>{
+                console.log("respond person")
+                updateCertification.then(
+                    resp=>{
+                        console.log("respond certifi")
+                        updateCv.then(
+                            resp=>{
+                                console.log("respond cv")
+                                updateExperience.then(
+                                    resp=>{
+                                        console.log("respond experience")
+                                        updateLicitacion.then(
+                                            resp=>{
+                                                console.log("respond licitacion")
+                                                updateProfesion.then(
+                                                    resp=>{
+                                                        console.log("respond prof")
+                                                        res.json(
+                                                            {'message':"Data saved" }
+                                                        )
+                                                    }
+                                                )
+                                            }
+                                        )
+                                    }
+                                )
+                            }
+                        )
+                    }
+                )
             }
         )
 
-        db.get(`DELETE FROM PROFESIONS WHERE persons_id = '${person.id}';`, (err, row) => {
-            if (err) {
-                console.error(err.message);
-            }
-            for (let i = 0; i < profesion.length; i++) {
-                db.get(`INSERT INTO PROFESIONS (nombre,persons_id) VALUES ('${profesion[i]}','${person.id}')`, (err, row) => {
-                    if (err) {
-                        console.error(err.message);
-                    }
-                })
-            }
-        })
 
-        db.get(`DELETE FROM LICITACIONS WHERE persons_id = '${person.id}';`, (err, row) => {
-            if (err) {
-                console.error(err.message);
-            }
-            for (let i = 0; i < licitacion.length; i++) {
-                db.get(`INSERT INTO LICITACIONS (nombre,persons_id) VALUES ('${licitacion[i]}','${person.id}')`, (err, row) => {
-                    if (err) {
-                        console.error(err.message);
-                    }
-                })
-            }
-        })
+    }
 
-        db.get(`DELETE FROM EXPERIENCES WHERE persons_id = '${person.id}';`, (err, row) => {
-            if (err) {
-                console.error(err.message);
-            }
-            for (let i = 0; i < experiencia.length; i++) {
-                db.get(`INSERT INTO EXPERIENCES (nombre,persons_id) VALUES ('${experiencia[i]}','${person.id}')`, (err, row) => {
-                    if (err) {
-                        console.error(err.message);
-                    }
-                })
-            }
-        })
+    consult.sqlUpdate_Person=(person)=>{
+        const Promise = require('bluebird')
 
-        for (let i = 0; i < cv.length; i++) {
-            db.get(`UPDATE CVS SET nombre_cv ='${cv[i].nombre}', base64_cv = '${cv[i].base64}' WHERE persons_id = '${person.id}';`, (err, row) => {
+        return new Promise((resolve, reject)=>{
+            var db = consult.sqlConection()
+            db.run(`UPDATE PERSONS SET persons_ap = '${person.apellidos}', nombre = '${person.nombre}', persons_img = '${person.imgPerfil}' WHERE persons_id = '${person.id}';`, (err, row) => {
                 if (err) {
                     console.error(err.message);
+                    reject (err)
+                    db.close()
+                }
+                else {
+                    resolve("ok")
+                    db.close() 
                 }
             })
-        }
+        })
+    }
 
-        if (certificacion.length > 0) {
-            console.log("CERTIFICACIONES")
-            console.log(certificacion)
+    consult.sqlUpdate_Certification=(certificacion,person)=>{
+        const Promise = require('bluebird')
+        return new Promise((resolve, reject)=>{
+            var db = consult.sqlConection()
+            if (certificacion.length > 0) {
                 for (let i = 0; i < certificacion.length; i++) {
                     if (certificacion[i].id_certification === undefined){
-                        db.get(`INSERT INTO CERTIFICATIONS (nombre,persons_id,base64_cert) VALUES ('${certificacion[i].nombre}','${person.id}','${certificacion[i].base64}')`, (err, row) => {
+                        db.run(`INSERT INTO CERTIFICATIONS (nombre,persons_id,base64_cert) VALUES ('${certificacion[i].nombre}','${person.id}','${certificacion[i].base64}')`, (err, row) => {
                             if (err) {
                                 console.error(err.message);
+                                reject (err)
+                            }else {
+                                resolve("ok")
                             }
                         })
+
                     }else {
                         if (certificacion[i].base64 === undefined){
-                            db.get(`UPDATE CERTIFICATIONS SET nombre ='${certificacion[i].nombre}' WHERE certification_id = '${certificacion[i].id_certification}';`, (err, row) => {
+                            db.run(`UPDATE CERTIFICATIONS SET nombre ='${certificacion[i].nombre}' WHERE certification_id = '${certificacion[i].id_certification}';`, (err, row) => {
                                 if (err) {
                                     console.error(err.message);
+                                    reject (err)
+                                }else {
+                                    resolve("ok")
                                 }
                             })
+
                         }else {
-                            db.get(`UPDATE CERTIFICATIONS SET nombre ='${certificacion[i].nombre}', base64_cert = '${certificacion[i].base64}' WHERE certification_id = '${certificacion[i].id_certification}';`, (err, row) => {
+                            db.run(`UPDATE CERTIFICATIONS SET nombre ='${certificacion[i].nombre}', base64_cert = '${certificacion[i].base64}' WHERE certification_id = '${certificacion[i].id_certification}';`, (err, row) => {
                                 if (err) {
                                     console.error(err.message);
+                                    reject (err)
+                                }else {
+                                    resolve("ok")
                                 }
                             })
                         }
                     }
                 }
-        }
+                
+                db.close()
+            }else {
+                resolve("ok")
+                db.close()
+            }
+        })
+    }
 
-        res.json(
-            {'message':"Data saved" }
-        );
-        db.close()
+    consult.sqlUpdate_Cv=(cv,person)=>{
+        const Promise = require('bluebird')
+        return new Promise((resolve, reject)=>{
+            var db = consult.sqlConection()
+            db.get(`SELECT nombre_cv FROM CVS WHERE persons_id == '${person.id}';`,(err,row)=>{
+                if (err){
+                    console.log(err.message)
+                    reject(err)
+                }else {
+                    if (row ===  null || row === undefined){
+                        for (let i = 0; i < cv.length; i++) {
+                            db.get(`INSERT INTO CVS (nombre_cv,base64_cv,persons_id) VALUES ('${cv[i].nombre}','${cv[i].base64}','${person.id}')`, (err, row) => {
+                                if (err) {
+                                    console.error(err.message);
+                                    reject(err)
+                                }else {
+                                    resolve("ok")
+                                    db.close()
+                                }
+                            })
+                        }
+                    }else {
+                        for (let i = 0; i < cv.length; i++) {
+                            db.run(`UPDATE CVS SET nombre_cv ='${cv[i].nombre}', base64_cv = '${cv[i].base64}' WHERE persons_id = '${person.id}';`, (err, row) => {
+                                if (err) {
+                                    console.error(err.message);
+                                    reject(err)
+                                }else {
+                                    resolve("ok")
+                                    db.close()
+                                }
+                            })
+                        }
+                    }
+                    
+                }
+            })
+        })
+    }
 
+    consult.sqlUpdate_Experience=(experiencia,person)=>{
+        const Promise = require('bluebird')
+        return new Promise((resolve, reject)=>{
+
+            var db = consult.sqlConection()
+            db.run(`DELETE FROM EXPERIENCES WHERE persons_id = '${person.id}';`, (err, row) => {
+                if (err) {
+                    console.error(err.message);
+                    reject(err)
+                }else {
+                    for (let i = 0; i < experiencia.length; i++) {
+                        db.run(`INSERT INTO EXPERIENCES (nombre,persons_id) VALUES ('${experiencia[i]}','${person.id}')`, (err, row) => {
+                            if (err) {
+                                console.error(err.message);
+                                reject(err)
+                            }
+                        })
+                    }
+                    resolve("ok")
+                    db.close()
+                }
+            })
+        })
+    }
+
+    consult.sqlUpdate_Licitacion=(licitacion,person)=>{
+        const Promise = require('bluebird')
+        return new Promise((resolve, reject)=>{
+            var db = consult.sqlConection()
+            db.run(`DELETE FROM LICITACIONS WHERE persons_id = '${person.id}';`, (err, row) => {
+                if (err) {
+                    console.error(err.message);
+                    reject(err)
+                }else {
+                    for (let i = 0; i < licitacion.length; i++) {
+                        db.run(`INSERT INTO LICITACIONS (nombre,persons_id) VALUES ('${licitacion[i]}','${person.id}')`, (err, row) => {
+                            if (err) {
+                                console.error(err.message);
+                                reject(err)
+                            }
+                        })
+                    }
+                   resolve("ok")
+                    db.close()
+                }
+            })
+        })
+    }
+
+    consult.sqlUpdate_Profesion=(profesion,person)=>{
+        const Promise = require('bluebird')
+        return new Promise((resolve, reject)=>{
+            var db = consult.sqlConection()
+            db.run(`DELETE FROM PROFESIONS WHERE persons_id = '${person.id}';`, (err, row) => {
+                if (err) {
+                    console.error(err.message);
+                   reject(err)
+                }else {
+                    for (let i = 0; i < profesion.length; i++) {
+                        db.run(`INSERT INTO PROFESIONS (nombre,persons_id) VALUES ('${profesion[i]}','${person.id}')`, (err, row) => {
+                            if (err) {
+                                console.error(err.message);
+                                reject(err)
+                            }
+                        })
+                    }
+                   resolve("ok")
+                    db.close()
+                }
+            })
+        })
     }
 
     consult.sqlDelete=(req,res)=>{
