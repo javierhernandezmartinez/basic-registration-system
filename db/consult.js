@@ -1,41 +1,32 @@
 
 const consult={};
-
     consult.sqlConection =()=>{
         var sqlite3=require('sqlite3').verbose()
         var path = require('path')
         let dbPath=path.resolve(__dirname,'../db/register.db')
 
         let db = new sqlite3.Database(dbPath,sqlite3.OPEN_READWRITE, (err) => {
-            if (err) {
-                console.error(err.message);
-            }
-            console.log('Connected to the chinook database.');
+            if (err) {console.error(err.message);}
+            else {console.log('Connected to the chinook database.');}
         });
+
         return db
     }
 
     consult.sqlInsert=(req,res)=>{
-        /*console.log(req.body)*/
         let person = req.body.person[0]
         let profesion = req.body.profesion
         let experiencia = req.body.experiencia
         let cv = req.body.cv
         let certificacion = req.body.certificacion
         let licitacion = req.body.licitacion
-        console.log(person)
-        console.log(profesion,profesion[0])
-        console.log(experiencia,experiencia[0])
-        /*console.log(cv)*/
-        console.log(certificacion)
-        console.log(licitacion,licitacion[0])
 
         var db = consult.sqlConection()
         let query1 = `INSERT INTO  PERSONS (persons_ap,nombre,persons_img,persons_type,id_secundary) VALUES ('${person.apellidos}','${person.nombre}','${person.imgPerfil}','${person.type}','${person.id_secundary}');`
         let query2 = `select max(persons_id) Id from PERSONS;`
 
         if (person.nombre !== ''){
-            db.get(query1, (err, row) => {
+            db.run(query1, (err, row) => {
                 if (err) {console.error(err.message);}
 
                 db.get(query2, (err,row)=>{
@@ -96,41 +87,30 @@ const consult={};
         let cv = req.body.cv
         let certificacion = req.body.certificacion
         let licitacion = req.body.licitacion
-        /*console.log(person)
-        console.log(profesion, profesion[0])
-        console.log(experiencia, experiencia[0])
-        console.log(licitacion, licitacion[0])*/
-        /*console.log(cv)*/
-        /*console.log(certificacion)*/
 
-        let updatePerson = consult.sqlUpdate_Person(person)
-        let updateCertification = consult.sqlUpdate_Certification(certificacion, person)
-        let updateCv = consult.sqlUpdate_Cv(cv, person)
-        let updateExperience = consult.sqlUpdate_Experience(experiencia, person)
-        let updateLicitacion = consult.sqlUpdate_Licitacion(licitacion, person)
-        let updateProfesion = consult.sqlUpdate_Profesion(profesion, person)
+        var db = consult.sqlConection()
 
-        updatePerson.then(
+        consult.sqlUpdate_Person(person,db).then(
             resp=>{
-                console.log("respond person")
-                updateCertification.then(
+                console.log("respond person update")
+                consult.sqlUpdate_Certification(certificacion, person,db).then(
                     resp=>{
-                        console.log("respond certifi")
-                        updateCv.then(
+                        console.log("respond certifi update")
+                        consult.sqlUpdate_Cv(cv, person,db).then(
                             resp=>{
-                                console.log("respond cv")
-                                updateExperience.then(
+                                console.log("respond cv update")
+                                consult.sqlUpdate_Experience(experiencia, person,db).then(
                                     resp=>{
-                                        console.log("respond experience")
-                                        updateLicitacion.then(
+                                        console.log("respond experience update")
+                                        consult.sqlUpdate_Licitacion(licitacion, person,db).then(
                                             resp=>{
-                                                console.log("respond licitacion")
-                                                updateProfesion.then(
+                                                console.log("respond licitacion update")
+                                                consult.sqlUpdate_Profesion(profesion, person,db).then(
                                                     resp=>{
-                                                        console.log("respond prof")
-                                                        res.json(
-                                                            {'message':"Data saved" }
-                                                        )
+                                                        console.log("respond profesion update")
+                                                        res.json({'message':"Data saved" })
+                                                        db.close()
+                                                        console.log('Desconnected to the chinook database.');
                                                     }
                                                 )
                                             }
@@ -143,33 +123,25 @@ const consult={};
                 )
             }
         )
-
-
     }
 
-    consult.sqlUpdate_Person=(person)=>{
+    consult.sqlUpdate_Person=(person,db)=>{
         const Promise = require('bluebird')
 
         return new Promise((resolve, reject)=>{
-            var db = consult.sqlConection()
             db.run(`UPDATE PERSONS SET persons_ap = '${person.apellidos}', nombre = '${person.nombre}', persons_img = '${person.imgPerfil}' WHERE persons_id = '${person.id}';`, (err, row) => {
                 if (err) {
                     console.error(err.message);
                     reject (err)
-                    db.close()
-                }
-                else {
-                    resolve("ok")
-                    db.close() 
-                }
+                }else {resolve("ok")}
             })
         })
     }
 
-    consult.sqlUpdate_Certification=(certificacion,person)=>{
+    consult.sqlUpdate_Certification=(certificacion,person,db)=>{
         const Promise = require('bluebird')
+
         return new Promise((resolve, reject)=>{
-            var db = consult.sqlConection()
             if (certificacion.length > 0) {
                 for (let i = 0; i < certificacion.length; i++) {
                     if (certificacion[i].id_certification === undefined){
@@ -177,199 +149,258 @@ const consult={};
                             if (err) {
                                 console.error(err.message);
                                 reject (err)
-                            }else {
-                                resolve("ok")
-                            }
+                            }else if(i === certificacion.length -1){resolve("ok")}
                         })
-
                     }else {
                         if (certificacion[i].base64 === undefined){
                             db.run(`UPDATE CERTIFICATIONS SET nombre ='${certificacion[i].nombre}' WHERE certification_id = '${certificacion[i].id_certification}';`, (err, row) => {
                                 if (err) {
                                     console.error(err.message);
                                     reject (err)
-                                }else {
-                                    resolve("ok")
-                                }
+                                }else if(i === certificacion.length -1){resolve("ok")}
                             })
-
                         }else {
                             db.run(`UPDATE CERTIFICATIONS SET nombre ='${certificacion[i].nombre}', base64_cert = '${certificacion[i].base64}' WHERE certification_id = '${certificacion[i].id_certification}';`, (err, row) => {
                                 if (err) {
                                     console.error(err.message);
                                     reject (err)
-                                }else {
-                                    resolve("ok")
-                                }
+                                }else if(i === certificacion.length -1){resolve("ok")}
                             })
                         }
                     }
                 }
-                
-                db.close()
-            }else {
-                resolve("ok")
-                db.close()
-            }
+            }else {resolve("ok")}
         })
     }
 
-    consult.sqlUpdate_Cv=(cv,person)=>{
+    consult.sqlUpdate_Cv=(cv,person,db)=>{
         const Promise = require('bluebird')
+
         return new Promise((resolve, reject)=>{
-            var db = consult.sqlConection()
             db.get(`SELECT nombre_cv FROM CVS WHERE persons_id == '${person.id}';`,(err,row)=>{
                 if (err){
                     console.log(err.message)
                     reject(err)
                 }else {
-                    if (row ===  null || row === undefined){
-                        for (let i = 0; i < cv.length; i++) {
-                            db.get(`INSERT INTO CVS (nombre_cv,base64_cv,persons_id) VALUES ('${cv[i].nombre}','${cv[i].base64}','${person.id}')`, (err, row) => {
-                                if (err) {
-                                    console.error(err.message);
-                                    reject(err)
-                                }else {
-                                    resolve("ok")
-                                    db.close()
-                                }
-                            })
-                        }
+                    if (row === undefined || row === null){
+                        if (cv.length !== 0){
+                            for (let i = 0; i < cv.length; i++) {
+                                db.get(`INSERT INTO CVS (nombre_cv,base64_cv,persons_id) VALUES ('${cv[i].nombre}','${cv[i].base64}','${person.id}')`, (err, row) => {
+                                    if (err) {
+                                        console.error(err.message);
+                                        reject(err)
+                                    }else {resolve("ok")}
+                                })
+                            }
+                        }else {resolve("ok")}
                     }else {
-                        for (let i = 0; i < cv.length; i++) {
-                            db.run(`UPDATE CVS SET nombre_cv ='${cv[i].nombre}', base64_cv = '${cv[i].base64}' WHERE persons_id = '${person.id}';`, (err, row) => {
-                                if (err) {
-                                    console.error(err.message);
-                                    reject(err)
-                                }else {
-                                    resolve("ok")
-                                    db.close()
-                                }
-                            })
-                        }
+                        if(cv.length !== 0){
+                            for (let i = 0; i < cv.length; i++) {
+                                db.run(`UPDATE CVS SET nombre_cv ='${cv[i].nombre}', base64_cv = '${cv[i].base64}' WHERE persons_id = '${person.id}';`, (err, row) => {
+                                    if (err) {
+                                        console.error(err.message);
+                                        reject(err)
+                                    }else {resolve("ok")}
+                                })
+                            }
+                        }else {resolve("ok")}
                     }
-                    
                 }
             })
         })
     }
 
-    consult.sqlUpdate_Experience=(experiencia,person)=>{
+    consult.sqlUpdate_Experience=(experiencia,person,db)=>{
         const Promise = require('bluebird')
-        return new Promise((resolve, reject)=>{
 
-            var db = consult.sqlConection()
+        return new Promise((resolve, reject)=>{
             db.run(`DELETE FROM EXPERIENCES WHERE persons_id = '${person.id}';`, (err, row) => {
                 if (err) {
                     console.error(err.message);
                     reject(err)
                 }else {
-                    for (let i = 0; i < experiencia.length; i++) {
-                        db.run(`INSERT INTO EXPERIENCES (nombre,persons_id) VALUES ('${experiencia[i]}','${person.id}')`, (err, row) => {
-                            if (err) {
-                                console.error(err.message);
-                                reject(err)
-                            }
-                        })
-                    }
-                    resolve("ok")
-                    db.close()
+                    if(experiencia.length !== 0){
+                        for (let i = 0; i < experiencia.length; i++) {
+                            db.run(`INSERT INTO EXPERIENCES (nombre,persons_id) VALUES ('${experiencia[i]}','${person.id}')`, (err, row) => {
+                                if (err) {
+                                    console.error(err.message);
+                                    reject(err)
+                                }else if(i === experiencia.length-1){resolve("ok")}
+                            })
+                        }
+                    }else {resolve("ok")}
                 }
             })
         })
     }
 
-    consult.sqlUpdate_Licitacion=(licitacion,person)=>{
+    consult.sqlUpdate_Licitacion=(licitacion,person,db)=>{
         const Promise = require('bluebird')
+
         return new Promise((resolve, reject)=>{
-            var db = consult.sqlConection()
             db.run(`DELETE FROM LICITACIONS WHERE persons_id = '${person.id}';`, (err, row) => {
                 if (err) {
                     console.error(err.message);
                     reject(err)
                 }else {
-                    for (let i = 0; i < licitacion.length; i++) {
-                        db.run(`INSERT INTO LICITACIONS (nombre,persons_id) VALUES ('${licitacion[i]}','${person.id}')`, (err, row) => {
-                            if (err) {
-                                console.error(err.message);
-                                reject(err)
-                            }
-                        })
-                    }
-                   resolve("ok")
-                    db.close()
+                    if(licitacion.length !== 0){
+                        for (let i = 0; i < licitacion.length; i++) {
+                            db.run(`INSERT INTO LICITACIONS (nombre,persons_id) VALUES ('${licitacion[i]}','${person.id}')`, (err, row) => {
+                                if (err) {
+                                    console.error(err.message);
+                                    reject(err)
+                                }else if(i === licitacion.length -1){resolve("ok")}
+                            })
+                        }
+                    }else {resolve("ok")}
                 }
             })
         })
     }
 
-    consult.sqlUpdate_Profesion=(profesion,person)=>{
+    consult.sqlUpdate_Profesion=(profesion,person,db)=>{
         const Promise = require('bluebird')
+
         return new Promise((resolve, reject)=>{
-            var db = consult.sqlConection()
             db.run(`DELETE FROM PROFESIONS WHERE persons_id = '${person.id}';`, (err, row) => {
                 if (err) {
                     console.error(err.message);
                    reject(err)
                 }else {
-                    for (let i = 0; i < profesion.length; i++) {
-                        db.run(`INSERT INTO PROFESIONS (nombre,persons_id) VALUES ('${profesion[i]}','${person.id}')`, (err, row) => {
-                            if (err) {
-                                console.error(err.message);
-                                reject(err)
-                            }
-                        })
-                    }
-                   resolve("ok")
-                    db.close()
+                    if(profesion.length !== 0){
+                        for (let i = 0; i < profesion.length; i++) {
+                            db.run(`INSERT INTO PROFESIONS (nombre,persons_id) VALUES ('${profesion[i]}','${person.id}')`, (err, row) => {
+                                if (err) {
+                                    console.error(err.message);
+                                    reject(err)
+                                }else if(i === profesion.length -1){resolve("ok")}
+                            })
+                        }
+                    }else {resolve("ok")}
                 }
             })
         })
     }
 
+    
     consult.sqlDelete=(req,res)=>{
-        console.log("-->",req.body)
-        console.log("-->",req.body.id)
         let person_id = req.body.id;
         var db = consult.sqlConection()
 
-        for (var i=1; i<=6; i++){
-            if(i === 1){
-                db.get(`delete from CERTIFICATIONS where persons_id == ${person_id};`, (err, row) => {
-                    if (err) {console.error(err.message);}
-                });
+        consult.sqlDelete_Profesion(person_id,db).then(
+            resp=>{
+                console.log("respond profesion delete")
+                consult.sqlDelete_Certification(person_id,db).then(
+                    resp=>{
+                        console.log("respond certifi delete")
+                        consult.sqlDelete_Cv(person_id,db).then(
+                            resp=>{
+                                console.log("respond cv delete")
+                                consult.sqlDelete_Experience(person_id,db).then(
+                                    resp=>{
+                                        console.log("respond experience delete")
+                                        consult.sqlDelete_Licitacion(person_id,db).then(
+                                            resp=>{
+                                                console.log("respond licitacion delete")
+                                                consult.sqlDelete_Person(person_id,db).then(
+                                                    resp=>{
+                                                        console.log("respond person delete")
+                                                        res.json({'message':"Person delete" })
+                                                        db.close()
+                                                        console.log('Desconnected to the chinook database.');
+                                                    }
+                                                )
+                                            }
+                                        )
+                                    }
+                                )
+                            }
+                        )
+                    }
+                )
             }
-            if(i === 2){
-                db.get(`delete from CVS where persons_id == ${person_id};`, (err, row) => {
-                    if (err) {console.error(err.message);}
-                });
-            }
-            if(i === 3){
-                db.get(`delete from EXPERIENCES where persons_id == ${person_id};`, (err, row) => {
-                    if (err) {console.error(err.message);}
-                });
-            }
-            if(i === 4){
-                db.get(`delete from PROFESIONS where persons_id == ${person_id};`, (err, row) => {
-                    if (err) {console.error(err.message);}
-                });
-            }
-            if(i === 5){
-                db.get(`delete from LICITACIONS where persons_id == ${person_id};`, (err, row) => {
-                    if (err) {console.error(err.message);}
-                });
-            }
-            if(i === 6){
-                db.get(`delete from PERSONS where persons_id == ${person_id} or id_secundary == ${person_id};`, (err, row) => {
-                    if (err) {console.error(err.message);}
-                });
-            }
-        }
-        res.json(
-            {'message':"Person delete" }
-        );
-        db.close()
+        )
     }
+
+    consult.sqlDelete_Person=(person_id,db)=>{
+        const Promise = require('bluebird')
+
+        return new Promise((resolve, reject)=>{
+            db.run(`delete from PERSONS where persons_id == ${person_id} or id_secundary == ${person_id};`, (err, row) => {
+                if (err) {
+                    console.error(err.message);
+                    reject(err)
+                }else {resolve("ok")}
+            });
+        })
+    }
+
+    consult.sqlDelete_Certification=(person_id,db)=>{
+        const Promise = require('bluebird')
+
+        return new Promise((resolve, reject)=>{
+            db.run(`delete from CERTIFICATIONS where persons_id == ${person_id};`, (err, row) => {
+                if (err) {
+                    console.error(err.message);
+                    reject(err)
+                }else {resolve("ok")}
+            });
+        })
+    }
+
+    consult.sqlDelete_Cv=(person_id,db)=>{
+        const Promise = require('bluebird')
+
+        return new Promise((resolve, reject)=>{
+            db.run(`delete from CVS where persons_id == ${person_id};`, (err, row) => {
+                if (err) {
+                    console.error(err.message);
+                    reject(err)
+                }else {resolve("ok")}
+            });
+        })
+    }
+
+    consult.sqlDelete_Experience=(person_id,db)=>{
+        const Promise = require('bluebird')
+
+        return new Promise((resolve, reject)=>{
+            db.run(`delete from EXPERIENCES where persons_id == ${person_id};`, (err, row) => {
+                if (err) {
+                    console.error(err.message);
+                    reject(err)
+                }else {resolve("ok")}
+            });
+        })
+    }
+
+    consult.sqlDelete_Licitacion=(person_id,db)=>{
+        const Promise = require('bluebird')
+
+        return new Promise((resolve, reject)=>{
+            db.run(`delete from LICITACIONS where persons_id == ${person_id};`, (err, row) => {
+                if (err) {
+                    console.error(err.message);
+                    reject(err)
+                }else {resolve("ok")}
+            });
+        })
+    }
+
+    consult.sqlDelete_Profesion=(person_id,db)=>{
+        const Promise = require('bluebird')
+
+        return new Promise((resolve, reject)=>{
+            db.run(`delete from PROFESIONS where persons_id == ${person_id};`, (err, row) => {
+                if (err) {
+                    console.error(err.message);
+                    reject(err)
+                }else {resolve("ok")}
+            });
+        })
+    }
+
+
 
     consult.sqlSelect_getList=(req, res)=>{
         var db = consult.sqlConection()
