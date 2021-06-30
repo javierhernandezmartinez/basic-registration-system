@@ -5,17 +5,14 @@ import '../styles/Perfiles.css'
 import '../styles/ModalPdf.css'
 import {BsPencilSquare, BsTrashFill,BsDashCircleFill,BsEyeFill,BsFillPlusCircleFill} from "react-icons/bs";
 import {FaPlus,FaRegTrashAlt,FaTrashAlt,FaTrashRestore} from "react-icons/fa";
-import {BsCamera, BsCloudUpload} from "react-icons/bs"
+import {BsCloudUpload} from "react-icons/bs"
 import FileBase64 from "./react-file-base64";
 import ViewPdf from "./ViewPdf";
 import Axios from "axios"
 import img_no_img from "../images/img_no_img.jpg"
 import Header from "./Header";
-import Camera from 'react-html5-camera-photo';
-import ReactDOM from "react-dom";
 import Session from "./Session"
 import iconPlus1 from '../images/iconPlus1.jpeg'
-import iconPlus2 from '../images/iconPlus2.jpeg'
 import {AiOutlinePlus} from "react-icons/all";
 
 
