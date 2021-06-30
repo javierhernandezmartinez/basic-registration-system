@@ -267,6 +267,8 @@ export default class Perfiles extends React.Component {
     }
 
     getData=()=>{
+
+        this.setState({data2:[]})
         Axios.get("http://localhost:4000/users/getList")
             .then( res => {
                 console.log("res",res.data.data)
