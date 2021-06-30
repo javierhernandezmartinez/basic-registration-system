@@ -60,8 +60,8 @@ const consult={};
             )
         }
         else {
-            res.json({'message':"no data received" })
-            console.log("no se resivio data")
+            res.json({'message':"No Data Received" })
+            console.log("No Data Received")
             db.close()
             console.log('Desconnected to the chinook database.');
         }
@@ -83,10 +83,7 @@ const consult={};
                         if (err) {
                             console.error(err.message);
                             reject(err)
-                        }else{
-                            console.log("ultimo id agregado: ",row.Id)
-                            resolve(row.Id)
-                        }
+                        }else{resolve(row.Id)}
                     })
                 }
             });
@@ -106,7 +103,7 @@ const consult={};
                         }else if(i === certificacion.length -1){resolve("Data Insert")}
                     })
                 }
-            }else {resolve("no data received")}
+            }else {resolve("No Data Received")}
         })
     }
 
@@ -123,7 +120,7 @@ const consult={};
                         }else if(i === cv.length -1){resolve("Data Insert")}
                     })
                 }
-            }else {resolve("no data received")}
+            }else {resolve("No Data Received")}
         })
     }
 
@@ -140,7 +137,7 @@ const consult={};
                         }else if(i === experiencia.length -1){resolve("Data Insert")}
                     })
                 }
-            }else {resolve("no data received")}
+            }else {resolve("No Data Received")}
         })
     }
 
@@ -157,7 +154,7 @@ const consult={};
                         }else if(i === licitacion.length -1){resolve("Data Insert")}
                     })
                 }
-            }else {resolve("no data received")}
+            }else {resolve("No Data Received")}
         })
     }
 
@@ -174,12 +171,11 @@ const consult={};
                         }else if(i === profesion.length -1){resolve("Data Insert")}
                     })
                 }
-            }else {resolve("no data received")}
+            }else {resolve("No Data Received")}
         })
     }
 
-
-
+    
     consult.sqlUpdate=(req, res)=> {
         let person = req.body.person[0]
         let profesion = req.body.profesion
@@ -365,7 +361,7 @@ const consult={};
             db.run(`DELETE FROM PROFESIONS WHERE persons_id = '${person.id}';`, (err, row) => {
                 if (err) {
                     console.error(err.message);
-                   reject(err)
+                    reject(err)
                 }else {
                     if(profesion.length !== 0){
                         for (let i = 0; i < profesion.length; i++) {
