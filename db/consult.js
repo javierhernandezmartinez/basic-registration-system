@@ -13,7 +13,7 @@ const consult={};
         return db
     }
 
-    consult.sqlInsert=(req,res)=>{
+    consult.sqlInsert=(req, res)=> {
         let person = req.body.person[0]
         let profesion = req.body.profesion
         let experiencia = req.body.experiencia
@@ -22,63 +22,163 @@ const consult={};
         let licitacion = req.body.licitacion
 
         var db = consult.sqlConection()
+
+        if (person.nombre !== ''){
+            consult.sqlInsert_Person(person,db).then(
+                resp=>{
+                    console.log("respond person insert")
+                    let id_agregado = resp
+                    consult.sqlInsert_Certification(certificacion, id_agregado,db).then(
+                        resp=>{
+                            console.log("respond certifi insert")
+                            consult.sqlInsert_Cv(cv, id_agregado,db).then(
+                                resp=>{
+                                    console.log("respond cv insert")
+                                    consult.sqlInsert_Experience(experiencia, id_agregado,db).then(
+                                        resp=>{
+                                            console.log("respond experience insert")
+                                            consult.sqlInsert_Licitacion(licitacion, id_agregado,db).then(
+                                                resp=>{
+                                                    console.log("respond licitacion insert")
+                                                    consult.sqlInsert_Profesion(profesion, id_agregado,db).then(
+                                                        resp=>{
+                                                            console.log("respond profesion insert")
+                                                            res.json({'message':"Data saved" })
+                                                            db.close()
+                                                            console.log('Desconnected to the chinook database.');
+                                                        }
+                                                    )
+                                                }
+                                            )
+                                        }
+                                    )
+                                }
+                            )
+                        }
+                    )
+                }
+            )
+        }
+        else {
+            res.json({'message':"no data received" })
+            console.log("no se resivio data")
+            db.close()
+            console.log('Desconnected to the chinook database.');
+        }
+    }
+
+    consult.sqlInsert_Person=(person,db)=>{
         let query1 = `INSERT INTO  PERSONS (persons_ap,nombre,persons_img,persons_type,id_secundary) VALUES ('${person.apellidos}','${person.nombre}','${person.imgPerfil}','${person.type}','${person.id_secundary}');`
         let query2 = `select max(persons_id) Id from PERSONS;`
 
-        if (person.nombre !== ''){
+        const Promise = require('bluebird')
+
+        return new Promise((resolve, reject)=>{
             db.run(query1, (err, row) => {
-                if (err) {console.error(err.message);}
-
-                db.get(query2, (err,row)=>{
-                    if (err) {console.error(err.message);}
-                    console.log("ultimo id agregado: ",row.Id)
-                    let id_agregado = row.Id
-
-                    for (let i = 0; i < profesion.length; i++){
-                        db.get(`INSERT INTO PROFESIONS (nombre,persons_id) VALUES ('${profesion[i]}','${id_agregado}')`, (err,row)=>{
-                            if (err) {console.error(err.message);}
-                        })
-                    }
-
-                    for (let i = 0; i < experiencia.length; i++){
-                        db.get(`INSERT INTO EXPERIENCES (nombre,persons_id) VALUES ('${experiencia[i]}','${id_agregado}')`, (err,row)=>{
-                            if (err) {console.error(err.message);}
-                        })
-                    }
-
-                    for (let i = 0; i < cv.length; i++) {
-                        db.get(`INSERT INTO CVS (nombre_cv,base64_cv,persons_id) VALUES ('${cv[i].nombre}','${cv[i].base64}','${id_agregado}')`, (err, row) => {
-                            if (err) {
-                                console.error(err.message);
-                            }
-                        })
-                    }
-
-                    for (let i = 0; i < certificacion.length; i++){
-                        db.get(`INSERT INTO CERTIFICATIONS (nombre,persons_id,base64_cert) VALUES ('${certificacion[i].nombre}','${id_agregado}','${certificacion[i].base64}')`, (err,row)=>{
-                            if (err) {console.error(err.message);}
-                        })
-                    }
-
-                    for (let i = 0; i < licitacion.length; i++){
-                        db.get(`INSERT INTO LICITACIONS (nombre,persons_id) VALUES ('${licitacion[i]}','${id_agregado}')`, (err,row)=>{
-                            if (err) {console.error(err.message);}
-                        })
-                    }
-                })
-
-                res.json(
-                    {'message':"Data saved" }
-                );
-                db.close()
+                if (err) {
+                    console.error(err.message);
+                    reject(err)
+                } else {
+                    db.get(query2, (err,row)=>{
+                        if (err) {
+                            console.error(err.message);
+                            reject(err)
+                        }else{
+                            console.log("ultimo id agregado: ",row.Id)
+                            resolve(row.Id)
+                        }
+                    })
+                }
             });
-        }
-        else {
-            console.log("no se resivio data")
-        }
+        })
+    }
+
+    consult.sqlInsert_Certification=(certificacion,id_agregado,db)=>{
+        const Promise = require('bluebird')
+
+        return new Promise((resolve, reject)=>{
+            if(certificacion.length !== 0){
+                for (let i = 0; i < certificacion.length; i++){
+                    db.get(`INSERT INTO CERTIFICATIONS (nombre,persons_id,base64_cert) VALUES ('${certificacion[i].nombre}','${id_agregado}','${certificacion[i].base64}')`, (err,row)=>{
+                        if (err) {
+                            console.error(err.message);
+                            reject(err)
+                        }else if(i === certificacion.length -1){resolve("Data Insert")}
+                    })
+                }
+            }else {resolve("no data received")}
+        })
+    }
+
+    consult.sqlInsert_Cv=(cv,id_agregado,db)=>{
+        const Promise = require('bluebird')
+
+        return new Promise((resolve, reject)=>{
+            if(cv.length !== 0){
+                for (let i = 0; i < cv.length; i++){
+                    db.get(`INSERT INTO CVS (nombre_cv,base64_cv,persons_id) VALUES ('${cv[i].nombre}','${cv[i].base64}','${id_agregado}')`, (err, row) => {
+                        if (err) {
+                            console.error(err.message);
+                            reject(err)
+                        }else if(i === cv.length -1){resolve("Data Insert")}
+                    })
+                }
+            }else {resolve("no data received")}
+        })
+    }
+
+    consult.sqlInsert_Experience=(experiencia,id_agregado,db)=>{
+        const Promise = require('bluebird')
+
+        return new Promise((resolve, reject)=>{
+            if(experiencia.length !== 0){
+                for (let i = 0; i < experiencia.length; i++){
+                    db.get(`INSERT INTO EXPERIENCES (nombre,persons_id) VALUES ('${experiencia[i]}','${id_agregado}')`, (err,row)=>{
+                        if (err) {
+                            console.error(err.message);
+                            reject(err)
+                        }else if(i === experiencia.length -1){resolve("Data Insert")}
+                    })
+                }
+            }else {resolve("no data received")}
+        })
+    }
+
+    consult.sqlInsert_Licitacion=(licitacion,id_agregado,db)=>{
+        const Promise = require('bluebird')
+
+        return new Promise((resolve, reject)=>{
+            if(licitacion.length !== 0){
+                for (let i = 0; i < licitacion.length; i++){
+                    db.get(`INSERT INTO LICITACIONS (nombre,persons_id) VALUES ('${licitacion[i]}','${id_agregado}')`, (err,row)=>{
+                        if (err) {
+                            console.error(err.message);
+                            reject(err)
+                        }else if(i === licitacion.length -1){resolve("Data Insert")}
+                    })
+                }
+            }else {resolve("no data received")}
+        })
+    }
+
+    consult.sqlInsert_Profesion=(profesion,id_agregado,db)=>{
+        const Promise = require('bluebird')
+
+        return new Promise((resolve, reject)=>{
+            if(profesion.length !== 0){
+                for (let i = 0; i < profesion.length; i++){
+                    db.run(`INSERT INTO PROFESIONS (nombre,persons_id) VALUES ('${profesion[i]}','${id_agregado}')`, (err,row)=>{
+                        if (err) {
+                            console.error(err.message);
+                            reject(err)
+                        }else if(i === profesion.length -1){resolve("Data Insert")}
+                    })
+                }
+            }else {resolve("no data received")}
+        })
+    }
 
 
-    };
 
     consult.sqlUpdate=(req, res)=> {
         let person = req.body.person[0]
@@ -473,7 +573,6 @@ const consult={};
     };
     
     consult.sqlDeleteCertification=(req,res)=>{
-        console.log("-->",req.body)
         let certification_id = req.body.id;
         var db = consult.sqlConection()
         
@@ -492,29 +591,10 @@ const consult={};
         })
     }
 
-    consult.sql_Login=(req,res)=>{
-        let user = req.body;
-        var db = consult.sqlConection()
-
-        const Promise = require('bluebird')
-        return new Promise((resolve, reject)=>{
-            db.get(`SELECT user_id, user_nom, user_type FROM USERS WHERE user_nom == '${user.user}' AND user_pass == '${user.pass}'`,(err, row) => {
-                if (err) {
-                    console.error(err.message);
-                    reject(err)
-                }else {
-                    resolve(res.json({data:row}));
-                    db.close()
-                    console.log('Desconnected to the chinook database.');
-                }
-            });
-        })
-    }
-
     consult.sqlStatusUpdatePerson=(req, res)=> {
         let person = req.body
-
         var db = consult.sqlConection()
+
         let update_person = `UPDATE PERSONS  
                                 SET status = '${person.status}'
                                 WHERE persons_id = '${person.id}' or id_secundary = '${person.id}';`
@@ -533,6 +613,7 @@ const consult={};
             });
         })
     }
+
 
     consult.sqlSelect_getListUser=(req, res)=>{
         var db = consult.sqlConection()
@@ -576,8 +657,8 @@ const consult={};
     };
 
     consult.sqlDeleteUser=(req, res)=>{
-        var db = consult.sqlConection()
         var user = req.body
+        var db = consult.sqlConection()
 
         let query=`delete from USERS where user_id == '${user.id}';`
 
@@ -597,8 +678,8 @@ const consult={};
     };
 
     consult.sqlUpdateUser=(req, res)=>{
-        var db = consult.sqlConection()
         var user = req.body
+        var db = consult.sqlConection()
 
         let query=`UPDATE USERS  
                     SET user_nom = '${user.nombre}', user_pass = '${user.pass}', user_type = '${user.type}'
@@ -618,5 +699,24 @@ const consult={};
             });
         })
 };
+
+    consult.sql_Login=(req,res)=>{
+        let user = req.body;
+        var db = consult.sqlConection()
+
+        const Promise = require('bluebird')
+        return new Promise((resolve, reject)=>{
+            db.get(`SELECT user_id, user_nom, user_type FROM USERS WHERE user_nom == '${user.user}' AND user_pass == '${user.pass}'`,(err, row) => {
+                if (err) {
+                    console.error(err.message);
+                    reject(err)
+                }else {
+                    resolve(res.json({data:row}));
+                    db.close()
+                    console.log('Desconnected to the chinook database.');
+                }
+            });
+        })
+    }
 
 module.exports= consult;
