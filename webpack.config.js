@@ -1,43 +1,34 @@
 const path = require('path');
-const {CleanWebpackPlugin} = require('clean-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const NodePolyfillPlugin = require("node-polyfill-webpack-plugin")
 
 module.exports = {
-    entry: './app.js',
-    output: {
-        filename: "bundle.[hash].js",
-        path: path.resolve(__dirname,'dist')
+    mode: 'development',
+    entry: {
+        index: './bin/www'
     },
-    mode: "production",
-    module: {
-        rules: [
-            {
-                test: /\.(js|jsx)$/,
-                use: 'babel-loader',
-                exclude: /node_modules/,
-                resolve: {
-                    extensions: ['.js','.jsx'],
-                },
-            },
-            {
-                test: /\.css$/,
-                use: ['style-loader','css-loader'],
-            },
-        ],
+    devtool: 'inline-source-map',
+    devServer: {
+        static: './bin',
     },
     plugins: [
-        new CleanWebpackPlugin(),
         new HtmlWebpackPlugin({
-            template:'./public/index.html',
+            title: 'Development',
         }),
-        new NodePolyfillPlugin(),
     ],
-    target: "node",
-    resolve: {
-        fallback: {
-            fs: false
+    output: {
+        filename: '[name].bundle.js',
+        path: path.resolve(__dirname, 'dist'),
+        clean: true,
+    },
+        module: {
+            rules: [
+                {
+                    test: /\.(js|jsx)$/,
+                    exclude: /node_modules/,
+                    use: {
+                        loader: "babel-loader"
+                    }
+                }
+            ]
         }
-    }
-
 };

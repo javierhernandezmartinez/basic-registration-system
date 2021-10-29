@@ -42,3 +42,5 @@ app.use(function(err, req, res, next) {
 
 module.exports = app;
 
+/*
+--config ./webpack.config.js --mode production*/
