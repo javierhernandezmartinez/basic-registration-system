@@ -4,22 +4,41 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
-var indexRouter = require('./routes');
+var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var bodyParser = require('body-parser')
+var cors = require('cors')
+
+/*
+var {app,BrowserWindow} = require('electron')
+
+var window = {}
+window.createWindows=()=> {
+  let win = new BrowserWindow({
+    width:1366,
+    height:768,
+    webPreferences:{
+      nodeIntegration:true
+    }
+  })
+  win.loadFile('public/index.html')
+  win.webContents.openDevTools()
+}
+app.on('ready',window.createWindows)
+*/
 
 var app = express();
-app.use(bodyParser.json({limit:'50mb'}))
+app.use(cors())
+app.use(bodyParser.json({limit:'1gb'}))
 // view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'pug');
 
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
-
+app.use(express.static(path.join(__dirname,'public')));
+app.engine('html', require('ejs').renderFile);
+app.set('view engine', 'html');
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 
@@ -37,10 +56,6 @@ app.use(function(err, req, res, next) {
 
   // render the error page
   res.status(err.status || 500);
-  res.render('error');
+  res.json('error');
 });
-
 module.exports = app;
-
-/*
---config ./webpack.config.js --mode production*/

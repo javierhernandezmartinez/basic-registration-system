@@ -1,34 +1,50 @@
-const path = require('path');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
+var webpack = require('webpack');
+var path = require('path');
+var fs = require('fs');
+var nodeExternals = require('webpack-node-externals');
 
 module.exports = {
-    mode: 'development',
-    entry: {
-        index: './bin/www'
-    },
-    devtool: 'inline-source-map',
-    devServer: {
-        static: './bin',
-    },
-    plugins: [
-        new HtmlWebpackPlugin({
-            title: 'Development',
-        }),
-    ],
+    entry: './bin/www',
     output: {
-        filename: '[name].bundle.js',
-        path: path.resolve(__dirname, 'dist'),
-        clean: true,
+        path: path.resolve(__dirname),
+        filename: 'bundle.js'
     },
-        module: {
-            rules: [
-                {
-                    test: /\.(js|jsx)$/,
-                    exclude: /node_modules/,
-                    use: {
-                        loader: "babel-loader"
-                    }
-                }
-            ]
-        }
-};
+    externalsPresets: { node: true },
+    externals: [
+        nodeExternals()
+    ],
+    mode: "production",
+    resolveLoader: {
+        modules: [
+            path.join(__dirname, 'node_modules')
+        ]
+    },
+    module: {
+        rules: [
+            {
+                test: /\.(js|jsx)$/,
+                use: 'babel-loader',
+                exclude:  path.resolve(__dirname, "node_modules"),
+                resolve: {
+                    extensions: ['.js','.jsx'],
+                    fallback: { 
+                        path: require.resolve('path-browserify'),
+                        'http': require.resolve('stream-http') ,
+                        util: require.resolve('util'),
+                    },
+                    modules: [
+                        path.join(__dirname, 'node_modules')
+                    ]
+                },
+            },
+            {
+                test: /\.css$/,
+                use: ['style-loader','css-loader'],
+            },
+            {
+                test: /\.(eot|gif|otf|png|svg|ttf|woff|jpg|jpeg)(\?v=[0-9]\.[0-9]\.[0-9])?$/,
+                use: [ 'file-loader' ],
+            },
+        ],
+    },
+}
