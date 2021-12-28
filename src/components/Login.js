@@ -13,7 +13,8 @@ export default class Login extends React.Component {
             typePass:"password",
             message:"",
             dataUser:null,
-            typeUser:null
+            typeUser:null,
+            urlApi:'http://www.appcvprot.com:4000'
         }
     }
 
@@ -32,7 +33,7 @@ export default class Login extends React.Component {
     userLogin=()=>{
         let usuario = document.getElementById("user").value;
         let pass = document.getElementById("pass").value;
-        Axios.post("http://localhost:4000/users/get/login",
+        Axios.post(this.state.urlApi+"/users/get/login",
             {
                 user:usuario.trim(),
                 pass:pass.trim()

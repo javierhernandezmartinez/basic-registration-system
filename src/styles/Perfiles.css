@@ -153,6 +153,7 @@
     transition: all .3s ease;
     position: center !important;
     object-fit: cover;
+    background: white;
 }
 
 .updateImgPerfil {
@@ -287,4 +288,14 @@ select::-ms-expand {
 }
 .inputRadio>label:hover{
     opacity: .5;
+}
+
+.areatext{
+    width: 100%;
+    height: auto;
+    text-align: justify;
+}
+
+.t_licitaciones{
+    border-bottom: solid 1px gray;
 }

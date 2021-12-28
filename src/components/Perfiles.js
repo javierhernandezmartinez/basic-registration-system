@@ -14,6 +14,7 @@ import Header from "./Header";
 import Session from "./Session"
 import iconPlus1 from '../images/iconPlus1.jpeg'
 import {AiOutlinePlus} from "react-icons/all";
+import ojo from "../images/ojo.png"
 
 
 export default class Perfiles extends React.Component {
@@ -33,6 +34,9 @@ export default class Perfiles extends React.Component {
 
             fileCV:null,
             nameCV:"Select to File",
+
+            fileCom:null,
+            nameCom:"Select to File",
 
             fileCert:null,
             nameCert:"Select to File",
@@ -64,7 +68,17 @@ export default class Perfiles extends React.Component {
             person_type:'Normal',
 
             showModalNormal:false,
-            data_perfil_selected:[]
+            data_perfil_selected:[],
+            /*urlApi:'http://www.appcvprot.com:4000'*/
+            urlApi:'http://localhost:4000',
+
+            activeLic:false,
+            nameCE:"Comprobante",
+
+            filesComExp:[],
+
+            experiencesDelete:[]
+
         };
     }
 
@@ -75,12 +89,7 @@ export default class Perfiles extends React.Component {
             }else{
                 this.setState({typeDisplay:"none"})
             }
-
             this.getData()
-            this.addElementProfesion()
-            this.addElementExperiencia()
-            this.addElementCertificaciones()
-            this.addElementLicitacion()
         }else{
             Session.validateSession()
         }
@@ -92,7 +101,9 @@ export default class Perfiles extends React.Component {
             nameCV:"Select to File",
             cert_Selected:[],
             fileImg:null,
-            profesiones:[
+            filesComExp:[],
+            experiencesDelete:[],
+            /*profesiones:[
                     {
                     id_prof:1,
                     conteintProsefion:  <div style={{height:"30px"}}>
@@ -145,7 +156,12 @@ export default class Perfiles extends React.Component {
                         <FaRegTrashAlt id={1} className={'icon_right'} onClick={e => this.deleteElementLicitacion(e.target.id)}/>
                     </div>
                 }
-            ],
+            ],*/
+            profesiones:[],
+            experiencias:[],
+            certificaciones:[],
+            licitaciones:[],
+
         })
     }
 
@@ -191,6 +207,9 @@ export default class Perfiles extends React.Component {
 
     getFilesCV(files){
         this.setState({fileCV: files[0].base64,nameCV:files[0].name, actionViewCv:false});
+    }
+    getFilesCom(files){
+        this.setState({fileCom: files[0].base64,nameCom:files[0].name, actionViewCv:false});
     }
 
     selectFileCert(files,id_certification){
@@ -264,9 +283,8 @@ export default class Perfiles extends React.Component {
     }
 
     getData=()=>{
-
-        this.setState({data2:[]})
-        Axios.get("http://localhost:4000/users/getList")
+        this.setState({data2:[],data:[]})
+        Axios.get(this.state.urlApi+"/users/getList")
             .then( res => {
                 console.log("res",res.data.data)
                 let list = []
@@ -275,6 +293,9 @@ export default class Perfiles extends React.Component {
                     item => {
                         let certtifi = []
                         let cert=null
+                        let licit = []
+                        let lic=[]
+
                         if (item.Certification !== null){
                             cert = item.Certification.split(",")
                             for( let i=0; i < cert.length; i ++){
@@ -285,6 +306,23 @@ export default class Perfiles extends React.Component {
                                         id: cer[1].split(":")[1]
                                     }
                                     )
+                            }
+                        }
+                        if (item.Licitacions !== null){
+                            let l = item.Licitacions.split(",")
+                            for (let x = 0; x < l.length; x++){
+                                    lic.push(l[x])
+                            }
+                            for( let i=0; i < lic.length; i ++){
+                                let li = lic[i].split("-")
+
+                                licit.push(
+                                    {
+                                        nombre: li[0].split(":")[1],
+                                        active_lic: li[1].split(":")[1],
+                                        descripcion: li[2].split(":")[1]
+                                    }
+                                )
                             }
                         }
                         if(item.status == 1){
@@ -300,7 +338,8 @@ export default class Perfiles extends React.Component {
                                     imgPerfil: item.persons_img,
                                     status:item.status,
                                     persons_type:item.persons_type,
-                                    Licitacions:item.Licitacions
+                                    Licitacions:licit,
+                                    activo:item.activo
                                 }
                             )
                             this.setState({data:list})
@@ -317,13 +356,18 @@ export default class Perfiles extends React.Component {
                                     imgPerfil: item.persons_img,
                                     status:item.status,
                                     persons_type:item.persons_type,
-                                    Licitacions:item.Licitacions
+                                    Licitacions:licit,
+                                    activo:item.activo
                                 }
                             )
                             this.setState({data2:list2})
                         }
                 }
                 )
+                /*this.addElementProfesion()
+                this.addElementExperiencia()
+                this.addElementCertificaciones()
+                this.addElementLicitacion()*/
             })
     }
 
@@ -371,22 +415,56 @@ export default class Perfiles extends React.Component {
         }
 
         let experiencias = this.state.experiencias;
+        //console.log("COMENZANDO EL GUARDADO DE EXPERIENCIAS")
+       // console.log("!Exp-File::",this.state.filesComExp)
+        //console.log("!Exp-Lenght::",experiencias.length)
+
         for (let i = 1; i <= experiencias.length; i ++){
+            //console.log("Buscando ID",i+"CE \n",document.getElementById(i+"E"),document.getElementById(i+"E")?.value)
             if(document.getElementById(i+"E")){
-                let v = document.getElementById(i+"E").value
-                if(v !== ""){
-                    experiencia.push(v)
+                let nom_exp = document.getElementById(i+"E").value
+                //console.log("I:",i,"Nom:", nom_exp,"NameFile",this.searchExp(i+"CE")?.name)
+                if(nom_exp !== ""){
+                    experiencia.push(
+                        {
+                            nom:nom_exp,
+                            nom_com:this.searchExp(i+"CE")?.name,
+                            b64_com:document.getElementById(i+"CE_B64").value,
+                            exp_id:document.getElementById(i+"CE_ID").value,
+                        }
+                    )
                 }
-                /*console.log("Experienci: ",v)*/
-            }
+            }else{console.log("No encontrado",i+"CE")}
+        }
+        //console.log("Experiencias-state: ",experiencias)
+        //console.log("Experiencia: ",experiencia)
+
+        for(let i = 0; i < this.state.experiencesDelete.length; i++ ){
+            //console.log("IDES de experiencias a eliminar", this.state.experiencesDelete[i])
+            Axios.post(this.state.urlApi+"/users/delete/experience/id",{
+                id:this.state.experiencesDelete[i]
+            } ).then( res => {
+                console.log("message",res)
+            })
         }
 
         let licitaciones = this.state.licitaciones;
         for (let i = 1; i <= licitaciones.length; i ++){
-            if(document.getElementById(i+"Li")){
+            if(document.getElementById(i+"Li") &&
+                document.getElementById(i+"LiA") &&
+                document.getElementById(i+"LiD")
+            ){
                 let v = document.getElementById(i+"Li").value
+                let va = document.getElementById(i+"LiA").checked
+                let vd = document.getElementById(i+"LiD").value
                 if(v !== ""){
-                    licitacion.push(v)
+                    licitacion.push(
+                        {
+                            licitacion:v,
+                            activo:va?1:0,
+                            descripcion:vd
+                        }
+                        )
                 }
                /* console.log("licitaciones: ",v)*/
             }
@@ -452,16 +530,14 @@ export default class Perfiles extends React.Component {
 
 
        /* console.log("certifi: ", certificacion)*/
-
-        this.resetState()
         let Link_request = ""
 
         if (this.state.typeAction === "update"){
-            console.log("bmos a actualisr dataaa")
-            Link_request = "http://localhost:4000/users/update"
+            //console.log("bmos a actualisr dataaa")
+            Link_request = this.state.urlApi+"/users/update"
         }else {
-            console.log("bamos gregar un registro")
-            Link_request = "http://localhost:4000/users/insert"
+            //console.log("bamos gregar un registro")
+            Link_request = this.state.urlApi+"/users/insert"
         }
 
         Axios.post(Link_request,{
@@ -479,17 +555,64 @@ export default class Perfiles extends React.Component {
             certificacion:certificacion,
             licitacion:licitacion
         } ).then( res => {
-                console.log("message",res)
+                //console.log("message",res)
+                this.resetState()
                 this.getData()
             })
     }
 
+    fileRender=(e)=>{
+        let file = e.target.files[0];
+        var allFiles = [];
+        let reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => {
+            // Make a fileInfo Object
+            let fileInfo = {
+                id:e.target.id,
+                name: file.name,
+                base64: reader.result,
+                file: file,
+            };
+            //console.log(fileInfo)
+            allFiles.push(fileInfo);
+            this.state.filesComExp.push(fileInfo)
+            this.setState({
+                filesComExp: this.state.filesComExp,
+                fileCom:fileInfo.base64,
+                nameCom:fileInfo.name,
+                actionViewCv:false
+            })
+            document.getElementById(e.target.id+"E").innerText=file.name;
+            document.getElementById(e.target.id+"_B64").value=fileInfo.base64;
+        } // reader.onload
+        return allFiles
+    }
+    searchExp=(id)=>{
+        let experiences = this.state.filesComExp
+        for(var x in experiences){
+            if(experiences[x].id === id){
+                //console.log("Exp::", experiences[x])
+                return experiences[x]
+            }
+        }
+    }
     deleteData=(id_Data)=>{
-        Axios.post("http://localhost:4000/users/delete", {id:id_Data}).then( res => {this.getData()})
+        Axios.post(this.state.urlApi+"/users/delete", {id:id_Data}).then( res => {this.getData()})
     }
 
     statusPerson=(id_Data, status)=>{
-        Axios.post("http://localhost:4000/users/status/update/person", {id:id_Data, status:status}).then( res => {this.getData()})
+        Axios.post(this.state.urlApi+"/users/status/update/person",
+            {
+                id:id_Data,
+                status:status
+            }
+        ).then(
+            res => {
+                if(res.statusText === "OK" && res.status ===200){
+                    this.getData()
+                }
+            })
     }
 
     addElementProfesion=(value)=>{
@@ -498,7 +621,7 @@ export default class Perfiles extends React.Component {
                 {
                     id_prof:profesiones.length+1,
                     conteintProsefion:  <div style={{height:"30px"}}>
-                                            <input type={'text' } id={profesiones.length+1+"P"} placeholder={`profesión ${profesiones.length+1}`} className={'input_prof'} defaultValue={value}/>
+                                            <input type={'text' } id={profesiones.length+1+"P"} placeholder={`profesión`} className={'input_prof'} defaultValue={value}/>
                                             <FaRegTrashAlt id={profesiones.length+1} className={'icon_right'} onClick={(e)=>{
                                                 this.deleteElementProfesion(e.target.id)
                                             }}/>
@@ -513,7 +636,6 @@ export default class Perfiles extends React.Component {
         Object.keys(profesiones).forEach(
             function (key){
                 if(profesiones[key].id_prof == id_Element){
-
                     delete profesiones[key]
                 }
             }
@@ -521,16 +643,32 @@ export default class Perfiles extends React.Component {
         this.setState({profesiones:profesiones})
     }
 
-    addElementLicitacion=(value)=>{
+    addElementLicitacion=(value, active, descripcion)=>{
         let licitaciones = this.state.licitaciones;
+        //console.log("Licictaciones:::", value, active, descripcion)
         licitaciones.push(
             {
                 id_licit:licitaciones.length+1,
-                conteintProsefion:  <div style={{height:"30px"}}>
-                    <input type={'text' } id={licitaciones.length+1+"Li"} placeholder={`licitación ${licitaciones.length+1}`} className={'input_prof'} defaultValue={value}/>
-                    <FaRegTrashAlt id={licitaciones.length+1} className={'icon_right'} onClick={(e)=>{
-                        this.deleteElementLicitacion(e.target.id)
-                    }}/>
+                conteintProsefion:  <div  className={"row"}>
+                    <div className={"col-md-4"}>
+                        <input type={'text' } id={licitaciones.length+1+"Li"} placeholder={`licitación`} className={'input_prof'} defaultValue={value}/>
+                        <FaRegTrashAlt id={licitaciones.length+1} className={'icon_right'} onClick={(e)=>{
+                            this.deleteElementLicitacion(e.target.id)
+                        }}/>
+                    </div>
+                    <div className={"col-md-2"}>
+                        <input type={"checkbox"} id={licitaciones.length+1+"LiA"} defaultChecked={active === '1'}/>
+                        <label htmlFor={licitaciones.length+1+"LiA"}>Activo</label>
+                    </div>
+
+                    <div className={"col-md-6"}>
+                        <textarea id={licitaciones.length+1+"LiD"}
+                                  className={"areatext"}
+                                  placeholder={"Descripcion ..."}
+                        >
+                            {descripcion}
+                        </textarea>
+                    </div>
                 </div>
             }
         )
@@ -549,20 +687,130 @@ export default class Perfiles extends React.Component {
         this.setState({licitaciones:licitaciones})
     }
 
-    addElementExperiencia=(value)=>{
+    addElementExperiencia=(user_id)=>{
         let experiencia = this.state.experiencias;
-        experiencia.push(
-            {
-                id_prof:experiencia.length+1,
-                conteintProsefion:  <div style={{height:"30px"}}>
-                                        <input type={'text' } id={experiencia.length+1+"E"} placeholder={`experiencia ${experiencia.length+1}`} className={'input_prof'} defaultValue={value}/>
-                                        <FaRegTrashAlt id={experiencia.length+1} className={'icon_right'} onClick={(e)=>{
-                                            this.deleteElementExperiencia(e.target.id)
-                                        }}/>
-                                    </div>
-            }
-        )
-        this.setState({experiencias:experiencia})
+        if (user_id){
+            Axios.post(this.state.urlApi+"/users/getCExperience_id",{
+                idUser:user_id
+            } ).then( res => {
+                if(res.status===200 && res.statusText === "OK"){
+                    let responds = res.data.data
+                    responds.map(
+                        item=> {
+                            let nom_com = "Select to File"
+                            if (item?.nombre_e && item?.nombre_e !== "undefined" && item?.nombre_e !== "" ) {
+                                nom_com = item?.nombre_e
+                            }
+                            experiencia.push(
+                                {
+                                    id_prof: experiencia.length + 1,
+                                    conteintProsefion:
+                                        <div className={"row"}>
+                                            <div className={"col-md-12"}>
+                                                <div style={{height: "30px"}}>
+                                                    <input type={'text'} id={experiencia.length + 1 + "E"}
+                                                           placeholder={`experiencia ${experiencia.length + 1}`}
+                                                           className={'input_prof'} defaultValue={item.nombre}/>
+                                                    <FaRegTrashAlt id={experiencia.length + 1} className={'icon_right'}
+                                                                   onClick={(e) => {
+                                                                       this.deleteElementExperiencia(e.target.id)
+                                                                       this.state.experiencesDelete.push(item?.experience_id)
+                                                                   }}/>
+                                                </div>
+                                            </div>
+                                            <div className={"col-md-12 input_file_c"}>
+                                                <label htmlFor={experiencia.length + 1 + "CE"}
+                                                       id={experiencia.length + 1 + "CEE"}
+                                                       className="btnFileCV">{nom_com}</label>
+                                                <input type={"file"} id={experiencia.length + 1 + "CE"}
+                                                       onChange={(e) => this.fileRender(e)}/>
+                                                <div className={"icon_right_ojo"}>
+                                                    <img src={ojo} alt={""} id={experiencia.length + 1 + "iojo"}
+                                                         onClick={(e) => {
+                                                             let xe = document.getElementById(e.target.id).parentElement.previousElementSibling
+                                                             this.setState({
+                                                                 fileCom: this.searchExp(xe.id)?.base64,
+                                                                 nameCom: item.nombre
+                                                             })
+                                                             this.getComExperience(user_id, item.nombre)
+                                                         }
+                                                         }
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className={"col-md-2"}>
+                                                <input type={"text"} id={experiencia.length + 1 + "CE_ID"}
+                                                       className={'input_prof'} defaultValue={item?.experience_id}
+                                                       disabled={true} style={{display:"none"}}
+                                                />
+                                            </div>
+                                            <div className={"col-md-10"}>
+                                                <input type={"text"} id={experiencia.length + 1 + "CE_B64"}
+                                                       className={'input_prof'} disabled={true} style={{display:"none"}}/>
+                                            </div>
+                                        </div>
+
+                                }
+                            )
+                            this.setState({experiencias:experiencia})
+                        }
+                    )
+                }
+            })
+        }else {
+            let nom_com = "Select to File"
+
+            experiencia.push(
+                {
+                    id_prof: experiencia.length + 1,
+                    conteintProsefion:
+                        <div className={"row"}>
+                            <div className={"col-md-12"}>
+                                <div style={{height: "30px"}}>
+                                    <input type={'text'} id={experiencia.length + 1 + "E"}
+                                           placeholder={`experiencia`}
+                                           className={'input_prof'}/>
+                                    <FaRegTrashAlt id={experiencia.length + 1} className={'icon_right'}
+                                                   onClick={(e) => {
+                                                       this.deleteElementExperiencia(e.target.id)
+                                                   }}/>
+                                </div>
+                            </div>
+                            <div className={"col-md-12 input_file_c"}>
+                                <label htmlFor={experiencia.length + 1 + "CE"}
+                                       id={experiencia.length + 1 + "CEE"}
+                                       className="btnFileCV">{nom_com}</label>
+                                <input type={"file"} id={experiencia.length + 1 + "CE"}
+                                       onChange={(e) => this.fileRender(e)}/>
+                                <div className={"icon_right_ojo"}>
+                                    <img src={ojo} alt={""} id={experiencia.length + 1 + "iojo"}
+                                         onClick={(e) => {
+                                             let xe = document.getElementById(e.target.id).parentElement.previousElementSibling
+                                             this.setState({
+                                                 fileCom: this.searchExp(xe.id)?.base64,
+                                                 nameCom: nom_com
+                                             })
+                                             this.getComExperience(user_id, nom_com)
+                                         }
+                                         }
+                                    />
+                                </div>
+                            </div>
+                            <div className={"col-md-2"}>
+                                <input type={"text"} id={experiencia.length + 1 + "CE_ID"} className={'input_prof'}
+                                       disabled={true} style={{display:"none"}}/>
+                            </div>
+                            <div className={"col-md-10"}>
+                                <input type={"text"} id={experiencia.length + 1 + "CE_B64"} className={'input_prof'}
+                                       disabled={true} style={{display:"none"}}/>
+                            </div>
+                        </div>
+
+                }
+            )
+            this.setState({experiencias:experiencia})
+        }
+
     }
 
     deleteElementExperiencia=(id_Element)=>{
@@ -574,7 +822,7 @@ export default class Perfiles extends React.Component {
                 }
             }
         )
-        this.setState({experiencias:experiencia})
+        this.setState({experiencias:experiencia, fileCom:null, nameCom:"Select to File",})
     }
 
     addElementCertificaciones=(value,id_certification)=>{
@@ -597,7 +845,6 @@ export default class Perfiles extends React.Component {
                                                 let id = e.target.id
                                                 let selected =this.state.cert_Selected
                                                 let ok = selected.find(list => list.id === id)
-                                                console.log(ok)
                                                 if (ok !== undefined) {
                                                     Object.keys(selected).forEach(
                                                         (key)=>{
@@ -645,7 +892,7 @@ export default class Perfiles extends React.Component {
     }
 
     deleteCetificadoDatabase=(id)=>{
-        Axios.post("http://localhost:4000/users/delete/certification",{
+        Axios.post(this.state.urlApi+"/users/delete/certification",{
                 id:id
         } ).then( res => {
             console.log("message",res)
@@ -665,19 +912,28 @@ export default class Perfiles extends React.Component {
     }
 
     getCV =(id,nomFile)=>{
+        //console.log("Buscando CV::",id, nomFile,this.state.actionViewCv)
         if (this.state.actionViewCv === true){
-            Axios.post("http://localhost:4000/users/getCV",{
+            Axios.post(this.state.urlApi+"/users/getCV",{
                 idUser:id,
                 nomCv:nomFile
             } ).then( res => {
                 console.log("message",res)
                 if(res.status===200 && res.statusText === "OK"){
                     let cv = res.data.data[0]
-                    console.log(cv)
-                    this.setState({
-                        fileSelected_b64:cv.base64_cv,
-                        nameFileSelected:cv.nombre_cv
-                    })
+                    //console.log(cv)
+                    if(cv){
+                        this.setState({
+                            fileSelected_b64:cv.base64_cv,
+                            nameFileSelected:cv.nombre_cv
+                        })
+                    }else{
+                        this.setState({
+                            fileSelected_b64:"",
+                            nameFileSelected:""
+                        })
+                    }
+
                     this.handleModalShowPdf()
                 }
             })
@@ -689,16 +945,53 @@ export default class Perfiles extends React.Component {
             this.handleModalShowPdf()
         }
     }
+    getComExperience =(id,nomE)=>{
+        //console.log("this.state.actionViewCv",this.state.actionViewCv)
+        //console.log("Consultando Experience::",id, nomE)
+
+        if (this.state.actionViewCv === true){
+            //console.log("Primero en BD::",id, nomE)
+            Axios.post(this.state.urlApi+"/users/getCExperience",{
+                idUser:id,
+                nomE:nomE
+            } ).then( res => {
+                console.log("message",res)
+                if(res.status===200 && res.statusText === "OK"){
+                    let ex = res.data.data[0]
+                    //console.log(ex)
+                    if (ex !== undefined){
+                        this.setState({
+                            fileSelected_b64:ex.base64_e,
+                            nameFileSelected:ex.nombre_e
+                        })
+                        this.handleModalShowPdf()
+                    }else{
+                        this.setState({
+                            fileSelected_b64:'',
+                            nameFileSelected:''
+                        })
+                        this.handleModalShowPdf()
+                    }
+                }
+            })
+        }else {
+            this.setState({
+                fileSelected_b64:this.state.fileCom,
+                nameFileSelected:this.state.nameCom
+            })
+            this.handleModalShowPdf()
+        }
+    }
 
     getFileCert =(id,nomFile)=>{
-            Axios.post("http://localhost:4000/users/get/File/Certification",{
+            Axios.post(this.state.urlApi+"/users/get/File/Certification",{
             idCert:id,
             nomFile:nomFile
         } ).then( res => {
             console.log("message",res)
             if(res.status===200 && res.statusText === "OK"){
                 let cv = res.data.data[0]
-                console.log(cv)
+                //console.log("<<|>>",cv)
                 this.setState({
                     fileSelected_b64:cv.base64_cert,
                     nameFileSelected:cv.nombre
@@ -709,7 +1002,7 @@ export default class Perfiles extends React.Component {
     }
 
     viewRegister=(data, Certification)=>{
-        this.setState({user_selected:data,user_selected2:Certification, fileImg:data.imgPerfil});
+        this.setState({user_selected:data,user_selected2:Certification, fileImg:data.imgPerfil, actionViewCv:true});
         this.handleModalShowPresent();
     }
 
@@ -789,18 +1082,17 @@ export default class Perfiles extends React.Component {
                                                     <td  onClick={()=>this.viewRegister(data,data.Certification)}>{data.CVs}</td>
                                                     <td  onClick={()=>this.viewRegister(data,data.Certification)}>{this.separeData(data.Certification)}</td>
                                                     <td  style={{display:this.state.person_type==='Normal'?"none":"table-cell"}} onClick={()=>this.viewRegister(data,data.Certification)}>{this.separeData(data.Licitacions)}</td>
+{/*
+                                                    <td  style={{display:this.state.person_type==='Normal'?"none":"table-cell"}} onClick={()=>this.viewRegister(data,data.Certification)}>{data.activo}</td>
+*/}
                                                     <td style={{width:"40px"}}>
                                                         <BsPencilSquare className={"icon-table-consultor"} style={{display:this.state.typeDisplay}} onClick={
                                                             ()=>{
                                                                 this.setState({typeAction:"update",user_selected:data, actionViewCv:true, fileImg:data.imgPerfil})
                                                                 if (data.CVs !== null){this.setState({nameCV:data.CVs})}
-                                                                this.deleteElementProfesion(1)
-                                                                this.deleteElementExperiencia(1)
-                                                                this.deleteElementCertificaciones(1)
-                                                                this.deleteElementLicitacion(1)
-                                                                String(data.Profesions).split(",").map(item=> this.addElementProfesion(item))
-                                                                String(data.Experiences).split(",").map(item=> this.addElementExperiencia(item))
-                                                                String(data.Licitacions).split(",").map(item=> this.addElementLicitacion(item))
+                                                                String(data.Profesions).split(",").map(item=> {if(item !== "null"){this.addElementProfesion(item)}})
+                                                                this.addElementExperiencia(data.persons_id)
+                                                                data.Licitacions.map(item=> this.addElementLicitacion(item.nombre,item.active_lic, item.descripcion))
                                                                 data.Certification.map(item=> this.addElementCertificaciones(item.nombre,item.id))
                                                                 this.handleModalShowUpdate();
                                                             }
@@ -1073,7 +1365,7 @@ export default class Perfiles extends React.Component {
                         </div>
                         {
                             this.state.person_type!=='Normal'?<div className={"row"}>
-                                                                    <div className={"col-md-6"}>
+                                                                    <div className={"col-md-12"}>
                                                                         <div className={"row"}>
                                                                             <div className={"col-md-12"}>
                                                                                 <p>Licitación:
@@ -1136,7 +1428,11 @@ export default class Perfiles extends React.Component {
                                     <div className={"col-md-4 div-exp-pres"}>
                                         <h6>EXPERIENCIAS</h6>
                                         <ul>
-                                            {String(this.state.user_selected.Experiences).split(",").map(item=> <li>{item!=="null"?item:""}</li>)}
+                                            {String(this.state.user_selected.Experiences).split(",").map(item=>
+                                                <li onClick={(e)=>{
+                                                    this.getComExperience(this.state.user_selected.persons_id,e.target.textContent)
+                                                }}>{item!=="null"?item:""}</li>
+                                            )}
                                         </ul>
                                     </div>
 
@@ -1146,19 +1442,45 @@ export default class Perfiles extends React.Component {
                                         <ul>
                                             {this.state.user_selected2.map(item=><li id={item.id} onClick={()=> {
                                                 this.getFileCert(item.id,item.nombre)
-
                                             }}>{item.nombre}</li>)}
                                         </ul>
                                     </div>
-                                    {
-                                        this.state.person_type!=='Normal'?<div className={"col-md-12"}>
-                                            <h6>LICITACION</h6>
-                                            <ul>
-                                                {String(this.state.user_selected.Licitacions).split(",").map(item=> <li>{item!=="null"?item:""}</li>)}
-                                            </ul>
-                                        </div>:<div/>
-                                    }
 
+
+                                    {
+                                        this.state.person_type !== 'Normal'?<>
+                                            <Table id={"tabla"}  responsive className={"center table1 table-striped"}>
+                                                <thead>
+                                                <tr>
+                                                    <div className={"div-cert-pres"}>
+                                                        <h6>LICITACIONES</h6>
+                                                    </div>
+                                                </tr>
+                                                <tr>
+                                                    <th>Nombre</th>
+                                                    <th>Estatus</th>
+                                                    <th>Descripcion</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody className={"table1-tbody"}>
+
+                                                    {this.state.user_selected.Licitacions?.map(item=>
+                                                        <tr className={"table1-tr td-per-prof"}>
+                                                            <td>
+                                                                {item.nombre}
+                                                            </td>
+                                                            <td>
+                                                                {item.active_lic=='1'?"Activo":"Inactivo"}
+                                                            </td>
+                                                            <td>
+                                                                {item.descripcion}
+                                                            </td>
+                                                        </tr>
+                                                    )}
+                                                </tbody>
+                                            </Table>
+                                            </>:<div/>
+                                    }
                                 </div>
                             </div>
                             <div className={"col-md-12 div-cv-pres"}>
@@ -1442,10 +1764,6 @@ export default class Perfiles extends React.Component {
                             <div className={"col-md-12 div-cv-pres"}>
                                 <div>
                                     <Button onClick={()=>{
-                                        this.statusPerson(this.state.user_selected.persons_id, 1);
-
-                                        this.deleteElementProfesion(1)
-                                        String(this.state.user_selected.Profesions).split(",").map(item=> this.addElementProfesion(item))
                                         this.addData(undefined,this.state.user_selected);
                                         this.handleModalShowAddPlus()
                                         this.handleModalShowNormal()

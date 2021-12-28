@@ -21,7 +21,9 @@ export default class Home extends React.Component {
             data:[],
             theand:["ID","USUARIO","PASSWORD","TIPO DE USUARIO"],
             user_selected:[],
-            typeUser:"Normal"
+            typeUser:"Normal",
+            /*urlApi:'http://www.appcvprot.com:4000'*/
+            urlApi:'http://localhost:4000'
         };
     }
 
@@ -74,7 +76,7 @@ export default class Home extends React.Component {
     }
 
     getData=()=>{
-        Axios.get("http://localhost:4000/users/getList/user")
+        Axios.get(this.state.urlApi+"/users/getList/user")
             .then( res => {
                 console.log("res",res.data.data)
                 this.setState({data:res.data.data})
@@ -82,14 +84,14 @@ export default class Home extends React.Component {
     }
 
     deleteUser=(id_user)=>{
-        Axios.post("http://localhost:4000/users/delete/user", {id:id_user}).then( res => {this.getData()})
+        Axios.post(this.state.urlApi+"/users/delete/user", {id:id_user}).then( res => {this.getData()})
     }
 
     registerUser=()=>{
         let nombre = document.getElementById("nom_user").value;
         let pass = document.getElementById("pass_user").value;
         let type_user = this.state.typeUser;
-        Axios.post("http://localhost:4000/users/insert/user", {
+        Axios.post(this.state.urlApi+"/users/insert/user", {
             nombre:nombre,
             pass:pass,
             type:type_user
@@ -100,7 +102,7 @@ export default class Home extends React.Component {
         let nombre = document.getElementById("nom_user").value;
         let pass = document.getElementById("pass_user").value;
         let type_user =this.state.typeUser;
-        Axios.post("http://localhost:4000/users/update/user", {
+        Axios.post(this.state.urlApi+"/users/update/user", {
             nombre:nombre,
             pass:pass,
             type:type_user,

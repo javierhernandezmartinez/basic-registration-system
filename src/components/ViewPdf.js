@@ -17,31 +17,24 @@ pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pd
 export default class ViewPdf extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {
-            pdf:this.props.pdf,
-            nameFile:this.props.namefile,
-        }
-    }
-
-    componentDidMount=()=> {
     }
 
     render() {
-        let pdf = this.props.pdf
-        let typeFile = pdf.substring(0,20)
-
-        if(typeFile === "data:application/pdf") {
-            return (<PDFObject url={this.props.pdf}/>)
-        }else {
-            return(
-                <div style={{width:"100%", height:"100%", display:"grid"}}>
-                    <LightgalleryProvider group="any" src={this.props.pdf} onCloseAfter={() => this.props.funtionClose()}>
-                        <LightgalleryItem group={"any"} src={this.props.pdf} >
-                            <img id={"photo"} src={this.props.pdf} style={{width:"100%", height:"100%"}} alt={""}/>
-                        </LightgalleryItem>
-                    </LightgalleryProvider>
-                </div>
-            )
-        }
+        console.log("->",this.props)
+        if(this.props?.pdf !== undefined && this.props?.pdf !== 'undefined' && this.props.pdf !== "" && this.props.pdf){
+            if(this.props?.pdf.substring(0,20) === "data:application/pdf") {
+                return (<PDFObject url={this.props.pdf}/>)
+            }else {
+                return(
+                    <div style={{width:"100%", height:"100%", display:"grid"}}>
+                        <LightgalleryProvider group="any" src={this.props.pdf} onCloseAfter={() => this.props.funtionClose()}>
+                            <LightgalleryItem group={"any"} src={this.props.pdf} >
+                                <img id={"photo"} src={this.props.pdf} style={{width:"100%", height:"100%"}} alt={""}/>
+                            </LightgalleryItem>
+                        </LightgalleryProvider>
+                    </div>
+                )
+            }
+        }else{return (<p>Documento no encontrado</p>)}
     }
 }
