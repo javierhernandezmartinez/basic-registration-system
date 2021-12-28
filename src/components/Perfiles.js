@@ -69,7 +69,7 @@ export default class Perfiles extends React.Component {
 
             showModalNormal: false,
             data_perfil_selected: [],
-            /*urlApi:'http://www.appcvprot.com:4000'*/
+            /*urlApi:'http://www.appcvprot.com:4000',*/
             urlApi: 'http://localhost:4000',
 
             activeLic: false,
