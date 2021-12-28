@@ -103,60 +103,6 @@ export default class Perfiles extends React.Component {
             fileImg:null,
             filesComExp:[],
             experiencesDelete:[],
-            /*profesiones:[
-                    {
-                    id_prof:1,
-                    conteintProsefion:  <div style={{height:"30px"}}>
-                                            <input type={'text' } id={1+"P"} placeholder={`profesión 1`} className={'input_prof'}/>
-                                            <FaRegTrashAlt id={1} className={'icon_right'} onClick={e => this.deleteElementProfesion(e.target.id)}/>
-                                        </div>
-                    }
-                ],
-            experiencias:[
-                    {
-                    id_prof:1,
-                    conteintProsefion:  <div style={{height:"30px"}}>
-                                            <input type={'text' } id={1+"E"} placeholder={`experiencia 1`} className={'input_prof'}/>
-                                            <FaRegTrashAlt id={1} className={'icon_right'} onClick={e => this.deleteElementExperiencia(e.target.id)}/>
-                                        </div>
-                    }
-                ],
-            certificaciones:[
-                    {
-                        id_prof:1,
-                        conteintProsefion:  <div style={{height:"30px"}}>
-                                                <label htmlFor={"files"+1} className="btnFile" ><div id={1+"L"}>{this.state.nameCert}</div></label>
-                                                <FileBase64 id={"files"+1} multiple={true} classname={"files"} onDone={ e => this.selectFileCert(e)}/>
-                                                <input type={"text"} id={1+"C"} className={"input_descrip"} placeholder={"descripción"}/>
-                                                <BsEyeFill id={"files"+1} className={"icon_right"}  onClick={
-                                                    (e)=>{
-                                                        let id = e.target.id, selected = this.state.cert_Selected
-                                                        Object.keys(selected).forEach(
-                                                            (key)=>{
-                                                                if(selected[key].id == id){
-                                                                    this.setState({
-                                                                        fileSelected_b64:selected[key].base64,
-                                                                        nameFileSelected:selected[key].nombre
-                                                                    })
-                                                                    this.handleModalShowPdf()
-                                                                }
-                                                            }
-                                                        )
-                                                    }}
-                                                />
-                                                <FaRegTrashAlt id={1} className={'icon_right'} onClick={ e => this.deleteElementCertificaciones(e.target.id)}/>
-                                            </div>
-                    }
-                ],
-            licitaciones:[
-                {
-                    id_licit:1,
-                    conteintProsefion:  <div style={{height:"30px"}}>
-                        <input type={'text' } id={1+"Li"} placeholder={`licitación 1`} className={'input_prof'}/>
-                        <FaRegTrashAlt id={1} className={'icon_right'} onClick={e => this.deleteElementLicitacion(e.target.id)}/>
-                    </div>
-                }
-            ],*/
             profesiones:[],
             experiencias:[],
             certificaciones:[],
@@ -364,15 +310,10 @@ export default class Perfiles extends React.Component {
                         }
                 }
                 )
-                /*this.addElementProfesion()
-                this.addElementExperiencia()
-                this.addElementCertificaciones()
-                this.addElementLicitacion()*/
             })
     }
 
     addData=(id,dataPlusSelect)=>{
-       /* console.log(id, dataPlusSelect)*/
         let id_person = id
         let nombre
         let apellidos
@@ -383,25 +324,16 @@ export default class Perfiles extends React.Component {
             nombre = dataPlusSelect.nombre
             apellidos = dataPlusSelect.persons_ap
             id_secundary = dataPlusSelect.persons_id
-          /*  profesion = dataPlusSelect.Profesions*/
         }else {
             nombre=document.getElementById("nomUser").value;
             apellidos=document.getElementById("ap1User").value;
         }
-
 
         let imgPerfil=this.state.fileImg
 
         let experiencia=[];
         let cv=[];
         let certificacion=[];
-
-       /* console.log("Daatos sve")
-        console.log("id: ", id_person)
-        console.log("nombre: ",nombre)
-        console.log("app1: ",apellidos)
-        /!*console.log("cvb64: ",this.state.fileCV)*!/
-        console.log("cvname: ",this.state.nameCV)*/
 
         let profesiones = this.state.profesiones;
         for (let i = 1; i <= profesiones.length; i ++){
@@ -410,20 +342,14 @@ export default class Perfiles extends React.Component {
                 if(v !== ""){
                     profesion.push(v)
                 }
-               /* console.log("profesions: ",v)*/
             }
         }
 
         let experiencias = this.state.experiencias;
-        //console.log("COMENZANDO EL GUARDADO DE EXPERIENCIAS")
-       // console.log("!Exp-File::",this.state.filesComExp)
-        //console.log("!Exp-Lenght::",experiencias.length)
 
         for (let i = 1; i <= experiencias.length; i ++){
-            //console.log("Buscando ID",i+"CE \n",document.getElementById(i+"E"),document.getElementById(i+"E")?.value)
             if(document.getElementById(i+"E")){
                 let nom_exp = document.getElementById(i+"E").value
-                //console.log("I:",i,"Nom:", nom_exp,"NameFile",this.searchExp(i+"CE")?.name)
                 if(nom_exp !== ""){
                     experiencia.push(
                         {
@@ -436,11 +362,8 @@ export default class Perfiles extends React.Component {
                 }
             }else{console.log("No encontrado",i+"CE")}
         }
-        //console.log("Experiencias-state: ",experiencias)
-        //console.log("Experiencia: ",experiencia)
 
         for(let i = 0; i < this.state.experiencesDelete.length; i++ ){
-            //console.log("IDES de experiencias a eliminar", this.state.experiencesDelete[i])
             Axios.post(this.state.urlApi+"/users/delete/experience/id",{
                 id:this.state.experiencesDelete[i]
             } ).then( res => {
@@ -466,7 +389,6 @@ export default class Perfiles extends React.Component {
                         }
                         )
                 }
-               /* console.log("licitaciones: ",v)*/
             }
         }
 
@@ -480,7 +402,6 @@ export default class Perfiles extends React.Component {
         }
 
             let cert_selected =this.state.cert_Selected
-            /*console.log("---x",cert_selected,"lengh:", cert_selected.length)*/
             for (let i = 0; i < cert_selected.length; i ++){
                 let num_id=cert_selected[i].id.split('')[5]
                 if(document.getElementById(num_id+"C")){
@@ -489,7 +410,6 @@ export default class Perfiles extends React.Component {
                     if(v !== ""){
                         let ok = certificacion.find(list => list.nombre === v)
                         if (ok === undefined){
-                           /* console.log("no esta, add-push")*/
                             certificacion.push(
                                 {
                                     id_certification:cert_selected[i].id_cert,
@@ -503,7 +423,6 @@ export default class Perfiles extends React.Component {
             }
 
             let cert_selected2 = this.state.certificaciones;
-            /*console.log("---x",cert_selected2,"lengh:", cert_selected2.length)*/
 
             for (let i = 0; i < cert_selected2.length; i ++){
                 if (cert_selected2[i] !== undefined){
@@ -514,7 +433,6 @@ export default class Perfiles extends React.Component {
                         if(v !== ""){
                             let ok = certificacion.find(list => list.nombre === v)
                             if (ok === undefined){
-                                /*console.log("no esta, add-push")*/
                                 certificacion.push(
                                     {
                                         id_certification:cert_selected2[i].id_cert,
@@ -529,14 +447,11 @@ export default class Perfiles extends React.Component {
             }
 
 
-       /* console.log("certifi: ", certificacion)*/
         let Link_request = ""
 
         if (this.state.typeAction === "update"){
-            //console.log("bmos a actualisr dataaa")
             Link_request = this.state.urlApi+"/users/update"
         }else {
-            //console.log("bamos gregar un registro")
             Link_request = this.state.urlApi+"/users/insert"
         }
 
@@ -555,7 +470,6 @@ export default class Perfiles extends React.Component {
             certificacion:certificacion,
             licitacion:licitacion
         } ).then( res => {
-                //console.log("message",res)
                 this.resetState()
                 this.getData()
             })
@@ -574,7 +488,6 @@ export default class Perfiles extends React.Component {
                 base64: reader.result,
                 file: file,
             };
-            //console.log(fileInfo)
             allFiles.push(fileInfo);
             this.state.filesComExp.push(fileInfo)
             this.setState({
@@ -592,7 +505,6 @@ export default class Perfiles extends React.Component {
         let experiences = this.state.filesComExp
         for(var x in experiences){
             if(experiences[x].id === id){
-                //console.log("Exp::", experiences[x])
                 return experiences[x]
             }
         }
@@ -645,7 +557,6 @@ export default class Perfiles extends React.Component {
 
     addElementLicitacion=(value, active, descripcion)=>{
         let licitaciones = this.state.licitaciones;
-        //console.log("Licictaciones:::", value, active, descripcion)
         licitaciones.push(
             {
                 id_licit:licitaciones.length+1,
@@ -912,7 +823,6 @@ export default class Perfiles extends React.Component {
     }
 
     getCV =(id,nomFile)=>{
-        //console.log("Buscando CV::",id, nomFile,this.state.actionViewCv)
         if (this.state.actionViewCv === true){
             Axios.post(this.state.urlApi+"/users/getCV",{
                 idUser:id,
@@ -933,7 +843,6 @@ export default class Perfiles extends React.Component {
                             nameFileSelected:""
                         })
                     }
-
                     this.handleModalShowPdf()
                 }
             })
@@ -946,11 +855,7 @@ export default class Perfiles extends React.Component {
         }
     }
     getComExperience =(id,nomE)=>{
-        //console.log("this.state.actionViewCv",this.state.actionViewCv)
-        //console.log("Consultando Experience::",id, nomE)
-
         if (this.state.actionViewCv === true){
-            //console.log("Primero en BD::",id, nomE)
             Axios.post(this.state.urlApi+"/users/getCExperience",{
                 idUser:id,
                 nomE:nomE
@@ -958,7 +863,6 @@ export default class Perfiles extends React.Component {
                 console.log("message",res)
                 if(res.status===200 && res.statusText === "OK"){
                     let ex = res.data.data[0]
-                    //console.log(ex)
                     if (ex !== undefined){
                         this.setState({
                             fileSelected_b64:ex.base64_e,
@@ -991,7 +895,6 @@ export default class Perfiles extends React.Component {
             console.log("message",res)
             if(res.status===200 && res.statusText === "OK"){
                 let cv = res.data.data[0]
-                //console.log("<<|>>",cv)
                 this.setState({
                     fileSelected_b64:cv.base64_cert,
                     nameFileSelected:cv.nombre
@@ -1011,7 +914,6 @@ export default class Perfiles extends React.Component {
     }
 
     render() {
-
         return (
             <div className={"content"}>
                 <div className={"row"}>
@@ -1082,9 +984,9 @@ export default class Perfiles extends React.Component {
                                                     <td  onClick={()=>this.viewRegister(data,data.Certification)}>{data.CVs}</td>
                                                     <td  onClick={()=>this.viewRegister(data,data.Certification)}>{this.separeData(data.Certification)}</td>
                                                     <td  style={{display:this.state.person_type==='Normal'?"none":"table-cell"}} onClick={()=>this.viewRegister(data,data.Certification)}>{this.separeData(data.Licitacions)}</td>
-{/*
+                                                    {/*
                                                     <td  style={{display:this.state.person_type==='Normal'?"none":"table-cell"}} onClick={()=>this.viewRegister(data,data.Certification)}>{data.activo}</td>
-*/}
+                                                    */}
                                                     <td style={{width:"40px"}}>
                                                         <BsPencilSquare className={"icon-table-consultor"} style={{display:this.state.typeDisplay}} onClick={
                                                             ()=>{
@@ -1217,20 +1119,6 @@ export default class Perfiles extends React.Component {
                                 </div>
                             </div>
                         </div>
-                        {/*<div className={"row"}>
-                            <div className={"col-md-6"}>
-                                <div className={"row"}>
-                                    <div className={"col-md-12"}>
-                                        <p>Licitación:
-                                            <FaPlus className={"icon_right"} style={{float:"right"}} onClick={()=>{this.addElementLicitacion()}}/>
-                                        </p>
-                                    </div>
-                                    <div className={"col-md-12"} id={"divLicitacion"}>
-                                        { this.state.licitaciones.map(res=>(res.conteintProsefion)) }
-                                    </div>
-                                </div>
-                            </div>
-                        </div>*/}
                     </Modal.Body>
                     <Modal.Footer>
                         <div className={"row"}>
@@ -1379,8 +1267,6 @@ export default class Perfiles extends React.Component {
                                                                     </div>
                                                                 </div>:<div/>
                         }
-
-
                     </Modal.Body>
                     <Modal.Footer>
                         <div className={"row"}>
@@ -1436,7 +1322,6 @@ export default class Perfiles extends React.Component {
                                         </ul>
                                     </div>
 
-
                                     <div className={"col-md-4 div-cert-pres"}>
                                         <h6>DOCUMENTOS</h6>
                                         <ul>
@@ -1445,7 +1330,6 @@ export default class Perfiles extends React.Component {
                                             }}>{item.nombre}</li>)}
                                         </ul>
                                     </div>
-
 
                                     {
                                         this.state.person_type !== 'Normal'?<>
@@ -1534,7 +1418,6 @@ export default class Perfiles extends React.Component {
                 >
                     <Modal.Body>
                         <div className={"row div-presentacion"}>
-
                             <div className={"col-md-12 div-general-skill"}>
                                 <div className={"row div-skill"}>
                                     <div className={"col-md-12"}>
@@ -1774,8 +1657,6 @@ export default class Perfiles extends React.Component {
                         </div>
                     </Modal.Body>
                 </Modal>
-
-
             </div>
     )
     }
