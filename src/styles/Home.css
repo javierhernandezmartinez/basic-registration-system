@@ -8,6 +8,8 @@
     width: inherit;
     height: inherit;
     display: block;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .img-fondo{

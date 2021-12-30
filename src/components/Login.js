@@ -14,7 +14,8 @@ export default class Login extends React.Component {
             message:"",
             dataUser:null,
             typeUser:null,
-            urlApi:'http://www.appcvprot.com:4000'
+            urlApi:'http://www.appcvprot.com:4000',
+           /* urlApi:'http://localhost:4000',*/
         }
     }
 

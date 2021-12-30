@@ -1,0 +1,26 @@
+.m_footer{
+    height:15vh;
+    width: 100vw;
+    background:darkslategrey;
+}
+
+.manual{
+    color:white;
+    text-align: center;
+    height:100%;
+    display: flex;
+}
+
+.icon_m{
+    margin: auto;
+    margin-right: 1%;
+    filter: invert(1);
+}
+.text_m{
+    margin:auto;
+    margin-left: 1%;
+    cursor: pointer;
+}
+.text_m:hover{
+    text-decoration: underline;
+}

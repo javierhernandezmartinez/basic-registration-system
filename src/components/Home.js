@@ -4,14 +4,14 @@ import '../styles/Home.css'
 import Header from "./Header";
 import Session from "./Session"
 import imgH from "../images/p5.png"
-
+import Footer from "./Footer"
 
 export default class Home extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             typeDisplay:"block",
-            person_type:'Normal',
+            person_type:'Normal'
         };
     }
 
@@ -49,6 +49,7 @@ export default class Home extends React.Component {
                         </div>
                     </div>
                 </div>
+                <Footer/>
             </div>
     )
     }
