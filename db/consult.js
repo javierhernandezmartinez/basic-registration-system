@@ -126,11 +126,11 @@ const consult={};
 
     consult.sqlInsert_Experience=(experiencia,id_agregado,db)=>{
         const Promise = require('bluebird')
-
         return new Promise((resolve, reject)=>{
-            if(experiencia.length !== 0){
+            if(experiencia.length > 0){
                 for (let i = 0; i < experiencia.length; i++){
-                    db.get(`INSERT INTO EXPERIENCES (nombre,persons_id) VALUES ('${experiencia[i]}','${id_agregado}')`, (err,row)=>{
+                    db.get(`INSERT INTO EXPERIENCES (nombre,persons_id,nombre_c_ex,base64_c_ex) 
+                            VALUES ('${experiencia[i].nom}','${id_agregado}','${experiencia[i].nom_com}','${experiencia[i].b64_com}')`, (err,row)=>{
                         if (err) {
                             console.error(err.message);
                             reject(err)
@@ -308,16 +308,51 @@ const consult={};
 
     consult.sqlUpdate_Experience=(experiencia,person,db)=>{
         const Promise = require('bluebird')
+        console.log(experiencia)
 
         return new Promise((resolve, reject)=>{
-            db.run(`DELETE FROM EXPERIENCES WHERE persons_id = '${person.id}';`, (err, row) => {
+            if(experiencia.length !== 0){
+                for (let i = 0; i < experiencia.length; i++) {
+                    if(experiencia[i].exp_id){
+                        db.run(
+                            `UPDATE EXPERIENCES
+                         SET nombre = '${experiencia[i].nom}'
+                            
+                            ${
+                                    experiencia[i].nom_com && experiencia[i].b64_com?
+                                    `,nombre_c_ex='${experiencia[i].nom_com}'
+                                    ,base64_c_ex = '${experiencia[i].b64_com}'
+                         WHERE experience_id = '${experiencia[i].exp_id}';
+                        `:`WHERE experience_id = '${experiencia[i].exp_id}';`
+                            }`  
+                            ,
+                            (err, row) => {
+                                if (err) {
+                                    console.error(err.message);
+                                    reject(err)
+                                }else if(i === experiencia.length-1){resolve("ok")}
+                            })
+                    }else{
+                        db.run(`INSERT INTO EXPERIENCES (nombre,persons_id,nombre_c_ex,base64_c_ex)
+                                VALUES ('${experiencia[i].nom}','${person.id}','${experiencia[i].nom_com}','${experiencia[i].b64_com}')`, (err, row) => {
+                            if (err) {
+                                console.error(err.message);
+                                reject(err)
+                            }else if(i === experiencia.length-1){resolve("ok")}
+                        })
+                    }
+                   
+                }
+            }else {resolve("ok")}
+            
+            /*db.run(`DELETE FROM EXPERIENCES WHERE persons_id = '${person.id}';`, (err, row) => {
                 if (err) {
                     console.error(err.message);
                     reject(err)
                 }else {
                     if(experiencia.length !== 0){
                         for (let i = 0; i < experiencia.length; i++) {
-                            db.run(`INSERT INTO EXPERIENCES (nombre,persons_id) VALUES ('${experiencia[i]}','${person.id}')`, (err, row) => {
+                            db.run(`INSERT INTO EXPERIENCES (nombre,persons_id,nombre_c_ex,base64_c_ex) VALUES ('${experiencia[i].nom}','${person.id}','${experiencia[i].nom_com}','${experiencia[i].b64_com}')`, (err, row) => {
                                 if (err) {
                                     console.error(err.message);
                                     reject(err)
@@ -326,13 +361,14 @@ const consult={};
                         }
                     }else {resolve("ok")}
                 }
-            })
+            })*/
+            
         })
     }
 
     consult.sqlUpdate_Licitacion=(licitacion,person,db)=>{
         const Promise = require('bluebird')
-
+        console.log("UPDATING LICITACION:::",licitacion)
         return new Promise((resolve, reject)=>{
             db.run(`DELETE FROM LICITACIONS WHERE persons_id = '${person.id}';`, (err, row) => {
                 if (err) {
@@ -341,7 +377,7 @@ const consult={};
                 }else {
                     if(licitacion.length !== 0){
                         for (let i = 0; i < licitacion.length; i++) {
-                            db.run(`INSERT INTO LICITACIONS (nombre,persons_id) VALUES ('${licitacion[i]}','${person.id}')`, (err, row) => {
+                            db.run(`INSERT INTO LICITACIONS (nombre,persons_id,active_lic,descripcion) VALUES ('${licitacion[i].licitacion}','${person.id}','${licitacion[i].activo}','${licitacion[i].descripcion}')`, (err, row) => {
                                 if (err) {
                                     console.error(err.message);
                                     reject(err)
@@ -470,6 +506,25 @@ const consult={};
         })
     }
 
+    consult.sqlDelete_Experience_ID=(req,res)=>{
+        let experience_id = req.body.id;
+        var db = consult.sqlConection()
+
+        const Promise = require('bluebird')
+        return new Promise((resolve, reject)=>{
+            db.get(`delete from EXPERIENCES where experience_id =='${experience_id}';`, (err, row) => {
+                if (err) {
+                    console.error(err.message);
+                    reject(err)
+                }else {
+                    resolve(res.json({'message':"Experience delete"}));
+                    db.close()
+                    console.log('Desconnected to the chinook database.');
+                }
+            });
+        })
+    }
+
     consult.sqlDelete_Licitacion=(person_id,db)=>{
         const Promise = require('bluebird')
 
@@ -500,13 +555,14 @@ const consult={};
     consult.sqlSelect_getList=(req, res)=>{
         var db = consult.sqlConection()
         const Promise = require('bluebird')
-        let query=`select a.persons_id, a.nombre, a.persons_ap, a.persons_img, a.status,a.persons_type,a.id_secundary,
-                            (select  group_concat('nombre:' || nombre || '-' || 'id:' || certification_id)
+        let query=`select a.persons_id, a.nombre, a.persons_ap, a.persons_img, a.status,a.persons_type,a.id_secundary,a.activo,
+                            (select group_concat('nombre:' || nombre || '-' || 'id:' || certification_id)
                                 from CERTIFICATIONS where persons_id == a.persons_id) Certification,
                             (SELECT group_concat(nombre_cv) from CVS               where persons_id == a.persons_id) CVs,
                             (SELECT group_concat(nombre)    from EXPERIENCES       where persons_id == a.persons_id) Experiences,
                             (SELECT group_concat(nombre)    from PROFESIONS        where persons_id == a.persons_id) Profesions,
-                            (SELECT group_concat(nombre)    from LICITACIONS       where persons_id == a.persons_id) Licitacions
+                            (SELECT group_concat('nombre:' || nombre || '-'|| 'active_lic:' || active_lic || '-' || 'descripcion:' || descripcion)
+                                from LICITACIONS where persons_id == a.persons_id) Licitacions
                     from PERSONS as a
                     where a.persons_id == a.persons_id;`
         
@@ -531,6 +587,48 @@ const consult={};
         const Promise = require('bluebird')
         let query=`SELECT nombre_cv, base64_cv FROM CVS WHERE persons_id == '${idUser}' AND nombre_cv = '${nomCV}';`
         
+        return new Promise((resolve, reject)=>{
+            db.all(query, (err, row) => {
+                if (err) {
+                    console.error(err.message);
+                    reject(err)
+                }else {
+                    resolve(res.json({data:row}));
+                    db.close()
+                    console.log('Desconnected to the chinook database.');
+                }
+            });
+        })
+    };
+
+    consult.sqlSelect_getCExperience=(req, res)=>{
+        let idUser = req.body.idUser
+        let nomE = req.body.nomE
+        var db = consult.sqlConection()
+        const Promise = require('bluebird')
+        let query=`SELECT experience_id, nombre_c_ex as nombre_e, base64_c_ex as base64_e FROM EXPERIENCES WHERE persons_id == '${idUser}' AND nombre = '${nomE}';`
+    
+        return new Promise((resolve, reject)=>{
+            db.all(query, (err, row) => {
+                if (err) {
+                    console.error(err.message);
+                    reject(err)
+                }else {
+                    resolve(res.json({data:row}));
+                    db.close()
+                    console.log('Desconnected to the chinook database.');
+                }
+            });
+        })
+    };
+
+    consult.sqlSelect_getCExperience_ID=(req, res)=>{
+        let idUser = req.body.idUser
+        let nomE = req.body.nomE
+        var db = consult.sqlConection()
+        const Promise = require('bluebird')
+        let query=`SELECT nombre, experience_id, nombre_c_ex as nombre_e FROM EXPERIENCES WHERE persons_id == '${idUser}';`
+    
         return new Promise((resolve, reject)=>{
             db.all(query, (err, row) => {
                 if (err) {
@@ -714,5 +812,112 @@ const consult={};
             });
         })
     }
+
+    
+    consult.sqlSelect_getListManual=(req, res)=>{
+        var db = consult.sqlConection()
+    
+        let query=`select * from CERTIFICATIONS WHERE type_doc = 'manual';`
+    
+        const Promise = require('bluebird')
+        return new Promise((resolve, reject)=>{
+            db.all(query, (err, row) => {
+                if (err) {
+                    console.error(err.message);
+                    reject(err)
+                }else {
+                    resolve(res.json({data:row}));
+                    db.close()
+                    console.log('Desconnected to the chinook database.');
+                }
+            });
+        })
+    };
+    
+    consult.sqlSelect_getNameManual=(req, res)=>{
+        let manual = req.body;
+        var db = consult.sqlConection()
+        console.log(manual)
+        let query=`select * from CERTIFICATIONS WHERE type_doc = 'manual' and nombre = '${manual.nombre}';`
+    
+        const Promise = require('bluebird')
+        return new Promise((resolve, reject)=>{
+            db.all(query, (err, row) => {
+                if (err) {
+                    console.error(err.message);
+                    reject(err)
+                }else {
+                    resolve(res.json({data:row}));
+                    db.close()
+                    console.log('Desconnected to the chinook database.');
+                }
+            });
+        })
+    };
+    
+    consult.sqlInsertManual=(req, res)=>{
+        var db = consult.sqlConection()
+        var manual = req.body
+    
+        let query=`insert into CERTIFICATIONS (nombre, base64_cert, type_doc)  values ('${manual.nombre}', '${manual.base64}', '${manual.type}');`
+    
+        const Promise = require('bluebird')
+        return new Promise((resolve, reject)=>{
+            db.run(query, (err, row) => {
+                if (err) {
+                    console.error(err.message);
+                    reject(err)
+                }else {
+                    resolve(res.json({"message":"Manual Inserted"}));
+                    db.close()
+                    console.log('Desconnected to the chinook database.');
+                }
+            });
+        })
+    };
+    
+    consult.sqlDeleteManual=(req, res)=>{
+        var manual = req.body
+        var db = consult.sqlConection()
+    
+        let query=`delete from CERTIFICATIONS where certification_id == '${manual.id}';`
+    
+        const Promise = require('bluebird')
+        return new Promise((resolve, reject)=>{
+            db.run(query, (err, row) => {
+                if (err) {
+                    console.error(err.message);
+                    reject(err)
+                }else {
+                    resolve(res.json({"message":"Manual Delete"}));
+                    db.close()
+                    console.log('Desconnected to the chinook database.');
+                }
+            });
+        })
+    };
+
+    consult.sqlUpdateManual=(req, res)=>{
+        var manual = req.body
+        var db = consult.sqlConection()
+    
+        let query=`UPDATE CERTIFICATIONS  
+                        SET nombre = '${manual.nombre}', base64_cert = '${manual.base64}', type_doc = '${manual.type}'
+                        WHERE certification_id = '${manual.id}';`
+    
+        const Promise = require('bluebird')
+        return new Promise((resolve, reject)=>{
+            db.run(query, (err, row) => {
+                if (err) {
+                    console.error(err.message);
+                    reject(err)
+                }else {
+                    resolve(res.json({"message":"User Update"}));
+                    db.close()
+                    console.log('Desconnected to the chinook database.');
+                }
+            });
+        })
+    };
 
 module.exports= consult;
